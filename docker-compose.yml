@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - auth
+      - game
+
+  auth:
+    build: ./services/auth
+    volumes:
+      - ./services/auth:/app
+    env_file:
+      - .env
+
+  game:
+    build: ./services/game
+    volumes:
+      - ./services/game:/app
+    env_file:
+      - .env
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - auth
+      - game
