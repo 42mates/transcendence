@@ -1,7 +1,16 @@
 {
   "name": "game-service",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/app.js",
+
+  "compilerOptions": {
+	"target": "ESNext",
+	"module": "ESNext",
+	"strict": true,
+	"esModuleInterop": true
+  },
+
   "scripts": {
     "dev": "ts-node-dev src/app.ts",
     "start": "node dist/app.js",

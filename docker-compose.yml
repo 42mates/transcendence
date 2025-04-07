@@ -4,11 +4,10 @@ services:
     networks:
       - transcendence_net
     build: ./frontend
-    ports:
-      - "8080:80"
+    #ports:
+    #  - "8080:80"
     volumes:
       - frontend_app:/app
-      - frontend_build:/app/build
     depends_on:
       - auth
       - game
@@ -40,8 +39,6 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
-    volumes:
-      - frontend_build:/usr/share/nginx/html
     depends_on:
       - frontend
       - auth
@@ -54,17 +51,11 @@ networks:
     driver: bridge
 
 volumes:
-  frontend_build:
-    driver: local
-    driver_opts:
-      type: none
-      device: volumes/frontend_build
-      o: bind
   frontend_app:
     driver: local
     driver_opts:
       type: none
-      device: services/frontend
+      device: frontend
       o: bind
   auth_app:
     driver: local

@@ -5,7 +5,7 @@ WORKDIR /app
 RUN mkdir -p /app/build
 
 COPY package*.json ./
-RUN npm install
+RUN npm install && npm install -g vite
 
 COPY . .
 

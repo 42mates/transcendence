@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/07 16:38:21 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/07 17:53:25 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,16 @@ restart: down up
 clean:
 	$(COMPOSE) down --volumes --remove-orphans
 
-fclean:
+fclean: clean
+	@echo "$(RED)Removing $(BRED)$(NAME)$(RED)...$(RESET)"
+	@$(COMPOSE) rm -f
+	@echo "$(RED)Removing $(BRED)volumes$(RED)...$(RESET)"
+#	@docker volume rm $(VOLUMES)
+	@rm -rf $(VOLUMES)
+	@echo "$(RED)Removing $(BRED).env$(RED)...$(RESET)"
+	@rm -f .env
+	@echo "$(RED)Removing $(BRED)builds$(RED)...$(RESET)"
+	@rm -rf */build */node_modules */*/node_modules
 
 deepclean:
 	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"

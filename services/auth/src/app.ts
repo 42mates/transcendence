@@ -6,7 +6,7 @@ const server = Fastify();
 // Register routes with the prefix `/auth`
 server.register(loginRoutes, { prefix: '/auth' });
 
-server.listen({ port: 3000 }, (err, address) => {
+server.listen({ port: 3000 }, (err: Error | null, address: string) => {
   if (err) {
     console.error(err);
     process.exit(1);
