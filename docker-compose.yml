@@ -1,36 +1,80 @@
-version: '3.8'
-
 services:
   frontend:
+    image: frontend
+    networks:
+      - transcendence_net
     build: ./frontend
     ports:
       - "8080:80"
     volumes:
-      - ./frontend:/app
+      - frontend_app:/app
+      - frontend_build:/app/build
     depends_on:
       - auth
       - game
-
+    env_file:
+      - ./.env
   auth:
+    image: auth
+    networks:
+      - transcendence_net
     build: ./services/auth
     volumes:
       - ./services/auth:/app
     env_file:
-      - .env
-
+      - ./.env
   game:
+    image: game
+    networks:
+      - transcendence_net
     build: ./services/game
     volumes:
       - ./services/game:/app
     env_file:
-      - .env
-
+      - ./.env
   nginx:
+    image: nginx
+    networks:
+      - transcendence_net
     build: ./nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - frontend_build:/usr/share/nginx/html
     depends_on:
       - frontend
       - auth
       - game
+    env_file:
+      - ./.env
+
+networks:
+  transcendence_net:
+    driver: bridge
+
+volumes:
+  frontend_build:
+    driver: local
+    driver_opts:
+      type: none
+      device: volumes/frontend_build
+      o: bind
+  frontend_app:
+    driver: local
+    driver_opts:
+      type: none
+      device: services/frontend
+      o: bind
+  auth_app:
+    driver: local
+    driver_opts:
+      type: none
+      device: services/auth
+      o: bind
+  game_app:
+    driver: local
+    driver_opts:
+      type: none
+      device: services/game
+      o: bind

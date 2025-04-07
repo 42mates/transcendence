@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/06 22:44:22 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/07 16:38:21 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,11 +14,15 @@ NAME = transcendence
 
 COMPOSE = docker compose
 
+VOLUMES = volumes/frontend_build
+
 all: env $(NAME)
 
 $(NAME): env
+	@mkdir -p $(VOLUMES)
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
-	@$(COMPOSE) up --build
+	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
+#	@$(COMPOSE) up --build
 
 env:
 	@if [ ! -f .env ]; then \
