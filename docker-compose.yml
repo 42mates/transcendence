@@ -6,8 +6,6 @@ services:
     build: ./frontend
     #ports:
     #  - "8080:80"
-    volumes:
-      - frontend-build:/app/dist
     depends_on:
       - auth
       - game
@@ -20,6 +18,7 @@ services:
     build: ./services/auth
     volumes:
       - ./services/auth:/app
+      - /app/node_modules
     env_file:
       - ./.env
   game:
@@ -29,6 +28,7 @@ services:
     build: ./services/game
     volumes:
       - ./services/game:/app
+      - /app/node_modules
     env_file:
       - ./.env
   nginx:
@@ -39,8 +39,6 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
-    volumes:
-      - frontend-build:/var/www/transcendence:ro
     depends_on:
       - frontend
       - auth
@@ -52,22 +50,16 @@ networks:
   transcendence_net:
     driver: bridge
 
-volumes:
-  frontend-build:
-    driver: local
-    driver_opts:
-      type: none
-      device: frontend
-      o: bind
-  auth-app:
-    driver: local
-    driver_opts:
-      type: none
-      device: services/auth
-      o: bind
-  game-app:
-    driver: local
-    driver_opts:
-      type: none
-      device: services/game
-      o: bind
+#volumes:
+#  auth-app:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: services/auth
+#      o: bind
+#  game-app:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: services/game
+#      o: bind

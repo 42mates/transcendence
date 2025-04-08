@@ -1,5 +1,5 @@
 import Fastify from 'fastify';
-import loginRoute from './routes/login';
+import loginRoute from './routes/game';
 
 export default async function startServer() {
   const fastify = Fastify();
