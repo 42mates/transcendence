@@ -7,7 +7,7 @@ services:
     #ports:
     #  - "8080:80"
     volumes:
-      - frontend_app:/app
+      - frontend-build:/app/dist
     depends_on:
       - auth
       - game
@@ -39,6 +39,8 @@ services:
     ports:
       - "8080:80"
       - "8443:443"
+    volumes:
+      - frontend-build:/var/www/transcendence:ro
     depends_on:
       - frontend
       - auth
@@ -51,19 +53,19 @@ networks:
     driver: bridge
 
 volumes:
-  frontend_app:
+  frontend-build:
     driver: local
     driver_opts:
       type: none
       device: frontend
       o: bind
-  auth_app:
+  auth-app:
     driver: local
     driver_opts:
       type: none
       device: services/auth
       o: bind
-  game_app:
+  game-app:
     driver: local
     driver_opts:
       type: none

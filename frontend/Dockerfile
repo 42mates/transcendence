@@ -1,12 +1,16 @@
-FROM node:18-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-RUN mkdir -p /app/build
-
-COPY package*.json ./
-RUN npm install && npm install -g vite
+COPY package.json ./
+RUN npm install
 
 COPY . .
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+FROM nginx:alpine AS production
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD [ "nginx", "-g", "daemon off;" ]

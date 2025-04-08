@@ -1,11 +1,10 @@
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install && npm install -g ts-node-dev
-RUN npm install fastify @types/node --save-dev
+# Install npm dependencies from package.json
+COPY package.json ./
+RUN npm install
 
 # Copy source code
 COPY . .
