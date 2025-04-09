@@ -1,55 +1,45 @@
 services:
   frontend:
     image: frontend
-    networks:
-      - transcendence_net
     build: ./frontend
-    #ports:
-    #  - "8080:80"
     depends_on:
       - auth
       - game
-    env_file:
-      - ./.env
-  auth:
-    image: auth
-    networks:
-      - transcendence_net
-    build: ./services/auth
-    volumes:
-      - ./services/auth:/app
-      - /app/node_modules
-    env_file:
-      - ./.env
-  game:
-    image: game
-    networks:
-      - transcendence_net
-    build: ./services/game
-    volumes:
-      - ./services/game:/app
-      - /app/node_modules
-    env_file:
-      - ./.env
   nginx:
     image: nginx
-    networks:
-      - transcendence_net
     build: ./nginx
     ports:
-      #- "8080:80"
       - "8443:443"
     depends_on:
       - frontend
       - auth
       - game
-    env_file:
-      - ./.env
+  auth:
+    image: auth
+    build: ./services/auth
+    volumes:
+      - ./services/auth:/app
+      - /app/node_modules
+      - sqlite-data:/data
+  game:
+    image: game
+    build: ./services/game
+    volumes:
+      - ./services/game:/app
+      - /app/node_modules
+      - sqlite-data:/data
 
 networks:
   transcendence_net:
     driver: bridge
 
+volumes:
+  sqlite-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: sqlite/data
+      o: bind
 #volumes:
 #  auth-app:
 #    driver: local

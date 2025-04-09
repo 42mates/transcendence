@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/08 16:53:01 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/09 16:20:12 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,28 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-all: env $(NAME)
+DATABASE =	sqlite/data
 
-$(NAME): env
+all: $(NAME)
+
+$(NAME): $(DATABASE) env
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
 #	@$(COMPOSE) up --build
 
+$(DATABASE):
+	@mkdir -p $(DATABASE)
+
 env:
 	@if [ ! -f .env ]; then \
-		echo "$(YELLOW)Copying $(BYELLOW)example.env$(YELLOW) to $(BYELLOW).env$(RESET)"; \
+		echo "$(YELLOW)No .env file found. Copying $(BYELLOW)example.env$(YELLOW) to $(BYELLOW).env$(RESET)"; \
 		cp example.env .env; \
+		if [ -f .env ]; then \
+			echo "$(YELLOW)Please edit the $(BYELLOW).env$(YELLOW) file to set your environment variables.$(RESET)"; \
+		else \
+			echo "$(RED)Failed to copy $(BRED)example.env$(RED) to $(BRED).env$(RESET)"; \
+			exit 1; \
+		fi \
 	fi
 
 up: env
@@ -44,8 +55,8 @@ clean:
 
 nodeclean:
 	@for module in $(MODULES); do \
-		echo "$(RED)Cleaning $(BRED)node modules, package-locks, builds$(RED) from $(BRED)$$module$(RED)...$(RESET)"; \
-		rm -rf $$module/node_modules $$module/package-lock.json $$module/builds dist; \
+		echo "$(RED)Cleaning $(BRED)$$module$(RED)...$(RESET)"; \
+		find $$module/node_modules $$module/package-lock.json $$module/builds dist -print -exec rm -rf {} +; \
 	done
 
 fclean: clean nodeclean
