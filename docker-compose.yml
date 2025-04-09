@@ -37,7 +37,7 @@ services:
       - transcendence_net
     build: ./nginx
     ports:
-      - "8080:80"
+      #- "8080:80"
       - "8443:443"
     depends_on:
       - frontend

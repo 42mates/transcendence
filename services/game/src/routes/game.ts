@@ -1,9 +1,9 @@
 import { FastifyPluginAsync } from 'fastify';
 
-const gameRoute: FastifyPluginAsync = async (fastify) => {
-  fastify.post('/game', async (request, reply) => {
-    reply.send({ message: 'game running' });
+const joinRoute: FastifyPluginAsync = async (fastify) => {
+  fastify.post('/join', async (request, reply) => {
+    reply.send({ message: 'game/join running' });
   });
 };
 
-export default gameRoute;
+export default joinRoute;
