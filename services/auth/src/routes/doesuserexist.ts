@@ -16,7 +16,7 @@ const doesuserexistRoute: FastifyPluginAsync = async (fastify) => {
 // Open the SQLite database
 const db = new Database('/data/database.sqlite');
 
-const doesuserexist = async (body: { username: string }) => {
+const doesuserexist = (body: { username: string }) => {
 	const { username } = body;
 
 	// Query the database to check if the user exists
