@@ -6,6 +6,13 @@ services:
       - auth
       - game
     restart: on-failure
+    #! frontend dev mode
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    expose:
+      - 5173
+    command: npm run dev
 
   nginx:
     image: nginx
