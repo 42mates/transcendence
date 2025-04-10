@@ -1,10 +1,10 @@
 import Fastify from 'fastify';
-import loginRoute from './routes/game';
+import joinRoute from './routes/join';
 
 export default async function startServer() {
   const fastify = Fastify();
 
-  fastify.register(loginRoute);
+  fastify.register(joinRoute);
 
   try {
     await fastify.listen({ port: 3001, host: '0.0.0.0' });

@@ -5,6 +5,8 @@ services:
     depends_on:
       - auth
       - game
+    restart: on-failure
+
   nginx:
     image: nginx
     build: ./nginx
@@ -14,6 +16,13 @@ services:
       - frontend
       - auth
       - game
+    restart: on-failure
+
+  db-init:
+    image: db-init
+    build: ./scripts/db-init
+    volumes:
+      - sqlite-data:/data
   auth:
     image: auth
     build: ./services/auth
@@ -21,6 +30,9 @@ services:
       - ./services/auth:/app
       - /app/node_modules
       - sqlite-data:/data
+    depends_on:
+      - db-init
+    restart: on-failure
   game:
     image: game
     build: ./services/game
@@ -28,6 +40,9 @@ services:
       - ./services/game:/app
       - /app/node_modules
       - sqlite-data:/data
+    depends_on:
+      - db-init
+    restart: on-failure
 
 networks:
   transcendence_net:
@@ -38,18 +53,5 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: sqlite/data
+      device: ./data
       o: bind
-#volumes:
-#  auth-app:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: services/auth
-#      o: bind
-#  game-app:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: services/game
-#      o: bind

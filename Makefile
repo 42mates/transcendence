@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/09 16:20:12 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/10 14:29:21 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-DATABASE =	sqlite/data
+DATABASE =	data
 
 all: $(NAME)
 
@@ -56,17 +56,27 @@ clean:
 nodeclean:
 	@for module in $(MODULES); do \
 		echo "$(RED)Cleaning $(BRED)$$module$(RED)...$(RESET)"; \
-		find $$module/node_modules $$module/package-lock.json $$module/builds dist -print -exec rm -rf {} +; \
+		toclean=$$(ls $$module | grep -E 'node_modules|dist|build|package-lock.json'); \
+		if [ -n "$$toclean" ]; then \
+			for item in $$toclean; do \
+				echo $$item; \
+				rm -rf $$module/$$item; \
+			done; \
+		else \
+			echo "$(YELLOW)No files to clean in $(BYELLOW)$$module$(YELLOW)...$(RESET)"; \
+		fi; \
 	done
+
 
 fclean: clean nodeclean
 	@echo "$(RED)Removing $(BRED)containers$(RED)...$(RESET)"
 	@$(COMPOSE) rm -f
-	@echo "$(RED)Removing $(BRED)volumes$(RED)...$(RESET)"
-	@docker volume rm $$(docker volume ls -q)
-	@echo "$(RED)Removing $(BRED).env$(RED)...$(RESET)"
-	@rm -f .env
+	@if [ -n "$$(docker volume ls -q)" ]; then \
+		echo "$(RED)Removing $(BRED)project volumes$(RED)...$(RESET)"; \
+		docker volume rm $$(docker volume ls -q); \
+	fi
 
+re: fclean all
 
 deepclean:
 	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"
