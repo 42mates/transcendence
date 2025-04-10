@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/08 16:53:01 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/10 14:29:21 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,28 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-all: env $(NAME)
+DATABASE =	data
 
-$(NAME): env
+all: $(NAME)
+
+$(NAME): $(DATABASE) env
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
 #	@$(COMPOSE) up --build
 
+$(DATABASE):
+	@mkdir -p $(DATABASE)
+
 env:
 	@if [ ! -f .env ]; then \
-		echo "$(YELLOW)Copying $(BYELLOW)example.env$(YELLOW) to $(BYELLOW).env$(RESET)"; \
+		echo "$(YELLOW)No .env file found. Copying $(BYELLOW)example.env$(YELLOW) to $(BYELLOW).env$(RESET)"; \
 		cp example.env .env; \
+		if [ -f .env ]; then \
+			echo "$(YELLOW)Please edit the $(BYELLOW).env$(YELLOW) file to set your environment variables.$(RESET)"; \
+		else \
+			echo "$(RED)Failed to copy $(BRED)example.env$(RED) to $(BRED).env$(RESET)"; \
+			exit 1; \
+		fi \
 	fi
 
 up: env
@@ -44,18 +55,28 @@ clean:
 
 nodeclean:
 	@for module in $(MODULES); do \
-		echo "$(RED)Cleaning $(BRED)node modules, package-locks, builds$(RED) from $(BRED)$$module$(RED)...$(RESET)"; \
-		rm -rf $$module/node_modules $$module/package-lock.json $$module/builds dist; \
+		echo "$(RED)Cleaning $(BRED)$$module$(RED)...$(RESET)"; \
+		toclean=$$(ls $$module | grep -E 'node_modules|dist|build|package-lock.json'); \
+		if [ -n "$$toclean" ]; then \
+			for item in $$toclean; do \
+				echo $$item; \
+				rm -rf $$module/$$item; \
+			done; \
+		else \
+			echo "$(YELLOW)No files to clean in $(BYELLOW)$$module$(YELLOW)...$(RESET)"; \
+		fi; \
 	done
+
 
 fclean: clean nodeclean
 	@echo "$(RED)Removing $(BRED)containers$(RED)...$(RESET)"
 	@$(COMPOSE) rm -f
-	@echo "$(RED)Removing $(BRED)volumes$(RED)...$(RESET)"
-	@docker volume rm $$(docker volume ls -q)
-	@echo "$(RED)Removing $(BRED).env$(RED)...$(RESET)"
-	@rm -f .env
+	@if [ -n "$$(docker volume ls -q)" ]; then \
+		echo "$(RED)Removing $(BRED)project volumes$(RED)...$(RESET)"; \
+		docker volume rm $$(docker volume ls -q); \
+	fi
 
+re: fclean all
 
 deepclean:
 	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"

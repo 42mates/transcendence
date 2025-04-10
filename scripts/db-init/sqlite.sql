@@ -13,3 +13,6 @@ CREATE TABLE IF NOT EXISTS games (
     FOREIGN KEY (player1_id) REFERENCES users(id),
     FOREIGN KEY (player2_id) REFERENCES users(id)
 );
+
+INSERT OR IGNORE INTO users (username, password_hash) 
+VALUES ('frank', 'hashedPasswordHere');

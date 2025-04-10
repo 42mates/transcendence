@@ -20,7 +20,7 @@ COPY conf.d/ /etc/nginx/conf.d/
 #COPY /frontend/dist /var/www/html
 
 # Expose ports for HTTP and HTTPS
-EXPOSE 80 443
+EXPOSE 443
 
 # Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

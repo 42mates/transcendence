@@ -1,65 +1,64 @@
 services:
   frontend:
     image: frontend
-    networks:
-      - transcendence_net
     build: ./frontend
-    #ports:
-    #  - "8080:80"
     depends_on:
       - auth
       - game
-    env_file:
-      - ./.env
-  auth:
-    image: auth
-    networks:
-      - transcendence_net
-    build: ./services/auth
+    restart: on-failure
+    #! frontend dev mode
     volumes:
-      - ./services/auth:/app
+      - ./frontend:/app
       - /app/node_modules
-    env_file:
-      - ./.env
-  game:
-    image: game
-    networks:
-      - transcendence_net
-    build: ./services/game
-    volumes:
-      - ./services/game:/app
-      - /app/node_modules
-    env_file:
-      - ./.env
+    expose:
+      - 5173
+    command: npm run dev
+
   nginx:
     image: nginx
-    networks:
-      - transcendence_net
     build: ./nginx
     ports:
-      #- "8080:80"
       - "8443:443"
     depends_on:
       - frontend
       - auth
       - game
-    env_file:
-      - ./.env
+    restart: on-failure
+
+  db-init:
+    image: db-init
+    build: ./scripts/db-init
+    volumes:
+      - sqlite-data:/data
+  auth:
+    image: auth
+    build: ./services/auth
+    volumes:
+      - ./services/auth:/app
+      - /app/node_modules
+      - sqlite-data:/data
+    depends_on:
+      - db-init
+    restart: on-failure
+  game:
+    image: game
+    build: ./services/game
+    volumes:
+      - ./services/game:/app
+      - /app/node_modules
+      - sqlite-data:/data
+    depends_on:
+      - db-init
+    restart: on-failure
 
 networks:
   transcendence_net:
     driver: bridge
 
-#volumes:
-#  auth-app:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: services/auth
-#      o: bind
-#  game-app:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: services/game
-#      o: bind
+volumes:
+  sqlite-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data
+      o: bind
