@@ -1,0 +1,17 @@
+{
+	"title": "Sign Up",
+	"username": "Username",
+	"email": "Email address",
+	"password": "Password",
+	"confirmPassword": "Confirm password",
+	"signupButton": "Sign up",
+	"loginPrompt": "Already have an account? Log in",
+	"error": {
+		"emailExists": "This email address is already in use.",
+		"passwordMismatch": "Passwords do not match.",
+		"requiredField": "This field is required."
+	},
+	"success": {
+		"accountCreated": "Account successfully created!"
+	}
+}
