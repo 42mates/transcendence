@@ -9,7 +9,7 @@ services:
     #! frontend dev mode
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend-modules:/app/node_modules
     expose:
       - 5173
     command: npm run dev
@@ -35,7 +35,7 @@ services:
     build: ./services/auth
     volumes:
       - ./services/auth:/app
-      - /app/node_modules
+      - auth-modules:/app/node_modules
       - sqlite-data:/data
     depends_on:
       - db-init
@@ -45,7 +45,7 @@ services:
     build: ./services/game
     volumes:
       - ./services/game:/app
-      - /app/node_modules
+      - game-modules:/app/node_modules
       - sqlite-data:/data
     depends_on:
       - db-init
@@ -61,4 +61,23 @@ volumes:
     driver_opts:
       type: none
       device: ./data
+      o: bind
+  #! dev modules
+  frontend-modules:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./frontend/node_modules
+      o: bind
+  auth-modules:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./services/auth/node_modules
+      o: bind
+  game-modules:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./services/game/node_modules
       o: bind

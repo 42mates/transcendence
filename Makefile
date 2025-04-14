@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/10 14:29:21 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/14 13:12:44 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,30 +20,35 @@ MODULES =	frontend \
 
 DATABASE =	data
 
+ENV =		.env
+
+# Enable Docker Compose bake, for faster builds
+export COMPOSE_BAKE=true
+
 all: $(NAME)
 
-$(NAME): $(DATABASE) env
+$(NAME): $(DATABASE) $(ENV) 
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
-	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
-#	@$(COMPOSE) up --build
+	$(COMPOSE) up --build
 
 $(DATABASE):
 	@mkdir -p $(DATABASE)
 
-env:
-	@if [ ! -f .env ]; then \
-		echo "$(YELLOW)No .env file found. Copying $(BYELLOW)example.env$(YELLOW) to $(BYELLOW).env$(RESET)"; \
-		cp example.env .env; \
-		if [ -f .env ]; then \
-			echo "$(YELLOW)Please edit the $(BYELLOW).env$(YELLOW) file to set your environment variables.$(RESET)"; \
-		else \
-			echo "$(RED)Failed to copy $(BRED)example.env$(RED) to $(BRED).env$(RESET)"; \
-			exit 1; \
-		fi \
+$(ENV):
+	@echo "$(YELLOW)No .env file found. Copying $(BYELLOW)example.env$(YELLOW) to $(BYELLOW).env$(RESET)";
+	@cp example.env .env;
+	@if [ -f .env ]; then \
+		echo "$(YELLOW)Please edit the $(BYELLOW).env$(YELLOW) file to set your environment variables.$(RESET)"; \
+	else \
+		echo "$(RED)Failed to copy $(BRED)example.env$(RED) to $(BRED).env$(RESET)"; \
+		exit 1; \
 	fi
 
 up: env
 	$(COMPOSE) up
+
+build: env
+	$(COMPOSE) build
 
 down:
 	$(COMPOSE) down
@@ -75,6 +80,8 @@ fclean: clean nodeclean
 		echo "$(RED)Removing $(BRED)project volumes$(RED)...$(RESET)"; \
 		docker volume rm $$(docker volume ls -q); \
 	fi
+	@echo "$(RED)Removing $(BRED)database$(RED)...$(RESET)"
+	@rm -rf $(DATABASE)
 
 re: fclean all
 
@@ -84,8 +91,15 @@ deepclean:
 	docker system prune -a --volumes -f || \
 	echo "$(RED)Aborted.$(RESET)"
 
-.PHONY: all env up down restart clean
+.PHONY: all env up down restart clean fclean re
 
+# INSTALL LOCAL NPM PACKAGES
+dev:
+	@echo "$(MAGENTA)Installing local npm packages...$(RESET)"
+	@for module in $(MODULES); do \
+		echo "$(MAGENTA)Installing $(BMAGENTA)$$module$(MAGENTA)...$(RESET)"; \
+		cd $$module && npm install && cd -; \
+	done
 
 # COLORS
 RED = \033[0;31m
