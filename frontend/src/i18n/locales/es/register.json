@@ -1,0 +1,17 @@
+{
+	"title": "Registro",
+	"username": "Nombre de usuario",
+	"email": "Dirección de correo electrónico",
+	"password": "Contraseña",
+	"confirmPassword": "Confirmar contraseña",
+	"signupButton": "Registrarse",
+	"loginPrompt": "¿Ya tienes una cuenta? Iniciar sesión",
+	"error": {
+		"emailExists": "Esta dirección de correo electrónico ya está en uso.",
+		"passwordMismatch": "Las contraseñas no coinciden.",
+		"requiredField": "Este campo es obligatorio."
+	},
+	"success": {
+		"accountCreated": "¡Cuenta creada con éxito!"
+	}
+}

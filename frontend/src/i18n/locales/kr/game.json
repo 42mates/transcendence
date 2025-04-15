@@ -1,0 +1,19 @@
+{
+	"title": "게임",
+	"playButton": "플레이",
+	"pauseButton": "일시 정지",
+	"resumeButton": "다시 시작",
+	"quitButton": "종료",
+	"highScore": "최고 점수",
+	"gameOver": "게임 오버",
+	"tryAgain": "다시 시도",
+	"success": {
+		"levelComplete": "{{level}} 레벨 완료!",
+		"newHighScore": "새로운 최고 점수: {{score}}!"
+	},
+	"error": {
+		"connectionLost": "연결이 끊어졌습니다. 다시 시도해주세요.",
+		"invalidMove": "잘못된 움직임입니다. 다시 시도하세요.",
+		"timeout": "시간 초과!"
+	}
+}

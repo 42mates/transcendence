@@ -1,0 +1,19 @@
+{
+	"title": "Game",
+	"playButton": "Play",
+	"pauseButton": "Pause",
+	"resumeButton": "Resume",
+	"quitButton": "Quit",
+	"highScore": "High Score",
+	"gameOver": "Game Over",
+	"tryAgain": "Try Again",
+	"success": {
+		"levelComplete": "Level {{level}} Complete!",
+		"newHighScore": "New High Score: {{score}}!"
+	},
+	"error": {
+		"connectionLost": "Connection lost. Please try again.",
+		"invalidMove": "Invalid move. Try again.",
+		"timeout": "Time's up!"
+	}
+}

@@ -1,0 +1,18 @@
+{
+	"title": "Login",
+	"username": "Username",
+	"password": "Password",
+	"rememberMe": "Remember me",
+	"forgotPassword": "Forgot password?",
+	"loginButton": "Log in",
+	"logoutButton": "Log out",
+	"signupPrompt": "Don't have an account? Sign up",
+	"error": {
+		"invalidCredentials": "Invalid credentials. Please try again.",
+		"requiredField": "This field is required.",
+		"accountLocked": "Account locked. Contact the administrator."
+	},
+	"success": {
+		"welcomeBack": "Welcome back, {{username}}!"
+	}
+}

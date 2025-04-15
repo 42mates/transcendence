@@ -1,0 +1,17 @@
+{
+	"title": "S'inscrire",
+	"username": "Nom d'utilisateur",
+	"email": "Adresse e-mail",
+	"password": "Mot de passe",
+	"confirmPassword": "Confirmer le mot de passe",
+	"signupButton": "S'inscrire",
+	"loginPrompt": "Vous avez déjà un compte ? Connectez-vous",
+	"error": {
+		"emailExists": "Cette adresse e-mail est déjà utilisée.",
+		"passwordMismatch": "Les mots de passe ne correspondent pas.",
+		"requiredField": "Ce champ est requis."
+	},
+	"success": {
+		"accountCreated": "Compte créé avec succès !"
+	}
+}

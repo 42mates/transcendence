@@ -1,0 +1,18 @@
+{
+	"title": "Connexion",
+	"username": "Nom d'utilisateur",
+	"password": "Mot de passe",
+	"rememberMe": "Se souvenir de moi",
+	"forgotPassword": "Mot de passe oublié ?",
+	"loginButton": "Se connecter",
+	"logoutButton": "Se déconnecter",
+	"signupPrompt": "Vous n'avez pas de compte ? Inscrivez-vous",
+	"error": {
+		"invalidCredentials": "Identifiants invalides. Veuillez réessayer.",
+		"requiredField": "Ce champ est requis.",
+		"accountLocked": "Compte verrouillé. Contactez l'administrateur."
+	},
+	"success": {
+		"welcomeBack": "Bon retour, {{username}} !"
+	}
+}
