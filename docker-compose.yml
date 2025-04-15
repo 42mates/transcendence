@@ -50,6 +50,15 @@ services:
     depends_on:
       - db-init
     restart: on-failure
+  log:
+    image: log
+    build: ./services/log
+    volumes:
+      - ./services/log:/app
+      - /app/node_modules
+    depends_on:
+      - db-init
+    restart: on-failure
 
 networks:
   transcendence_net:
