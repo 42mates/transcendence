@@ -1,0 +1,18 @@
+{
+	"title": "Iniciar sesión",
+	"username": "Nombre de usuario",
+	"password": "Contraseña",
+	"rememberMe": "Mantener sesión iniciada",
+	"forgotPassword": "¿Olvidaste tu contraseña?",
+	"loginButton": "Iniciar sesión",
+	"logoutButton": "Cerrar sesión",
+	"signupPrompt": "¿No tienes una cuenta? Regístrate",
+	"error": {
+		"invalidCredentials": "Credenciales incorrectas. Inténtalo de nuevo.",
+		"requiredField": "Este campo es obligatorio.",
+		"accountLocked": "La cuenta está bloqueada. Contacta al administrador."
+	},
+	"success": {
+		"welcomeBack": "¡Bienvenido de nuevo, {{username}}!"
+	}
+}
