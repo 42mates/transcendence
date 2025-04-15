@@ -1,0 +1,19 @@
+{
+	"title": "Jeu",
+	"playButton": "Jouer",
+	"pauseButton": "Pause",
+	"resumeButton": "Reprendre",
+	"quitButton": "Quitter",
+	"highScore": "Meilleur Score",
+	"gameOver": "Fin de Partie",
+	"tryAgain": "Réessayer",
+	"success": {
+		"levelComplete": "Niveau {{level}} Terminé !",
+		"newHighScore": "Nouveau Meilleur Score : {{score}} !"
+	},
+	"error": {
+		"connectionLost": "Connexion perdue. Veuillez réessayer.",
+		"invalidMove": "Mouvement invalide. Réessayez.",
+		"timeout": "Temps écoulé !"
+	}
+}

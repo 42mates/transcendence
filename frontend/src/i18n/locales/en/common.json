@@ -1,0 +1,18 @@
+{
+	"welcome": "Welcome to transcendence!",
+	"yes": "Yes",
+	"no": "No",
+	"cancel": "Cancel",
+	"confirm": "Confirm",
+	"save": "Save",
+	"delete": "Delete",
+	"edit": "Edit",
+	"view": "View",
+	"search": "Search",
+	"loading": "Loading...",
+	"error": {
+		"network": "Network error. Please try again.",
+		"server": "Server error. Please contact support.",
+		"notFound": "Resource not found."
+	}
+}

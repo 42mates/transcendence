@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/10 14:29:21 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/15 15:34:53 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -79,8 +79,10 @@ fclean: clean nodeclean
 re: fclean all
 
 deepclean:
-	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"
+	@echo "$(BYELLOW)Warning: This will remove the database, the .env file and all Docker containers, images, volumes, and networks!$(RESET)"
 	@read -p "Are you sure you want to proceed? (y/N): " confirm && [ "$$confirm" = "y" ] && \
+	rm -rf $(DATABASE) && \
+	rm -rf .env && \
 	docker system prune -a --volumes -f || \
 	echo "$(RED)Aborted.$(RESET)"
 

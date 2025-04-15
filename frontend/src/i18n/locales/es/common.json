@@ -1,0 +1,18 @@
+{
+	"welcome": "¡Bienvenido a Transcendence!",
+	"yes": "Sí",
+	"no": "No",
+	"cancel": "Cancelar",
+	"confirm": "Confirmar",
+	"save": "Guardar",
+	"delete": "Eliminar",
+	"edit": "Editar",
+	"view": "Ver",
+	"search": "Buscar",
+	"loading": "Cargando...",
+	"error": {
+		"network": "Error de red. Inténtalo de nuevo.",
+		"server": "Error del servidor. Contacta al equipo de soporte.",
+		"notFound": "Recurso no encontrado."
+	}
+}

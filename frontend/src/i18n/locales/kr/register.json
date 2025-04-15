@@ -1,0 +1,17 @@
+{
+	"title": "회원가입",
+	"username": "사용자 이름",
+	"email": "이메일 주소",
+	"password": "비밀번호",
+	"confirmPassword": "비밀번호 확인",
+	"signupButton": "가입하기",
+	"loginPrompt": "이미 계정이 있으신가요? 로그인",
+	"error": {
+		"emailExists": "이 이메일 주소는 이미 사용 중입니다.",
+		"passwordMismatch": "비밀번호가 일치하지 않습니다.",
+		"requiredField": "이 필드는 필수입니다."
+	},
+	"success": {
+		"accountCreated": "계정이 성공적으로 생성되었습니다!"
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"title": "Juego",
+	"playButton": "Jugar",
+	"pauseButton": "Pausa",
+	"resumeButton": "Reanudar",
+	"quitButton": "Salir",
+	"highScore": "Puntuación más alta",
+	"gameOver": "Fin del juego",
+	"tryAgain": "Intentar de nuevo",
+	"success": {
+		"levelComplete": "¡Nivel {{level}} completado!",
+		"newHighScore": "¡Nueva puntuación más alta: {{score}}!"
+	},
+	"error": {
+		"connectionLost": "Conexión perdida. Inténtalo de nuevo.",
+		"invalidMove": "Movimiento inválido. Inténtalo de nuevo.",
+		"timeout": "¡Tiempo agotado!"
+	}
+}
