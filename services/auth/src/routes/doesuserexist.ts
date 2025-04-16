@@ -5,10 +5,12 @@ const doesuserexistRoute: FastifyPluginAsync = async (fastify) => {
 	fastify.post('/doesuserexist', async (request: FastifyRequest<{ Body: { username: string } }>, reply: FastifyReply) => {
 		const { username } = request.body;
 		if (!username) {
+			console.error('Username not specified: sending `Username is required`');
 			reply.status(400).send({ error: 'Username is required' });
 			return;
 		}
 		const result = await doesuserexist({ username });
+		console.log('Sending response: ', result);
 		reply.send({ message: result });
 	});
 };

@@ -1,17 +1,31 @@
+const hostname = () => window.location.hostname;
+
+const serviceName = "frontend"; // Replace with your service name
+
 // Override console methods to send logs to /api/log
 const originalConsole = { ...console };
 
 function sendLog(method: string, args: any[]) {
-	const logData = JSON.stringify({
-		level: method,
-		message: args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" "),
+	const logEntry = {
 		timestamp: new Date().toISOString(),
-	});
+		level: method,
+		service: serviceName,
+		message: args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" "),
+		context: {
+			pid: "browser", // Replace with a static value since process.pid is unavailable in the browser
+			host: hostname(),
+			port: window.location.port || "unknown",
+		},
+	};
 
-	if (navigator.sendBeacon)
+	// Log the formatted entry to the console
+	originalConsole.log(JSON.stringify(logEntry));
+
+	const logData = JSON.stringify(logEntry);
+
+	if (navigator.sendBeacon) {
 		navigator.sendBeacon("/api/log", logData);
-	else 
-	{
+	} else {
 		fetch("/api/log", {
 			method: "POST",
 			body: logData,
@@ -19,14 +33,14 @@ function sendLog(method: string, args: any[]) {
 				"Content-Type": "application/json",
 			},
 		}).catch((error) => {
-			console.error("Failed to send log to server:", error);
+			originalConsole.error("Failed to send log to server:", error);
 		});
 	}
 }
 
 ["log", "info", "warn", "error", "debug"].forEach((method) => {
-	const originalMethod = console[method];
-	console[method] = function (...args: any[]) {
+	const originalMethod = (console as any)[method];
+	(console as any)[method] = function (...args: any[]) {
 		// Call the original console method to ensure logs still appear in the console
 		originalMethod.apply(console, args);
 

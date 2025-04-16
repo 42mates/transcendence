@@ -66,8 +66,8 @@ networks:
 
 volumes:
   sqlite-data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./data
-      o: bind
+    #driver: local
+    #driver_opts:
+    #  type: none
+    #  device: ./data
+    #  o: bind
