@@ -3,7 +3,8 @@ import logger from './logger/logger';
 import joinRoute from './routes/join';
 
 export default async function startServer() {
-	const fastify = Fastify({logger : logger}); // JSON logging enabled by default
+	const fastify = Fastify();
+	//const fastify = Fastify({logger : logger}); // JSON logging enabled by default
 
 	// Pass the Fastify instance to joinRoute
 	fastify.register(joinRoute);

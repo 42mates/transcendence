@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/15 15:34:53 by mbecker          ###   ########.fr        #
+#    Updated: 2025/04/17 12:40:38 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,11 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-DATABASE =	data
-
 all: $(NAME)
 
-$(NAME): $(DATABASE) env
+$(NAME): env
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
-#	@$(COMPOSE) up --build
-
-$(DATABASE):
-	@mkdir -p $(DATABASE)
 
 env:
 	@if [ ! -f .env ]; then \

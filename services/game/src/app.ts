@@ -1,4 +1,4 @@
 import startServer from './server';
-import './logger/logger';
+//import './logger/logger';
 
 startServer();

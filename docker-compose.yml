@@ -2,10 +2,17 @@ services:
   frontend:
     image: frontend
     build: ./frontend
+    networks:
+      - transcendence_net
     depends_on:
       - auth
       - game
     restart: on-failure
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logstash:12201"
+        tag: "auth"
     #! frontend dev mode
     volumes:
       - ./frontend:/app
@@ -17,48 +24,139 @@ services:
   nginx:
     image: nginx
     build: ./nginx
+    networks:
+      - transcendence_net
     ports:
       - "8443:443"
     depends_on:
-      - frontend
-      - auth
-      - game
+      logstash:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+      auth:
+        condition: service_started
+      game:
+        condition: service_started
     restart: on-failure
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logstash:12201"
+        tag: "auth"
 
   db-init:
     image: db-init
     build: ./scripts/db-init
+    networks:
+      - transcendence_net
     volumes:
       - sqlite-data:/data
   auth:
     image: auth
     build: ./services/auth
+    networks:
+      - transcendence_net
     volumes:
       - ./services/auth:/app
       - /app/node_modules
       - sqlite-data:/data
     depends_on:
-      - db-init
+      logstash:
+        condition: service_healthy
+      db-init:
+        condition: service_started
     restart: on-failure
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logstash:12201"
+        tag: "auth"
   game:
     image: game
     build: ./services/game
+    networks:
+      - transcendence_net
     volumes:
       - ./services/game:/app
       - /app/node_modules
       - sqlite-data:/data
     depends_on:
-      - db-init
+      logstash:
+        condition: service_healthy
+      db-init:
+        condition: service_started
     restart: on-failure
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logstash:12201"
+        tag: "auth"
   log:
     image: log
     build: ./services/log
+    networks:
+      - transcendence_net
     volumes:
       - ./services/log:/app
       - /app/node_modules
     depends_on:
-      - db-init
+      logstash:
+        condition: service_healthy
+      db-init:
+        condition: service_started
     restart: on-failure
+    logging:
+      driver: gelf
+      options:
+        gelf-address: "udp://logstash:12201"
+        tag: "auth"
+
+  #! ELK stack
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.0
+    volumes:
+      - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - transcendence_net
+    ports:
+      - "9600:9600"
+      - "12201:12201/udp"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9600/_node/stats"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      elasticsearch
+    networks:
+      - transcendence_net
 
 networks:
   transcendence_net:
@@ -66,8 +164,4 @@ networks:
 
 volumes:
   sqlite-data:
-    #driver: local
-    #driver_opts:
-    #  type: none
-    #  device: ./data
-    #  o: bind
+  elastic-data:

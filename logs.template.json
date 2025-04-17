@@ -1,0 +1,11 @@
+{
+	"timestamp": "",
+	"level": "",
+	"service": "",
+	"message": "",
+	"context": {
+		"pid": "",
+		"host": "",
+		"port": ""
+	}
+}
