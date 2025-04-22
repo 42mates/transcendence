@@ -3,6 +3,7 @@ import Database from 'better-sqlite3';
 
 const doesuserexistRoute: FastifyPluginAsync = async (fastify) => {
 	fastify.post('/doesuserexist', async (request: FastifyRequest<{ Body: { username: string } }>, reply: FastifyReply) => {
+		console.log("REQUEST",request);
 		const { username } = request.body;
 		if (!username) {
 			reply.status(400).send({ error: 'Username is required' });
