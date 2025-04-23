@@ -9,31 +9,20 @@ services:
       - "8200:9200"
       - "8300:9300"
     healthcheck:
-      test: [
-        "CMD-SHELL", 
-        "curl -f http://localhost:9200"
-      ]
+      test: ["CMD-SHELL", "curl -f http://localhost:9200"]
       interval: 5s
       retries: 10
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.10.2
     container_name: logstash
+    build: ./logstash
     volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
       - "8044:5044"
     depends_on:
       elasticsearch:
         condition: service_healthy
-    healthcheck:
-      test: >
-        echo '{"message":"logstash healthcheck"}' | nc -w 1 localhost 8044 && \
-        curl -s -X GET "http://elasticsearch:8200/docker-*/_search" | \
-        grep -q '"message":"logstash healthcheck"'
-      interval: 5s
-      retries: 10
-
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.10.2
@@ -46,7 +35,6 @@ services:
       logstash:
         condition: service_healthy
 
-
   elk-writer:
     build:
       context: ./elk-writer
@@ -54,8 +42,8 @@ services:
     depends_on:
       logstash:
         condition: service_healthy
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "tcp://logstash:8044"
-        tag: "el-writer-logs"
+    #logging:
+    #  driver: syslog
+    #  options:
+    #    syslog-address: "tcp://logstash:8044"
+    #    tag: "el-writer-logs"
