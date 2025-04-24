@@ -1,5 +1,6 @@
 import './style.css';
 import i18n from './i18n/i18n';
+import initGoogleAuth from './googleAuth/initAuth';"./googleAuth"
 
 async function initApp() {
 	const app = document.getElementById('app')!;
@@ -25,7 +26,9 @@ async function initApp() {
 			});
 		});
 
-		document.getElementById('loginButton')!.addEventListener('click', () => handlePostRequest('/api/auth/login', ''));
+		document.getElementById('loginButton')!.addEventListener('click', () => googleSignIn());
+		// document.getElementById('loginButton')!.addEventListener('click', () => handlePostRequest('/api/auth/login', ''));
+
 		document.getElementById('gameButton')!.addEventListener('click', () => handlePostRequest('/api/game/join', ''));
 		document.getElementById('checkUsernameButton')!.addEventListener('click', () => {
 			const username = (document.getElementById('usernameInput') as HTMLInputElement).value;
@@ -46,6 +49,12 @@ function translateDOM() {
 		}
 	});
 }
+
+
+async function googleSignIn(){
+	initGoogleAuth();
+}
+
 
 async function handlePostRequest(endpoint: string, username: string) {
 	try {
