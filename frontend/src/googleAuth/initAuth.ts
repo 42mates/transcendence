@@ -43,6 +43,8 @@ function initGoogleAuth(islogIn:boolean) {
 			callback: handleCredentialResponse,
 		  });
           // the line is invoking creationg of google sign-in button
+          // The underline code has issue finding the div names!~
+        //   document.createElement("div");
 		  google.accounts.id.renderButton(
 			document.getElementById("buttonDiv")!,
 			{ theme: "outline", size: "large" }
