@@ -3,6 +3,11 @@ const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 function handleCredentialResponse(response: any) {
 	// console.log("Encoded JWT ID token: " + response.credential);
 	console.log("RESPONSE FROM GOOGLE LOGIN", response);
+    // I have to find correct google element to delete it after login
+    const popup = document.getElementById(".loginPopup");
+    if (popup) {
+        popup.style.display = "none";  // Hide the element if it exists
+      }
    
 }
 
@@ -42,11 +47,18 @@ function initGoogleAuth(islogIn:boolean) {
 			client_id: client_id,
 			callback: handleCredentialResponse,
 		  });
-          // the line is invoking creationg of google sign-in button
-          // The underline code has issue finding the div names!~
-        //   document.createElement("div");
+
+          const popup = document.createElement("div");
+          popup.setAttribute("id", "loginPopup");
+          popup.setAttribute("class", "px-20 py-20");
+          document.body.appendChild(popup);
+          popup.style.position = "absolute";
+          popup.style.top = "50px";
+          popup.style.left = "50%"; 
+          popup.style.transform = "translateX(-50%)"; 
+    
 		  google.accounts.id.renderButton(
-			document.getElementById("buttonDiv")!,
+			document.getElementById("loginPopup")!,
 			{ theme: "outline", size: "large" }
 		  );
           if(islogIn)
