@@ -1,12 +1,10 @@
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
-console.log(client_id);
-
 
 function handleCredentialResponse(response: any) {
-	console.log("Encoded JWT ID token: " + response.credential);
-	console.log("RESPONSE", response);
+	// console.log("Encoded JWT ID token: " + response.credential);
+	console.log("RESPONSE FROM GOOGLE LOGIN", response);
+   
 }
-  
 
 function loadGoogleSignInScript(): Promise<void> {
 	return new Promise((resolve, reject) => {
@@ -34,7 +32,8 @@ function loadGoogleSignInScript(): Promise<void> {
 	});
   }
   
-function initGoogleAuth() {
+function initGoogleAuth(islogIn:boolean) {
+
 	loadGoogleSignInScript()
 	  .then(() => {
 		// Make sure `google` is available
@@ -43,11 +42,31 @@ function initGoogleAuth() {
 			client_id: client_id,
 			callback: handleCredentialResponse,
 		  });
+          // the line is invoking creationg of google sign-in button
 		  google.accounts.id.renderButton(
 			document.getElementById("buttonDiv")!,
 			{ theme: "outline", size: "large" }
 		  );
-		  google.accounts.id.prompt(); // Optional: show One Tap prompt
+          if(islogIn)
+          {
+            google.accounts.id.prompt(); // Optional: show One Tap prompt
+          }
+		   
+          else
+          {
+            const button = document.getElementById('logoutButton');
+            console.log(button);
+            if (button) {
+                button.onclick = () => {
+                    google.accounts.id.revoke().then(() => {
+                        console.log('Successfully logged out');
+                        // Optionally, you could also hide the button or show a "logged out" state here
+                    }).catch((error: any) => {
+                        console.error('Error during logout', error);
+                    });
+                };
+            }
+          }
 		} else {
 		  console.error("Google object not found after loading script.");
 		}

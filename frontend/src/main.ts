@@ -26,9 +26,9 @@ async function initApp() {
 			});
 		});
 
-		document.getElementById('loginButton')!.addEventListener('click', () => googleSignIn());
+		document.getElementById('loginButton')!.addEventListener('click', () => googleSignIn(true));
 		// document.getElementById('loginButton')!.addEventListener('click', () => handlePostRequest('/api/auth/login', ''));
-
+		document.getElementById("logoutButton")!.addEventListener("click",()=>googleSignIn(false));
 		document.getElementById('gameButton')!.addEventListener('click', () => handlePostRequest('/api/game/join', ''));
 		document.getElementById('checkUsernameButton')!.addEventListener('click', () => {
 			const username = (document.getElementById('usernameInput') as HTMLInputElement).value;
@@ -51,11 +51,13 @@ function translateDOM() {
 }
 
 
-async function googleSignIn(){
-	initGoogleAuth();
+async function googleSignIn(islogIn: boolean){
+	initGoogleAuth(islogIn);
 }
 
-
+async function googleSignOut(){
+	
+}
 async function handlePostRequest(endpoint: string, username: string) {
 	try {
 		const response = await fetch(endpoint, {
