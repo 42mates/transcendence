@@ -1,10 +1,7 @@
-FROM python:3.9-slim
+FROM gcc:latest
 
 WORKDIR /app
+COPY writer.c .
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY elk_writer.py .
-
-CMD ["python", "elk_writer.py"]
+RUN cc -o writer writer.c
+CMD ["./writer"]

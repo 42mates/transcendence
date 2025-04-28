@@ -1,0 +1,1 @@
+echo '{"message": "test log 2"}' | nc localhost 8044ww

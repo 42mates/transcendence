@@ -15,11 +15,19 @@ services:
 
   logstash:
     container_name: logstash
-    build: ./logstash
+    image: docker.elastic.co/logstash/logstash:8.10.2
     volumes:
-      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     ports:
       - "8044:5044"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    container_name: setup
+    entrypoint: ["/bin/bash", "-c", "echo 'Waiting for Elasticsearch to be ready...' && sleep 30 && curl -X POST 'http://elasticsearch:9200/_cluster/health?wait_for_status=yellow&timeout=50s'"]
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -32,18 +40,17 @@ services:
     ports:
       - "8601:5601"
     depends_on:
-      logstash:
-        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy 
 
   elk-writer:
     build:
       context: ./elk-writer
     container_name: elk-writer
     depends_on:
-      logstash:
-        condition: service_healthy
-    #logging:
-    #  driver: syslog
-    #  options:
-    #    syslog-address: "tcp://logstash:8044"
-    #    tag: "el-writer-logs"
+      - logstash
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://127.0.0.1:8044"
+        tag: "elk-writer-logs"
