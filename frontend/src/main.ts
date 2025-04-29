@@ -30,7 +30,6 @@ async function initApp() {
 		});
 
 		document.getElementById('loginButton')!.addEventListener('click', () => googleSignIn());
-		// document.getElementById('loginButton')!.addEventListener('click', () => handlePostRequest('/api/auth/login', ''));
 		document.getElementById("logoutButton")!.addEventListener("click",()=> setupLogoutButton());
 		document.getElementById('gameButton')!.addEventListener('click', () => handlePostRequest('/api/game/join', ''));
 		document.getElementById('checkUsernameButton')!.addEventListener('click', () => {

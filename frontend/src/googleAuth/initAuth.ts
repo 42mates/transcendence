@@ -36,7 +36,6 @@ const decodeJWTToken = (token : string) => {
 function handleCredentialResponse(response: any) {
 	if(response.credential)
 	{
-		console.log(response.credential);
 		decodeJWTToken(response.credential);
 		const popup = document.getElementById("loginPopup");
 		if (popup) {
@@ -78,7 +77,7 @@ export function initGoogleAuth() {
 	const email = localStorage.getItem("googleSignInEmail");
 	if(email)
 	{
-		console.log("There is already user");
+		console.error("There is already user");
 		return;
 	}
 	else
@@ -115,14 +114,17 @@ export function setupLogoutButton() {
 		button.onclick = () => {
 			const email = localStorage.getItem("googleSignInEmail");
 			if (!email) {
-				console.log("No email found for logout");
+				console.error("No email found for logout");
 				return;
 			}
 
 			if (typeof google !== 'undefined') {
 				google.accounts.id.disableAutoSelect();
-				console.log("Logged out (email cleared)");
 				localStorage.removeItem("googleSignInEmail");
+				localStorage.removeItem("familyName");
+				localStorage.removeItem("givenName");
+				localStorage.removeItem("imgProfil");
+				localStorage.removeItem("i18nextLng");
 			}
 		};
 	}
