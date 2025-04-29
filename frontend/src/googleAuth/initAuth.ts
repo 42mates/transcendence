@@ -1,5 +1,18 @@
+import JsonToken from "../../types/JsonTokenType";
+
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 
+const saveToLocalStorage = (decoded : JsonToken)=>{
+	const email = decoded.email;
+	const familyName = decoded.family_name;
+	const givenName = decoded.given_name;
+	const imgProfil = decoded.picture;
+
+	localStorage.setItem("googleSignInEmail", email);
+	localStorage.setItem("familyName", familyName);
+	localStorage.setItem("givenName", givenName);
+	localStorage.setItem("imgProfil", imgProfil);
+}
 
 const decodeJWTToken = (token : string) => {
 	const base64Url = token.split('.')[1];
@@ -14,25 +27,20 @@ const decodeJWTToken = (token : string) => {
 	);
 
 	const decoded = JSON.parse(jsonPayload);
-	/* payload 
-		family_name: "EXAMPLE"
-		given_name: "EXAMPLE"
-		email: "example@gmail.com"
-	*/
-	console.log("payload", decoded)
+	saveToLocalStorage(decoded);
+
 	return decoded.email;
 }
 
 
 function handleCredentialResponse(response: any) {
-	// console.log("RESPONSE FROM GOOGLE LOGIN", response.credential);
 	if(response.credential)
 	{
-		const email = decodeJWTToken(response.credential);
-		localStorage.setItem("googleSignInEmail", email);
+		console.log(response.credential);
+		decodeJWTToken(response.credential);
 		const popup = document.getElementById("loginPopup");
 		if (popup) {
-			popup.style.display = "none";  // Hide google popup login
+			popup.style.display = "none";
 		}
 	}
 	
@@ -43,7 +51,7 @@ export function loadGoogleSignInScript(): Promise<void> {
 	  const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
 	
 	  if (existingScript) {
-		resolve(); // Script is already loaded
+		resolve();
 		return;
 	  }
   
@@ -67,14 +75,12 @@ export function loadGoogleSignInScript(): Promise<void> {
   
 export function initGoogleAuth() {
 
-	// Check user sign-in state
 	const email = localStorage.getItem("googleSignInEmail");
 	if(email)
 	{
 		console.log("There is already user");
 		return;
 	}
-	// if there is not user signed-in, google pop up happens
 	else
 	{
 		if (typeof google !== 'undefined') 
@@ -95,13 +101,11 @@ export function initGoogleAuth() {
 		popup.style.transform = "translateX(-50%)"; 
     
 	
-		// Ask users to login with Google
 		google.accounts.id.renderButton(
 			document.getElementById("loginPopup")!,
 			{ theme: "filled_black", size: "large" }
 		);
-		// Ask confirmatin to login with Google
-		google.accounts.id.prompt(); // Optional: show One Tap prompts
+		google.accounts.id.prompt();
 	}
 }
 
@@ -116,7 +120,6 @@ export function setupLogoutButton() {
 			}
 
 			if (typeof google !== 'undefined') {
-				// This just removes the remembered selection
 				google.accounts.id.disableAutoSelect();
 				console.log("Logged out (email cleared)");
 				localStorage.removeItem("googleSignInEmail");
@@ -124,4 +127,3 @@ export function setupLogoutButton() {
 		};
 	}
 }
-
