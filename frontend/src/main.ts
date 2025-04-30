@@ -8,6 +8,15 @@ window.addEventListener('DOMContentLoaded', () => {
 
 	document.body.addEventListener('click', (e) => {
 		const target = e.target as HTMLElement;
+		if (target.matches('[id^="changeLangButton-"]')) {
+			const newLang = target.getAttribute('data-lang');
+			if (newLang) {
+				i18n.changeLanguage(newLang).then(() => {
+					translateDOM(); // remet à jour les textes traduits
+				});
+			}
+		}
+
 		if (target.closest('a[data-spa]')) {
 			e.preventDefault();
 			const link = target.closest('a[data-spa]') as HTMLAnchorElement;

@@ -2,6 +2,8 @@ import { initLogin } from './routes/login';
 import { initDemo } from './routes/demo';
 import { initHome } from './routes/home';
 
+import { translateDOM } from './utils/translate';
+
 export async function loadRoute(path: string) {
 	const app = document.getElementById('app');
 	if (!app) return;
@@ -13,6 +15,8 @@ export async function loadRoute(path: string) {
 		if (!res.ok) throw new Error('Not found');
 		const html = await res.text();
 		app.innerHTML = html;
+
+		translateDOM();
 
 		// Appel des fonctions spécifiques à la page
 		if (routePath === '/login') initLogin();
