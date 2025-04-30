@@ -46,6 +46,8 @@ services:
     expose:
       - 5173
     command: npm run dev
+    environment:
+      - VITE_GOOGLE_AUTH_CLIENT_ID=${VITE_GOOGLE_AUTH_CLIENT_ID}
 
   nginx:
     image: nginx

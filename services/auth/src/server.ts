@@ -3,8 +3,9 @@ import loginRoute from './routes/login';
 import doesuserexistRoute from './routes/doesuserexist';
 
 export default async function startServer() {
-	const fastify = Fastify(); // JSON logging enabled by default
-	//const fastify = Fastify({logger:true}); // JSON logging enabled by default
+  const fastify = Fastify({
+    logger : true,
+  });
 
 	fastify.register(loginRoute);
 	fastify.register(doesuserexistRoute);

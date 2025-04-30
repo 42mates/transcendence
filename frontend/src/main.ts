@@ -1,6 +1,7 @@
 import './style.css';
 import './logger/logger';
 import i18n from './i18n/i18n';
+import {initGoogleAuth, loadGoogleSignInScript, setupLogoutButton} from './googleAuth/initAuth';"./googleAuth"
 
 async function initApp() {
 	const app = document.getElementById('app')!;
@@ -8,6 +9,9 @@ async function initApp() {
 	try {
 		const response = await fetch('/demo.html');
 		const html = await response.text();
+
+		// Initialize Google Sign-In object
+		loadGoogleSignInScript();
 
 		// Inject the HTML content into the app element
 		app.innerHTML = html;
@@ -26,7 +30,8 @@ async function initApp() {
 			});
 		});
 
-		document.getElementById('loginButton')!.addEventListener('click', () => handlePostRequest('/api/auth/login', ''));
+		document.getElementById('loginButton')!.addEventListener('click', () => googleSignIn());
+		document.getElementById("logoutButton")!.addEventListener("click",()=> setupLogoutButton());
 		document.getElementById('gameButton')!.addEventListener('click', () => handlePostRequest('/api/game/join', ''));
 		document.getElementById('checkUsernameButton')!.addEventListener('click', () => {
 			const username = (document.getElementById('usernameInput') as HTMLInputElement).value;
@@ -48,6 +53,14 @@ function translateDOM() {
 	});
 }
 
+
+async function googleSignIn(){
+	initGoogleAuth();
+}
+
+async function googleSignOut(){
+	
+}
 async function handlePostRequest(endpoint: string, username: string) {
 	try {
 		const response = await fetch(endpoint, {
