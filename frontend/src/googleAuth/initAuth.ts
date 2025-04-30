@@ -124,7 +124,7 @@ export function setupLogoutButton() {
 				localStorage.removeItem("familyName");
 				localStorage.removeItem("givenName");
 				localStorage.removeItem("imgProfil");
-				localStorage.removeItem("i18nextLng");
+				//localStorage.removeItem("i18nextLng"); //! Uncomment if you want to remove the language from local storage
 			}
 		};
 	}
