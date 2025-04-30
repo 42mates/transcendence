@@ -3,7 +3,9 @@ import loginRoute from './routes/login';
 import doesuserexistRoute from './routes/doesuserexist';
 
 export default async function startServer() {
-  const fastify = Fastify();
+  const fastify = Fastify({
+    logger : true,
+  });
 
   fastify.register(loginRoute);
   fastify.register(doesuserexistRoute);

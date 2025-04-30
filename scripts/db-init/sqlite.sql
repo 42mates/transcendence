@@ -14,5 +14,10 @@ CREATE TABLE IF NOT EXISTS games (
     FOREIGN KEY (player2_id) REFERENCES users(id)
 );
 
-INSERT OR IGNORE INTO users (username, password_hash) 
-VALUES ('frank', 'hashedPasswordHere');
+INSERT OR IGNORE INTO users(username, password_hash) 
+VALUES 
+  ('frank', 'hashedPasswordHere'),
+  ('bill', 'hashedPasswordHere'),
+  ('ellie', 'hashedPasswordHere'),
+  ('samanda', 'hashedPasswordHere'),
+  ('joel', 'hashedPasswordHere');
