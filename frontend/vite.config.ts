@@ -7,7 +7,7 @@ export default defineConfig({
 	// receive and print logs from the frontend
 	server: {
 		host: '0.0.0.0',
-		port: 5173,
+		port: 443,
 	},
 	plugins: [
 		{

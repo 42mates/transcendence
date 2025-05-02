@@ -61,20 +61,20 @@ async function googleSignIn(){
 async function googleSignOut(){
 	
 }
-async function handlePostRequest(endpoint: string, username: string) {
-	try {
-		const response = await fetch(endpoint, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ username }),
-		});
-		const data = await response.json();
-		alert('POST ' + endpoint + ': ' + data.message);
-	} catch (error) {
-		alert('An error occurred: ' + error);
-	}
-}
 
+async function handlePostRequest(endpoint: string, username: string) {
+    try {
+        const response = await fetch(`https://${window.location.hostname}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username }),
+        });
+        const data = await response.json();
+        alert('POST ' + endpoint + ': ' + data.message);
+    } catch (error) {
+        alert('An error occurred: ' + error);
+    }
+}
 initApp();
