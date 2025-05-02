@@ -3,7 +3,7 @@ x-logging:
   &elk
   driver: syslog
   options:
-    syslog-address: "tcp://127.0.0.1:8044"
+    syslog-address: "tcp://127.0.0.1:5044"
     syslog-format: rfc5424
     tag: "{{.Name}}"
     env: json
@@ -57,6 +57,8 @@ services:
       - transcendence_net
     ports:
       - "8443:443"
+    environment:
+      - DOMAIN={DOMAIN}
     depends_on:
       elk-init:
         condition: service_completed_successfully
@@ -104,7 +106,6 @@ services:
       db-init:
         condition: service_completed_successfully
     logging: *elk
-    
 
 
   #! ELK STACK
@@ -130,7 +131,7 @@ services:
     networks:
       - transcendence_net
     ports:
-      - "8044:5044"
+      - "5044:5044"
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -142,7 +143,7 @@ services:
     networks:
       - transcendence_net
     ports:
-      - "8601:5601"
+      - 5601
     depends_on:
       elk-init:
         condition: service_completed_successfully
