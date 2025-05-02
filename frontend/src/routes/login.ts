@@ -1,10 +1,10 @@
+import {initGoogleAuth, loadGoogleSignInScript, setupLogoutButton} from '../googleAuth/initAuth';"./googleAuth";
+
 export function initLogin() {
 	console.log('Login page loaded');
-
-	const loginBtn = document.getElementById('loginButton');
-	if (loginBtn) {
-		loginBtn.addEventListener('click', () => {
-			alert('Login clicked!');
-		});
-	}
+		// Initialize Google Sign-In object
+		loadGoogleSignInScript();
+	
+		document.getElementById('loginButton')!.addEventListener('click', () => googleSignIn());
+		document.getElementById("logoutButton")!.addEventListener("click",()=> setupLogoutButton());
 }

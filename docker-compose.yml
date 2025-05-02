@@ -1,6 +1,7 @@
 services:
   frontend:
     image: frontend
+    container_name: frontend
     build: ./frontend
     depends_on:
       - auth
@@ -13,9 +14,12 @@ services:
     expose:
       - 5173
     command: npm run dev
+    environment:
+      - VITE_GOOGLE_AUTH_CLIENT_ID=${VITE_GOOGLE_AUTH_CLIENT_ID}
 
   nginx:
     image: nginx
+    container_name: nginx
     build: ./nginx
     ports:
       - "8443:443"
@@ -27,11 +31,13 @@ services:
 
   db-init:
     image: db-init
+    container_name: db-init
     build: ./scripts/db-init
     volumes:
       - sqlite-data:/data
   auth:
     image: auth
+    container_name: auth
     build: ./services/auth
     volumes:
       - ./services/auth:/app
@@ -42,6 +48,7 @@ services:
     restart: on-failure
   game:
     image: game
+    container_name: game
     build: ./services/game
     volumes:
       - ./services/game:/app

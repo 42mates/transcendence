@@ -3,6 +3,7 @@ import { initDemo } from './routes/demo';
 import { initHome } from './routes/home';
 
 import { translateDOM } from './utils/translate';
+import {initGoogleAuth, loadGoogleSignInScript, setupLogoutButton} from './googleAuth/initAuth';"./googleAuth";
 
 export async function loadRoute(path: string) {
 	const app = document.getElementById('app');
@@ -35,4 +36,12 @@ export async function loadRoute(path: string) {
   </div>
 </main>`;
 	}
+}
+
+async function googleSignIn(){
+	initGoogleAuth();
+}
+
+async function googleSignOut(){
+	
 }

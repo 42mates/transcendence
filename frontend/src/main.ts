@@ -44,7 +44,7 @@ function translateDOM() {
 	});
 }
 
-async function handlePostRequest(endpoint: string, username: string) {
+export async function handlePostRequest(endpoint: string, username: string) {
 	try {
 		const response = await fetch(endpoint, {
 			method: 'POST',
