@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/30 12:02:31 by mbecker          ###   ########.fr        #
+#    Updated: 2025/05/02 11:07:53 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,11 +18,13 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-all: $(NAME)
-
-$(NAME): env
+all: env
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
+
+d: env
+	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
+	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
 
 env:
 	@if [ ! -f .env ]; then \
