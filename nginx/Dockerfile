@@ -1,7 +1,7 @@
 FROM nginx:alpine
 
 # Install OpenSSL for generating SSL certificates
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl apache2-utils
 
 # Create directories for SSL certificates
 RUN mkdir -p /etc/ssl/certs /etc/ssl/private
@@ -16,8 +16,10 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY conf.d/ /etc/nginx/conf.d/
 
-## Copy frontend build files
-#COPY /frontend/dist /var/www/html
+# Create an .htpasswd file with a default user and password
+ARG ELK_USER
+ARG ELK_PASSWORD
+RUN htpasswd -bc /etc/nginx/.htpasswd ${ELK_USER} ${ELK_PASSWORD}
 
 # Expose ports for HTTP and HTTPS
 EXPOSE 443
