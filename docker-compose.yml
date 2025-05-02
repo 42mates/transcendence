@@ -37,7 +37,7 @@ services:
       elk-init:
         condition: service_completed_successfully
     restart: on-failure
-    #TODO: redirect logs to elk
+    logging: *elk
 
     #* frontend dev mode
     volumes:
@@ -88,7 +88,7 @@ services:
       db-init:
         condition: service_completed_successfully
     logging: *elk
-    
+
   game:
     image: game
     container_name: game
