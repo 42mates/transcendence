@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/05/02 11:07:53 by mbecker          ###   ########.fr        #
+#    Updated: 2025/05/02 13:56:51 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,10 @@ all: env
 d: env
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
+
+light:
+	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
+	@export COMPOSE_BAKE=true; $(COMPOSE) -f docker-compose.no_elk.yml up --build
 
 env:
 	@if [ ! -f .env ]; then \
