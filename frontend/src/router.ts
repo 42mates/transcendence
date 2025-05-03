@@ -38,7 +38,7 @@ export async function loadRoute(path: string) {
 	}
 }
 
-async function googleSignIn(){
+export async function googleSignIn(){
 	initGoogleAuth();
 }
 

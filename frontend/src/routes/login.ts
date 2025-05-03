@@ -1,4 +1,5 @@
-import {initGoogleAuth, loadGoogleSignInScript, setupLogoutButton} from '../googleAuth/initAuth';"./googleAuth";
+import { initGoogleAuth, loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
+import { googleSignIn } from '../router'
 
 export function initLogin() {
 	console.log('Login page loaded');
