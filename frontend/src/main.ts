@@ -1,4 +1,5 @@
 import './style.css';
+import './logger/logger';
 import i18n from './i18n/i18n';
 
 import { loadRoute } from './router';

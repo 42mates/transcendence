@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/15 15:34:53 by mbecker          ###   ########.fr        #
+#    Updated: 2025/05/02 13:56:51 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,17 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-DATABASE =	data
-
-all: $(NAME)
-
-$(NAME): $(DATABASE) env
+all: env
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
-#	@$(COMPOSE) up --build
 
-$(DATABASE):
-	@mkdir -p $(DATABASE)
+d: env
+	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
+	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
+
+light:
+	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
+	@export COMPOSE_BAKE=true; $(COMPOSE) -f docker-compose.no_elk.yml up --build
 
 env:
 	@if [ ! -f .env ]; then \
@@ -82,7 +82,6 @@ re: fclean all
 deepclean:
 	@echo "$(BYELLOW)Warning: This will remove the database, the .env file and all Docker containers, images, volumes, and networks!$(RESET)"
 	@read -p "Are you sure you want to proceed? (y/N): " confirm && [ "$$confirm" = "y" ] && \
-	rm -rf $(DATABASE) && \
 	docker system prune -a --volumes -f || \
 	echo "$(RED)Aborted.$(RESET)"
 
