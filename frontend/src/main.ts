@@ -3,6 +3,7 @@ import './logger/logger';
 import i18n from './i18n/i18n';
 
 import { loadRoute } from './router';
+import { translateDOM } from './utils/translate';
 
 window.addEventListener('DOMContentLoaded', () => {
 	loadRoute(window.location.pathname);
@@ -34,16 +35,16 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 });
 
-function translateDOM() {
-	// Select all elements containing `data-i18nkey`
-	document.querySelectorAll<HTMLElement>('[data-i18nkey]').forEach((el) => {
-		const key = el.getAttribute('data-i18nkey');
-		if (key) {
-			// Insert the translation
-			el.textContent = i18n.t(key);
-		}
-	});
-}
+// function translateDOM() {
+// 	// Select all elements containing `data-i18nkey`
+// 	document.querySelectorAll<HTMLElement>('[data-i18nkey]').forEach((el) => {
+// 		const key = el.getAttribute('data-i18nkey');
+// 		if (key) {
+// 			// Insert the translation
+// 			el.textContent = i18n.t(key);
+// 		}
+// 	});
+// }
 
 export async function handlePostRequest(endpoint: string, username: string) {
 	try {
