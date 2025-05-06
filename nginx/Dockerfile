@@ -1,7 +1,7 @@
 FROM nginx:alpine
 
 # Install OpenSSL for generating SSL certificates
-RUN apk add --no-cache openssl apache2-utils
+RUN apk add --no-cache apache2-utils
 
 # Copy NGINX configuration files
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -11,9 +11,6 @@ COPY conf.d/ /etc/nginx/conf.d/
 ARG ELK_USER
 ARG ELK_PASSWORD
 RUN htpasswd -bc /etc/nginx/.htpasswd ${ELK_USER} ${ELK_PASSWORD}
-
-# Expose ports for HTTP and HTTPS
-EXPOSE 443
 
 # Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

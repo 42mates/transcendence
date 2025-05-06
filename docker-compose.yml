@@ -42,7 +42,7 @@ services:
       elk-init:
         condition: service_completed_successfully
     expose:
-      - 5173
+      - 443
     command: npm run dev
     environment:
       - VITE_GOOGLE_AUTH_CLIENT_ID=${VITE_GOOGLE_AUTH_CLIENT_ID}
@@ -126,7 +126,7 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - logger.level=error # Reduce verbosity
-    ports:
+    expose:
       - 9200
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200"]
@@ -152,12 +152,13 @@ services:
     container_name: kibana
     volumes:
       - ./certs/kibana:/etc/ssl/certs:ro
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ./elk/kibana.yml:/usr/share/kibana/config/kibana.yml
+    #environment:
+    #  - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       #- logging.verbose=false # Reduce verbosity
     networks:
       - transcendence_net
-    ports:
+    expose:
       - 5601
     depends_on:
       elk-init:

@@ -47,7 +47,7 @@ function translateDOM() {
 
 export async function handlePostRequest(endpoint: string, username: string) {
 	try {
-		const response = await fetch(`https://${window.location.hostname}${endpoint}`, {
+		const response = await fetch(endpoint, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
