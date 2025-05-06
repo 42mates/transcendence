@@ -77,7 +77,9 @@ export function initGoogleAuth() {
 	const email = localStorage.getItem("googleSignInEmail");
 	if(email)
 	{
-		console.error("There is already user");
+		const alreadyLoggedIn = "User is already logged IN";
+		console.error(alreadyLoggedIn);
+		alert(alreadyLoggedIn);
 		return;
 	}
 	else
@@ -109,23 +111,21 @@ export function initGoogleAuth() {
 }
 
 export function setupLogoutButton() {
-	const button = document.getElementById("logoutButton");
-	if (button) {
-		button.onclick = () => {
-			const email = localStorage.getItem("googleSignInEmail");
-			if (!email) {
-				console.error("No email found for logout");
-				return;
-			}
-
-			if (typeof google !== 'undefined') {
-				google.accounts.id.disableAutoSelect();
-				localStorage.removeItem("googleSignInEmail");
-				localStorage.removeItem("familyName");
-				localStorage.removeItem("givenName");
-				localStorage.removeItem("imgProfil");
-				//localStorage.removeItem("i18nextLng"); //! Uncomment if you want to remove the language from local storage
-			}
-		};
+	const email = localStorage.getItem("googleSignInEmail");
+	if (!email) {
+		const emailNonExist = "No email found for logout";
+		alert(emailNonExist);
+		console.error(emailNonExist);
+		return;
 	}
+
+
+	if (typeof google !== 'undefined') {
+		google.accounts.id.disableAutoSelect();
+		localStorage.removeItem("googleSignInEmail");
+		localStorage.removeItem("familyName");
+		localStorage.removeItem("givenName");
+		localStorage.removeItem("imgProfil");
+	}
+		//localStorage.removeItem("i18nextLng"); //! Uncomment if you want to remove the language from local storage
 }
