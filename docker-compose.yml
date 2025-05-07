@@ -62,7 +62,7 @@ services:
     networks:
       - transcendence_net
     ports:
-      - "8443:443"
+      - "${HTTPS_PORT}:443"
     environment:
       - DOMAIN=${DOMAIN}
     depends_on:
