@@ -1,11 +1,15 @@
 import Fastify from 'fastify';
+import fs from 'fs';
 import loginRoute from './routes/login';
 import doesuserexistRoute from './routes/doesuserexist';
 
 export default async function startServer() {
-  const fastify = Fastify({
-    logger : true,
-  });
+	const fastify = Fastify({
+		https: {
+			key: fs.readFileSync('/etc/ssl/certs/auth.key'),
+			cert: fs.readFileSync('/etc/ssl/certs/auth.crt'),
+		},
+	});
 
 	fastify.register(loginRoute);
 	fastify.register(doesuserexistRoute);

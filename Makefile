@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/05/02 13:56:51 by mbecker          ###   ########.fr        #
+#    Updated: 2025/05/06 14:18:34 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,17 +18,11 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-all: env
-	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
-	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
+DATA =		data
 
-d: env
+all: env ssl
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
-
-light:
-	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
-	@export COMPOSE_BAKE=true; $(COMPOSE) -f docker-compose.no_elk.yml up --build
 
 env:
 	@if [ ! -f .env ]; then \
@@ -41,6 +35,11 @@ env:
 			exit 1; \
 		fi \
 	fi
+
+ssl:
+	@echo "$(YELLOW)Generating SSL certificates...$(RESET)"
+	@chmod +x ./scripts/ssl/generate_ssl.sh && \
+	./scripts/ssl/generate_ssl.sh
 
 up: env
 	$(COMPOSE) up
@@ -75,12 +74,13 @@ fclean: clean nodeclean
 		echo "$(RED)Removing $(BRED)project volumes$(RED)...$(RESET)"; \
 		docker volume rm $$(docker volume ls -q); \
 	fi
-	@rm -rf $(DATABASE)
+	@echo "$(RED)Removing $(BRED)$(DATA)$(RED)...$(RESET)"
+	@rm -rf $(DATA)
 
 re: fclean all
 
 deepclean:
-	@echo "$(BYELLOW)Warning: This will remove the database, the .env file and all Docker containers, images, volumes, and networks!$(RESET)"
+	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"
 	@read -p "Are you sure you want to proceed? (y/N): " confirm && [ "$$confirm" = "y" ] && \
 	docker system prune -a --volumes -f || \
 	echo "$(RED)Aborted.$(RESET)"

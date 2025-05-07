@@ -1,10 +1,14 @@
 import Fastify from 'fastify';
-import logger from './logger/logger';
+import fs from 'fs';
 import joinRoute from './routes/join';
 
 export default async function startServer() {
-	const fastify = Fastify();
-	//const fastify = Fastify({logger : logger}); // JSON logging enabled by default
+	const fastify = Fastify({
+		https: {
+			key: fs.readFileSync('/etc/ssl/certs/game.key'),
+			cert: fs.readFileSync('/etc/ssl/certs/game.crt'),
+		},
+	});
 
 	// Pass the Fastify instance to joinRoute
 	fastify.register(joinRoute);

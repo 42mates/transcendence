@@ -31,23 +31,22 @@ services:
     image: frontend
     container_name: frontend
     build: ./frontend
+    restart: on-failure
+    volumes:
+      - ./certs/frontend:/etc/ssl/certs:ro
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - transcendence_net
     depends_on:
       elk-init:
         condition: service_completed_successfully
-    restart: on-failure
-    logging: *elk
-
-    #* frontend dev mode
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     expose:
-      - 5173
+      - 443
     command: npm run dev
     environment:
       - VITE_GOOGLE_AUTH_CLIENT_ID=${VITE_GOOGLE_AUTH_CLIENT_ID}
+    logging: *elk
 
   nginx:
     image: nginx
@@ -57,6 +56,9 @@ services:
       args:
         ELK_USER: ${ELK_USER}
         ELK_PASSWORD: ${ELK_PASSWORD}
+    restart: on-failure
+    volumes:
+      - ./certs/nginx:/etc/ssl/certs:ro
     networks:
       - transcendence_net
     ports:
@@ -72,7 +74,6 @@ services:
         condition: service_started
       game:
         condition: service_started
-    restart: on-failure
     logging: *elk
 
   auth:
@@ -80,12 +81,13 @@ services:
     container_name: auth
     build: ./services/auth
     restart: on-failure
-    networks:
-      - transcendence_net
     volumes:
+      - ./certs/auth:/etc/ssl/certs:ro
       - ./services/auth:/app
       - /app/node_modules
       - sqlite-data:/data
+    networks:
+      - transcendence_net
     depends_on:
       elk-init:
         condition: service_completed_successfully
@@ -98,12 +100,13 @@ services:
     container_name: game
     build: ./services/game
     restart: on-failure
-    networks:
-      - transcendence_net
     volumes:
+      - ./certs/game:/etc/ssl/certs:ro
       - ./services/game:/app
       - /app/node_modules
       - sqlite-data:/data
+    networks:
+      - transcendence_net
     depends_on:
       elk-init:
         condition: service_completed_successfully
@@ -111,17 +114,19 @@ services:
         condition: service_completed_successfully
     logging: *elk
 
-
   #! ELK STACK
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
     container_name: elasticsearch
+    #volumes:
+    #  - ./certs/elasticsearch:/usr/share/elasticsearch/config/certs:ro
+    networks:
+      - transcendence_net
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-    networks:
-      - transcendence_net
-    ports:
+      - logger.level=error # Reduce verbosity
+    expose:
       - 9200
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200"]
@@ -131,6 +136,7 @@ services:
     image: docker.elastic.co/logstash/logstash:8.10.2
     container_name: logstash
     volumes:
+      - ./certs/logstash:/etc/ssl/certs:ro
       - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     networks:
       - transcendence_net
@@ -139,14 +145,17 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    environment:
+      - log.level=error # Reduce verbosity
   kibana:
     image: docker.elastic.co/kibana/kibana:8.10.2
     container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    volumes:
+      - ./certs/kibana:/etc/ssl/certs:ro
+      - ./elk/kibana.yml:/usr/share/kibana/config/kibana.yml
     networks:
       - transcendence_net
-    ports:
+    expose:
       - 5601
     depends_on:
       elk-init:

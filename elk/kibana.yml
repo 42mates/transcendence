@@ -1,0 +1,6 @@
+server.host: "0.0.0.0"
+server.port: 5601
+server.ssl.enabled: true
+server.ssl.certificate: /etc/ssl/certs/kibana.crt
+server.ssl.key: /etc/ssl/certs/kibana.key
+elasticsearch.hosts: ["http://elasticsearch:9200"]
