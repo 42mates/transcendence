@@ -10,6 +10,7 @@
 	"view": "View",
 	"search": "Search",
 	"loading": "Loading...",
+	"site_language": "Site language: English",
 	"error": {
 		"network": "Network error. Please try again.",
 		"server": "Server error. Please contact support.",

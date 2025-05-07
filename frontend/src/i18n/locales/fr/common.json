@@ -10,6 +10,7 @@
 	"view": "Voir",
 	"search": "Rechercher",
 	"loading": "Chargement...",
+	"site_language": "Langue du site : Français",
 	"error": {
 		"network": "Erreur réseau. Veuillez réessayer.",
 		"server": "Erreur serveur. Veuillez contacter le support.",
