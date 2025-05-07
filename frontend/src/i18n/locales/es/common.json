@@ -10,6 +10,7 @@
 	"view": "Ver",
 	"search": "Buscar",
 	"loading": "Cargando...",
+	"site_language": "Idioma de la página: Español",
 	"error": {
 		"generic": "Ocurrió un error. Por favor, inténtalo de nuevo más tarde.",
 		"unexpected": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.",
