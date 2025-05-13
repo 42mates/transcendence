@@ -18,7 +18,6 @@ export default async function startServer() {
 
 	fastify.get('/join', { websocket: true }, (connection, req) => {
 	connection.socket.on('message', message => {
-		// message === 'hi from client'
 		connection.socket.send('hi from server')
 	})
 	})
