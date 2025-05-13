@@ -2,6 +2,7 @@ import JsonToken from "../../types/JsonTokenType";
 
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 
+
 const saveToLocalStorage = (decoded : JsonToken)=>{
 	const email = decoded.email;
 	const familyName = decoded.family_name;

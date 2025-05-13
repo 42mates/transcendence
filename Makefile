@@ -18,7 +18,7 @@ MODULES =	frontend \
 			services/auth \
 			services/game
 
-DATA =		data
+DATA =		datar
 
 all: env ssl
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"

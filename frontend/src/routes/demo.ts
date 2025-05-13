@@ -1,4 +1,4 @@
-import { handlePostRequest } from '../main';
+import { handlePostRequest, handleGetRequest }from '../main';
 
 export function initDemo() {
 
@@ -6,6 +6,6 @@ export function initDemo() {
 		const username = (document.getElementById('usernameInput') as HTMLInputElement).value;
 		handlePostRequest('/api/auth/doesuserexist', username);
 	});
-	document.getElementById('gameButton')!.addEventListener('click', () => handlePostRequest('/api/game/join', ''));
+	document.getElementById('gameButton')!.addEventListener('click', () => handleGetRequest('/api/game/join', ''));
 	console.log('Demo page loaded');
 }
