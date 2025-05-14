@@ -23,22 +23,15 @@ export default async function startServer() {
     const wss = new WebSocketServer({ server });
 
     wss.on("connection", (ws)=> {
-        ws.send("ping! Websocket");
+        ws.send("PING PING!");
         ws.on("message", (msg) =>{
             // when there is new connection from browser
             console.log(`I RECIVED A MESSAGE FRON CLIENT: ${msg}`);
         })
     })
-// fastify.get('/join', { websocket: true }, (connection, req) => {
-//   connection.socket.on('message', message => {
-//     // message === 'hi from client'
-//     connection.socket.send('hi from server')
-//   })
-// })
 
 
-
-// 	// fastify.register(joinRoute);
+	fastify.register(joinRoute);
 
 	try
 	{

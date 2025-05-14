@@ -8,19 +8,19 @@ try {
 	const socket =  new WebSocket('wss://localhost:8443/api/game/join');
 	socket.addEventListener("message", (event) => {
   		// If there is new message to server i send a connection
-		socket.send("I AM CLIENT ");
-		console.log("dd");
+		socket.send("PONG ");
 	});
+	
 	socket.onopen = () => {
-		// Time to send a message to server
 		console.log('****WebSocket connection opened********');
-		console.log("USER HERE HERE HERE");
+		const username = localStorage.getItem("givenName");
+		console.log(`USER NAME : ${username}`);
 	};
 
 	socket.onmessage = (event) => {
 		// when I got message
-		console.log('Message from server:', event.data);
-		socket.send("pong ");
+		// console.log('Message from server:', event.data);
+		console.log(`PONG ! I RECIVED A MESSAGE FRON SERVER: ${event.data}`);
 	};
 
 	socket.onclose = (event) => {
