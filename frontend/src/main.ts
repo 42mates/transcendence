@@ -7,15 +7,20 @@ import { loadRoute } from './router';
 try {
 	const socket =  new WebSocket('wss://localhost:8443/api/game/join');
 	socket.addEventListener("message", (event) => {
-  		socket.send("Hello from Client ");
+  		// If there is new message to server i send a connection
+		socket.send("I AM CLIENT ");
 		console.log("dd");
 	});
 	socket.onopen = () => {
-		console.log('WebSocket connection opened********');
+		// Time to send a message to server
+		console.log('****WebSocket connection opened********');
+		console.log("USER HERE HERE HERE");
 	};
 
 	socket.onmessage = (event) => {
+		// when I got message
 		console.log('Message from server:', event.data);
+		socket.send("pong ");
 	};
 
 	socket.onclose = (event) => {
