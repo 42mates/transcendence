@@ -1,47 +1,33 @@
-import Fastify from 'fastify';
+import Fastify, { type FastifyRequest } from "fastify";
+import FastifyWebsocket, { type WebSocket } from "@fastify/websocket";
 import fs from 'fs';
 import joinRoute from './routes/join';
-// import FastifyWebsocket from '@fastify/websocket';
-const FastifyWebsocket = require("@fastify/websocket");
-import { FastifyPluginAsync, FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { SocketStream } from 'fastify-websocket';
+import { WebSocketServer } from "ws";
 
+
+
+
+// docker game logs
 export default async function startServer() {
 
-	// const app = Fastify({ logger: true });
-	const app = Fastify({
+	// const fastify = initApp();
+	const fastify = Fastify({
 		https: {
 			key: fs.readFileSync('/etc/ssl/certs/game.key'),
 			cert: fs.readFileSync('/etc/ssl/certs/game.crt'),
 		},
 	});
 
-	app.register(FastifyWebsocket);
-	app.register(async function (Fastify) {
-		Fastify.get('/join', { websocket: true }, (connection :SocketStream, req /* FastifyRequest */) => {
-		connection.socket.on('message', (message: unknown) => {
-			// message.toString() === 'hi from client'
-			connection.socket.send('hi from server')
-		})
-		})
-	})
+    const server = fastify.server;
+	
+    const wss = new WebSocketServer({ server });
 
-	app.ready().then(() => app.listen({ port: 3001, host: '0.0.0.0' }))
-}
-
-
-// docker game logs
-// export default async function startServer() {
-
-// 	// const fastify = initApp();
-// 	const fastify = Fastify({
-// 		https: {
-// 			key: fs.readFileSync('/etc/ssl/certs/game.key'),
-// 			cert: fs.readFileSync('/etc/ssl/certs/game.crt'),
-// 		},
-// 	});
-// 	fastify.register(FastifyWebsocket);
-
+    wss.on("connection", (ws)=> {
+        ws.send("Hello from websocket");
+        ws.on("message", (msg) =>{
+            console.log(`Recived ${msg}`);
+        })
+    })
 // fastify.get('/join', { websocket: true }, (connection, req) => {
 //   connection.socket.on('message', message => {
 //     // message === 'hi from client'
@@ -53,13 +39,13 @@ export default async function startServer() {
 
 // 	// fastify.register(joinRoute);
 
-// 	try
-// 	{
-// 		await fastify.listen({ port: 3001, host: '0.0.0.0' });
-// 		fastify.log.info('game service is running on port 3001');
-// 	} catch (err) {
-// 		fastify.log.error(err);
-// 		process.exit(1);
-// 	}
-// }
+	try
+	{
+		await fastify.listen({ port: 3001, host: '0.0.0.0' });
+		fastify.log.info('game service is running on port 3001');
+	} catch (err) {
+		fastify.log.error(err);
+		process.exit(1);
+	}
+}
 
