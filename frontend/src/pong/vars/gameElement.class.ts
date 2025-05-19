@@ -17,5 +17,8 @@ export class GameElement {
 		this.yVec = 0;
 	}
 
-	draw() {}
+	draw(context) {
+		context.fillStyle("#fff");
+		context.fillRect(this.x, this.y, this.width, this.height);
+	}
 }

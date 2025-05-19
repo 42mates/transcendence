@@ -5,8 +5,5 @@ export class Ball extends GameElement {
 		super(x, y, h, w, s);
 	}
 
-	update(xVec: number, yVec: number) {
-		this.xVec = xVec;
-		this.yVec = yVec;
-	}
+	update() {}
 }
