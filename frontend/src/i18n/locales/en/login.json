@@ -4,7 +4,8 @@
 	"password": "Password",
 	"rememberMe": "Remember me",
 	"forgotPassword": "Forgot password?",
-	"loginButton": "Log in",
+	"loginButton": "Log in with Google",
+	"guest": "Play as guest",
 	"logoutButton": "Log out",
 	"signupPrompt": "Don't have an account? Sign up",
 	"error": {

@@ -4,7 +4,8 @@
 	"password": "Mot de passe",
 	"rememberMe": "Se souvenir de moi",
 	"forgotPassword": "Mot de passe oublié ?",
-	"loginButton": "Se connecter",
+	"loginButton": "Se connecter avec Google",
+	"guest": "Jouez en tant qu'invité",
 	"logoutButton": "Se déconnecter",
 	"signupPrompt": "Vous n'avez pas de compte ? Inscrivez-vous",
 	"error": {

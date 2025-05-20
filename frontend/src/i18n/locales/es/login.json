@@ -4,7 +4,8 @@
 	"password": "Contraseña",
 	"rememberMe": "Mantener sesión iniciada",
 	"forgotPassword": "¿Olvidaste tu contraseña?",
-	"loginButton": "Iniciar sesión",
+	"loginButton": "Iniciar sesión con Google",
+	"guest": "Jugar como invitado",
 	"logoutButton": "Cerrar sesión",
 	"signupPrompt": "¿No tienes una cuenta? Regístrate",
 	"error": {

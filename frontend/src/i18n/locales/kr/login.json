@@ -4,7 +4,8 @@
 	"password": "비밀번호",
 	"rememberMe": "로그인 상태 유지",
 	"forgotPassword": "비밀번호를 잊으셨나요?",
-	"loginButton": "로그인",
+	"loginButton": "Google로 로그인",
+	"guest": "게스트로 플레이",
 	"logoutButton": "로그아웃",
 	"signupPrompt": "계정이 없으신가요? 가입하기",
 	"error": {
