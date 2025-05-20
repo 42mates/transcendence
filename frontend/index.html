@@ -1,31 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="overflow-hidden" lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title>data-i18nkey="common:site_language"</title>
+		<title>Transcendence</title>
 		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 	</head>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden; /* pour bloquer le scroll */
-      height: 100%;
-    }
-  </style>
-  <body class="h-screen flex flex-col">
-    <header class="p-4 bg-gray-800 flex space-y-2 space-x-2">
+  <body class="h-screen overflow-hidden flex flex-col">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-gray-800 z-50">
       <div class="relative inline-block text-left">
-        <!-- Bouton -->
-        <button id="langButton" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700" data-i18nkey="common:site_language">
-          SITE LANGUAGE: English
+
+        <button id="langButton" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700">
+          🌍
           <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
              viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
         
-        <!-- Menu -->
         <div id="langMenu" class="absolute z-10 hidden mt-2 w-72 bg-white rounded-lg shadow-lg p-4 grid grid-cols-2 gap-2">
           <button id="changeLangButton-en" class="flex items-center gap-2 hover:bg-gray-100 p-2 rounded" data-lang="en">
           🇺🇸 English
@@ -42,10 +33,8 @@
         </div>
         </div>
     </header>
-    
-  
-    <!-- Contenu -->
-    <main id="app" class="flex-1 overflow-auto">
+
+    <main id="app" class="pt-16 h-[calc(100vh-2rem)] overflow-hidden flex flex-col">
       <script src="/src/main.ts" type="module"></script>
     </main>
   </body>
