@@ -5,5 +5,6 @@ export class Paddle extends GameElement {
 		super(x, y, h, w, s);
 	}
 
-	update() {}
+	update(canvas) {
+	}
 }
