@@ -1,6 +1,6 @@
 export enum KeyBinds {
-	KeyW = 87,
-	KeyS = 83,
+	KEY_W = 87,
+	KEY_S = 83,
 	UP = 38,
 	DOWN = 40
 }
