@@ -6,13 +6,14 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/05/06 14:18:34 by mbecker          ###   ########.fr        #
+#    Updated: 2025/05/09 11:08:14 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME =	transcendence
 
 COMPOSE =	docker compose
+COMPOSE_LIGHT =	docker compose -f docker-compose.light.yml
 
 MODULES =	frontend \
 			services/auth \
@@ -23,6 +24,10 @@ DATA =		data
 all: env ssl
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
+
+light:
+	@echo "$(YELLOW)Building $(BYELLOW)$(NAME) [LIGHT VERSION]$(YELLOW)...$(RESET)"
+	@export COMPOSE_BAKE=true; $(COMPOSE_LIGHT) up --build -d
 
 env:
 	@if [ ! -f .env ]; then \

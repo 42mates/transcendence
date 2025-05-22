@@ -1,0 +1,88 @@
+services:
+  #! INIT SCRIPTS
+  db-init:
+    image: db-init
+    container_name: db-init
+    build: ./scripts/db-init
+    networks:
+      - transcendence_net
+    volumes:
+      - sqlite-data:/data
+
+  frontend:
+    image: frontend
+    container_name: frontend
+    build: ./frontend
+    restart: on-failure
+    volumes:
+      - ./certs/frontend:/etc/ssl/certs:ro
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - transcendence_net
+    expose:
+      - 443
+    command: npm run dev
+    environment:
+      - VITE_GOOGLE_AUTH_CLIENT_ID=${VITE_GOOGLE_AUTH_CLIENT_ID}
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: on-failure
+    volumes:
+      - ./certs/nginx:/etc/ssl/certs:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - transcendence_net
+    ports:
+      - "${HTTPS_PORT}:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    depends_on:
+      frontend:
+        condition: service_started
+      auth:
+        condition: service_started
+      game:
+        condition: service_started
+
+  auth:
+    image: auth
+    container_name: auth
+    build: ./services/auth
+    restart: on-failure
+    volumes:
+      - ./certs/auth:/etc/ssl/certs:ro
+      - ./services/auth:/app
+      - /app/node_modules
+      - sqlite-data:/data
+    networks:
+      - transcendence_net
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  game:
+    image: game
+    container_name: game
+    build: ./services/game
+    restart: on-failure
+    volumes:
+      - ./certs/game:/etc/ssl/certs:ro
+      - ./services/game:/app
+      - /app/node_modules
+      - sqlite-data:/data
+    networks:
+      - transcendence_net
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+networks:
+  transcendence_net:
+    driver: bridge
+
+volumes:
+  sqlite-data:
