@@ -1,6 +1,7 @@
 FROM nginx:alpine
 
 # Install OpenSSL for generating SSL certificates
+RUN apk update
 RUN apk add --no-cache apache2-utils
 
 # Copy NGINX configuration files
