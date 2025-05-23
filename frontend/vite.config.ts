@@ -1,14 +1,19 @@
 import { defineConfig } from 'vite';
+import fs from 'fs';
 
 export default defineConfig({
 	build: {
 		outDir: 'dist', // Output directory for the build
 	},
-	// receive and print logs from the frontend
 	server: {
 		host: '0.0.0.0',
-		port: 5173,
+		port: 443,
+		https: {
+			key: fs.readFileSync('/etc/ssl/certs/frontend.key'),
+			cert: fs.readFileSync('/etc/ssl/certs/frontend.crt'),
+		}
 	},
+	// receive and print logs from the frontend
 	plugins: [
 		{
 			name: 'log-capture-middleware',

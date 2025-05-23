@@ -1,4 +1,4 @@
-import { handlePostRequest } from '../main';
+import { handlePostRequest, handleGetRequest }from '../main';
 
 export function initDemo() {
 

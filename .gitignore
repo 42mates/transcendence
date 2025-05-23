@@ -41,6 +41,9 @@ docker-compose.override.yml
 /nginx/*.log
 /nginx/*.pid
 
+# SSL certificates
+certs/
+
 # Miscellaneous
 .DS_Store
 Thumbs.db
