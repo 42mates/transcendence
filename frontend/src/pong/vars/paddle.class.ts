@@ -1,8 +1,8 @@
 import { GameElement } from "./gameElement.class.js";
 
 export class Paddle extends GameElement {
-	keyDown: number;
-	keyUp: number;
+	keyDown: boolean;
+	keyUp: boolean;
 
 	constructor(
 		x: number,
@@ -14,9 +14,22 @@ export class Paddle extends GameElement {
 		d: number,
 	) {
 		super(x, y, h, w, s);
-		this.keyUp = u;
-		this.keyDown = d;
+		this.keyUp = false;
+		this.keyDown = false;
 	}
 
-	update(canvas) {}
+	update(canvas) {
+		if (this.keyUp == true && this.y <= 20) {
+			this.yVec = -1;
+		} else if (
+			this.keyDown == true &&
+			this.y + this.height >= canvas.height - 20
+		) {
+			this.yVec = 1;
+		} else {
+			this.yVec = 0;
+		}
+
+		this.y += this.speed * this.yVec;
+	}
 }

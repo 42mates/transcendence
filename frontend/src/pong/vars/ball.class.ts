@@ -6,5 +6,9 @@ export class Ball extends GameElement {
 		super(x, y, h, w, s);
 	}
 
-	update(player1: Paddle, player2: Paddle, canvas) {}
+	update(player1: Paddle, player2: Paddle, canvas) {
+		if () {
+			;
+		}
+	}
 }
