@@ -4,7 +4,11 @@ module.exports = {
 	,'./public/**/*.{html,js}'
 	],
 	theme: {
-		extend: {},
+		extend: {
+			fontFamily: {
+				customFont: ['"Bauhaus_93"', "sans-serif"],
+			}
+		},
 	},
 	plugins: [],
 };

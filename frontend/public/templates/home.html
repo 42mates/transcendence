@@ -40,16 +40,23 @@
 
 
 
-<div class="border border-red-500 flex flex-col justify-between flex-1 text-center bg-neutral-800 text-white px-2">
+<div class="flex flex-col justify-between flex-1 text-center bg-neutral-800 text-white px-2">
   <div class="mt-4">
-    <h1 class="text-7xl font-bold text-amber-400">Welcome</h1>
+    <h1 class="font-customFont text-9xl font-bold text-amber-400" data-i18nkey="common:welcome">
+		Welcome
+	</h1>
   </div>
   <div class="flex justify-center">
     <iframe class="aspect-video w-96 border-0" src="https://www.youtube.com/embed/..."></iframe>
   </div>
   <div class="mb-8 space-y-2">
-    <button class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500">Login</button><br />
-    <button class="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-400">Guest</button>
+    <button class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500" data-i18nkey="login:loginButton">
+		Login
+	</button>
+	<br />
+    <button class="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-400" data-i18nkey="login:guest">
+		Guest
+	</button>
   </div>
 </div>
 

@@ -1,4 +1,5 @@
-import './style.css';
+import './styles/style.css';
+import './styles/fonts.css';
 import './logger/logger';
 import i18n from './i18n/i18n';
 
