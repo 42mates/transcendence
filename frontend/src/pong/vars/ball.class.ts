@@ -7,8 +7,7 @@ export class Ball extends GameElement {
 	}
 
 	update(player1: Paddle, player2: Paddle, canvas) {
-		if () {
-			;
-		}
+		this.x += this.xVec * this.speed;
+		this.y += this.yVec * this.speed;
 	}
 }
