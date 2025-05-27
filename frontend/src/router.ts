@@ -1,7 +1,9 @@
 import { initLogin } from './routes/login';
 import { initDemo } from './routes/demo';
 import { initHome } from './routes/home';
+import { initGame } from './routes/game';
 
+// 
 import { translateDOM } from './utils/translate';
 import {initGoogleAuth, loadGoogleSignInScript, setupLogoutButton} from './googleAuth/initAuth';
 
@@ -23,6 +25,7 @@ export async function loadRoute(path: string) {
 		if (routePath === '/login') initLogin();
 		else if (routePath === '/demo') initDemo();
 		else if (routePath === '/home') initHome();
+		else if (routePath === '/game') initGame();
 
 	} catch (err) {
 		app.innerHTML = `<main class="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
