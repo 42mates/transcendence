@@ -5,7 +5,7 @@ import i18n from './i18n/i18n';
 import { loadRoute } from './router';
 
 try {
-	const socket =  new WebSocket('wss://localhost:8443/api/game/join');
+	const socket =  new WebSocket('wss://localhost:8443/api/game');
 	socket.addEventListener("message", (event) => {
   		// If there is new message to server i send a connection
 		socket.send("PONG ");
