@@ -3,6 +3,7 @@ import { GameElement } from "./gameElement.class.js";
 export class Paddle extends GameElement {
 	keyDown: boolean;
 	keyUp: boolean;
+	score: number;
 
 	constructor(
 		x: number,
@@ -16,6 +17,7 @@ export class Paddle extends GameElement {
 		super(x, y, h, w, s);
 		this.keyUp = false;
 		this.keyDown = false;
+		this.score = 0;
 	}
 
 	update(canvas) {

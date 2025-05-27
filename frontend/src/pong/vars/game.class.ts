@@ -6,8 +6,6 @@ export class Game {
 	private gameCanvas;
 	private gameContext;
 	private static keysPressed: boolean[] = [];
-	private static player1Score: number = 0;
-	private static player2Score: number = 0;
 	private player1: Paddle;
 	private player2: Paddle;
 	private ball: Ball;
@@ -81,8 +79,8 @@ export class Game {
 			);
 		}
 
-		this.gameContext.fillText(Game.player1Score, 280, 50);
-		this.gameContext.fillText(Game.player2Score, 390, 50);
+		this.gameContext.fillText(Game.player1.score, 280, 50);
+		this.gameContext.fillText(Game.player2.score, 390, 50);
 	}
 
 	update() {

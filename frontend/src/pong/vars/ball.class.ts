@@ -5,35 +5,49 @@ export class Ball extends GameElement {
 	constructor(x: number, y: number, h: number, w: number, s: number) {
 		super(x, y, h, w, s);
 		this.xVec = 1;
-		this.yVec = 1;
+		this.yVec = -1;
 	}
 
 	update(player1: Paddle, player2: Paddle, canvas) {
 		if (this.xVec > 0) {
-			if (this.x + 1 >= player1.x - player1.width) {
+			if (this.x + this.width + this.speed >= player2.x) {
 				this.xVec *= -1;
 			}
 			if (this.yVec > 1) {
-				if (this.y + 1 >= canvas.height) {
+				if (this.y + this.height + this.speed >= canvas.height) {
 					this.yVec *= -1;
 				}
 			} else {
-				if (this.y - 1 <= canvas.height) {
+				if (this.y - this.speed <= canvas.height) {
 					this.yVec *= -1;
 				}
+			}
+			if (this.x + this.width + this.speed >= canvas.width) {
+				player1.score += 1;
+				this.x = canvas.width / 2 - this.width / 2;
+				this.y = canvas.height / 2 - this.height / 2;
+				this.xVec = 1;
+				this.yVec = -1;
 			}
 		} else {
-			if (this.x + 1 <= player2.x) {
+			if (this.x - this.speed <= player1.x + player1.width) {
 				this.xVec *= -1;
 			}
-			if (this.yVec < 1) {
-				if (this.y + 1 <= canvas.height) {
+			if (this.yVec > 1) {
+				if (this.y + this.height + this.speed >= canvas.height) {
 					this.yVec *= -1;
 				}
 			} else {
-				if (this.y - 1 >= canvas.height) {
+				if (this.y - this.speed <= canvas.height) {
 					this.yVec *= -1;
 				}
+			}
+			if (this.x - this.speed <= 0) {
+				player2.score += 1;
+				this.x = canvas.width / 2 - this.width / 2;
+				this.y = canvas.height / 2 - this.height / 2;
+				this.xVec = -1;
+				this.yVec = -1;
 			}
 		}
 

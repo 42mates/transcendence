@@ -3,9 +3,9 @@ export class GameElement {
 	y: number;
 	height: number;
 	width: number;
-	speed: number;
 	xVec: number;
 	yVec: number;
+	speed: number;
 
 	constructor(x: number, y: number, h: number, w: number, s: number) {
 		this.x = x;
