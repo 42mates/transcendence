@@ -42,14 +42,23 @@
 
 <div class="flex flex-col justify-between flex-1 text-center bg-neutral-800 text-white px-2">
   <div class="mt-4">
-    <h1 class="font-customFont text-9xl font-bold text-amber-400" data-i18nkey="common:welcome">
+    <h1 class="text-8xl tracking-wide text-amber-400" data-i18nkey="common:welcome">
 		Welcome
 	</h1>
   </div>
-  <div class="flex justify-center">
-    <iframe class="aspect-video w-96 border-0" src="https://www.youtube.com/embed/..."></iframe>
-  </div>
-  <div class="mb-8 space-y-2">
+<div class="relative my-12 h-96">
+  <img
+    src="/assets/image.png"
+    alt="Image 1"
+    class="absolute -left-40 -top-36 rotate-[-12deg] w-[1300px]"
+  />
+  <img
+    src="/assets/image.png"
+    alt="Image 2"
+    class="absolute -right-10 top-10 rotate-[13deg] w-[1100px]"
+  />
+</div>
+  <div class="mb-8 z-10 space-y-2">
     <button class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500" data-i18nkey="login:loginButton">
 		Login
 	</button>

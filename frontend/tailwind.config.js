@@ -7,7 +7,8 @@ module.exports = {
 		extend: {
 			fontFamily: {
 				customFont: ['"Bauhaus_93"', "sans-serif"],
-			}
+				sans: ['Russo One','Black Han Sans',  'system-ui', 'sans-serif'],
+			},
 		},
 	},
 	plugins: [],
