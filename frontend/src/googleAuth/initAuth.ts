@@ -16,12 +16,14 @@ const saveToLocalStorage = (decoded : JsonToken) => {
 	localStorage.setItem("imgProfil", imgProfil);
 }
 
-function handleCredentialResponse(response: any) {
+const handleCredentialResponse = async (response: any) =>{
 	if(response.credential)
 	{
 		const popup = document.getElementById("loginPopup");
 		const token = response.credential;
-		handlePostRequest("/api/auth/login", token);
+		console.log("dfsdfsdf");
+		const email_verified = await handlePostRequest("/api/auth/login", token);
+		console.log(3, email_verified);
 		if (popup) 
 			popup.style.display = "none";
 	}

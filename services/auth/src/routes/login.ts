@@ -16,21 +16,21 @@ const verifyJWTToken = (token : string) => {
 			.join('')
 	);
 
-	const decoded = JSON.parse(jsonPayload);
-	// saveToLocalStorage(decoded);
-
-	return decoded.email;
+	const data = JSON.parse(jsonPayload);
+	return data;
 }
 
 const loginRoute: FastifyPluginAsync = async (fastify) => {
-  console.log("hello_o ");
   fastify.post('/login', async (request: FastifyRequest<{ Body: { username: string } }>, reply: FastifyReply) => {
-    console.log("coucou");
     const { username } = request.body;
-    console.log(username);
-    reply.send({ message: 'api/auth/login route accessed successfully' });
-
-  });
-};
+    const data = verifyJWTToken(username);
+    if(data.email_verified)
+    {
+      return reply.send({email_verified : data.email_verified});
+    }
+    else
+      return reply.send({"message": "error"});
+  }
+)};
 
 export default loginRoute;
