@@ -22,10 +22,10 @@ const handleCredentialResponse = async (response: any) =>{
 		const popup = document.getElementById("loginPopup");
 		const token = response.credential;
 		console.log("dfsdfsdf");
-		const email_verified = await handlePostRequest("/api/auth/login", token);
-		console.log(3, email_verified);
-		if (popup) 
-			popup.style.display = "none";
+		const data = await handlePostRequest("/api/auth/login", token);
+		console.log(3, data);
+		// if (popup) 
+		// 	popup.style.display = "none";
 	}
 }
 

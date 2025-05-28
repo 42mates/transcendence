@@ -88,7 +88,7 @@ export async function handlePostRequest(endpoint: string, username: string) {
 			body: JSON.stringify({ username }),
 		});
 		const data = await response.json();
-		alert('POST ' + endpoint + ': ' + data.message);
+		return data;
 	} catch (error) {
 		alert('An error occurred: ' + error);
 	}
