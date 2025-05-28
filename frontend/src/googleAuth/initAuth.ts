@@ -16,6 +16,8 @@ const handleCredentialResponse = async (response: any) =>{
 		const token = response.credential;
 		const userInfo = await handlePostRequest("/api/auth/login", token);
 		saveToLocalStorage(userInfo);
+		if(userInfo)
+			alert(`Successfully login! Hello, ${userInfo.givenName}`)
 		if (popup) 
 			popup.style.display = "none";
 	}
@@ -99,5 +101,6 @@ export function setupLogoutButton() {
 		localStorage.removeItem("email");
 		localStorage.removeItem("givenName");
 		localStorage.removeItem("picture");
+		alert("You're logged out.")
 	}
 }
