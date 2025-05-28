@@ -5,7 +5,7 @@ const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 
 
 const saveToLocalStorage = ({ givenName, picture, email }: GoogleLoginType) => {
-	localStorage.setItem("googleSignInEmail", email);
+	localStorage.setItem("email", email);
 	localStorage.setItem("givenName", givenName);
 	localStorage.setItem("imgProfil", picture);
 }
@@ -15,7 +15,6 @@ const handleCredentialResponse = async (response: any) =>{
 	{
 		const popup = document.getElementById("loginPopup");
 		const token = response.credential;
-		console.log("dfsdfsdf");
 		const userInfo = await handlePostRequest("/api/auth/login", token);
 		saveToLocalStorage(userInfo);
 		if (popup) 
@@ -52,7 +51,7 @@ export function loadGoogleSignInScript(): Promise<void> {
   
 export function initGoogleAuth() {
 
-	const email = localStorage.getItem("googleSignInEmail");
+	const email = localStorage.getItem("email");
 	if(email)
 	{
 		const alreadyLoggedIn = "User is already logged IN";
@@ -98,9 +97,8 @@ export function setupLogoutButton() {
 
 	if (typeof google !== 'undefined') {
 		google.accounts.id.disableAutoSelect();
-		localStorage.removeItem("googleSignInEmail");
-		localStorage.removeItem("familyName");
+		localStorage.removeItem("email");
 		localStorage.removeItem("givenName");
-		localStorage.removeItem("imgProfil");
+		localStorage.removeItem("picture");
 	}
 }
