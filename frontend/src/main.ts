@@ -7,7 +7,7 @@ import { loadRoute } from './router';
 import { translateDOM } from './utils/translate';
 
 try {
-	const socket =  new WebSocket('wss://localhost:8443/api/game/join');
+	const socket =  new WebSocket('wss://localhost:8443/api/game');
 	socket.addEventListener("message", (event) => {
   		// If there is new message to server i send a connection
 		socket.send("PONG ");
@@ -90,7 +90,7 @@ export async function handlePostRequest(endpoint: string, username: string) {
 			body: JSON.stringify({ username }),
 		});
 		const data = await response.json();
-		alert('POST ' + endpoint + ': ' + data.message);
+		return data;
 	} catch (error) {
 		alert('An error occurred: ' + error);
 	}

@@ -31,9 +31,9 @@ export default async function startServer() {
     })
 
 
-	fastify.register(joinRoute);
+	// fastify.register(joinRoute);
 	// Pass the Fastify instance to gameRoute
-	fastify.register(gameRoute);
+	// fastify.register(gameRoute);
 
 	try
 	{
