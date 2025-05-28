@@ -23,8 +23,8 @@ const loginRoute: FastifyPluginAsync = async (fastify) => {
 		const data = verifyJWTToken(username);
 		console.log(typeof data);
 		if (data?.email_verified) {
-			return reply.code(200).send({ email_verified : data.email_verified,
-				given_name : data.given_name,
+			return reply.code(200).send({
+				givenName : data.given_name,
 				picture : data.picture,
 				email: data.email,
 			})

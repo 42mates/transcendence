@@ -1,19 +1,13 @@
-import JsonToken from "../../types/JsonTokenType";
+import GoogleLoginType from "../../types/GoogleLoginType"
 import { handlePostRequest } from "../main";
 
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 
 
-const saveToLocalStorage = (decoded : JsonToken) => {
-	const email = decoded.email;
-	const familyName = decoded.family_name;
-	const givenName = decoded.given_name;
-	const imgProfil = decoded.picture;
-
+const saveToLocalStorage = ({ givenName, picture, email }: GoogleLoginType) => {
 	localStorage.setItem("googleSignInEmail", email);
-	localStorage.setItem("familyName", familyName);
 	localStorage.setItem("givenName", givenName);
-	localStorage.setItem("imgProfil", imgProfil);
+	localStorage.setItem("imgProfil", picture);
 }
 
 const handleCredentialResponse = async (response: any) =>{
@@ -22,10 +16,10 @@ const handleCredentialResponse = async (response: any) =>{
 		const popup = document.getElementById("loginPopup");
 		const token = response.credential;
 		console.log("dfsdfsdf");
-		const data = await handlePostRequest("/api/auth/login", token);
-		console.log(3, data);
-		// if (popup) 
-		// 	popup.style.display = "none";
+		const userInfo = await handlePostRequest("/api/auth/login", token);
+		saveToLocalStorage(userInfo);
+		if (popup) 
+			popup.style.display = "none";
 	}
 }
 
