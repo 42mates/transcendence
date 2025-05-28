@@ -9,12 +9,16 @@ export class Game {
 	private ball: Ball;
 
 	constructor() {
-		this.gameCanvas = new GameCanvas(100, 100);
+		let canvasWidth = 100;
+		let canvasHeight = canvasWidth * (3 / 4);
+		let wallOffset = canvasWidth / 10;
 
-		let paddleWidth = this.gameCanvas.width / 20;
-		let paddleHeight = this.gameCanvas.height / 5;
-		let ballSize = this.gameCanvas.height / 50;
-		let wallOffset = this.gameCanvas.width / 10;
+		let paddleWidth = canvasWidth / 20;
+		let paddleHeight = canvasHeight / 5;
+
+		let ballSize = canvasWidth / 50;
+
+		this.gameCanvas = new GameCanvas(canvasWidth, canvasHeight);
 
 		this.player1 = new Paddle(
 			wallOffset,
