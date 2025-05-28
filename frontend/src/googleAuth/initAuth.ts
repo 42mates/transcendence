@@ -3,7 +3,6 @@ import { handlePostRequest } from "../main";
 
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 
-
 const saveToLocalStorage = ({ givenName, picture, email }: GoogleLoginType) => {
 	localStorage.setItem("email", email);
 	localStorage.setItem("givenName", givenName);
