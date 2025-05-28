@@ -1,49 +1,26 @@
-import JsonToken from "../../types/JsonTokenType";
+import GoogleLoginType from "../../types/GoogleLoginType"
+import { handlePostRequest } from "../utils/HTTPRequests";
 
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 
-
-const saveToLocalStorage = (decoded : JsonToken)=>{
-	const email = decoded.email;
-	const familyName = decoded.family_name;
-	const givenName = decoded.given_name;
-	const imgProfil = decoded.picture;
-
-	localStorage.setItem("googleSignInEmail", email);
-	localStorage.setItem("familyName", familyName);
+const saveToLocalStorage = ({ givenName, picture, email }: GoogleLoginType) => {
+	localStorage.setItem("email", email);
 	localStorage.setItem("givenName", givenName);
-	localStorage.setItem("imgProfil", imgProfil);
+	localStorage.setItem("picture", picture);
 }
 
-const decodeJWTToken = (token : string) => {
-	const base64Url = token.split('.')[1];
-	const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-	const jsonPayload = decodeURIComponent(
-		atob(base64)
-			.split('')
-			.map((c) => {
-				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-			})
-			.join('')
-	);
-
-	const decoded = JSON.parse(jsonPayload);
-	saveToLocalStorage(decoded);
-
-	return decoded.email;
-}
-
-
-function handleCredentialResponse(response: any) {
+const handleCredentialResponse = async (response: any) =>{
 	if(response.credential)
 	{
-		decodeJWTToken(response.credential);
 		const popup = document.getElementById("loginPopup");
-		if (popup) {
+		const token = response.credential;
+		const userInfo = await handlePostRequest("/api/auth/login", token);
+		saveToLocalStorage(userInfo);
+		if(userInfo)
+			alert(`Successfully login! Hello, ${userInfo.givenName}`)
+		if (popup) 
 			popup.style.display = "none";
-		}
 	}
-	
 }
 
 export function loadGoogleSignInScript(): Promise<void> {
@@ -75,7 +52,7 @@ export function loadGoogleSignInScript(): Promise<void> {
   
 export function initGoogleAuth() {
 
-	const email = localStorage.getItem("googleSignInEmail");
+	const email = localStorage.getItem("email");
 	if(email)
 	{
 		const alreadyLoggedIn = "User is already logged IN";
@@ -101,8 +78,6 @@ export function initGoogleAuth() {
 		popup.style.top = "50%";
 		popup.style.left = "50%"; 
 		popup.style.transform = "translateX(-50%)"; 
-    
-	
 		google.accounts.id.renderButton(
 			document.getElementById("loginPopup")!,
 			{ theme: "filled_black", size: "large" }
@@ -112,7 +87,7 @@ export function initGoogleAuth() {
 }
 
 export function setupLogoutButton() {
-	const email = localStorage.getItem("googleSignInEmail");
+	const email = localStorage.getItem("email");
 	if (!email) {
 		const emailNonExist = "No email found for logout";
 		alert(emailNonExist);
@@ -123,10 +98,9 @@ export function setupLogoutButton() {
 
 	if (typeof google !== 'undefined') {
 		google.accounts.id.disableAutoSelect();
-		localStorage.removeItem("googleSignInEmail");
-		localStorage.removeItem("familyName");
+		localStorage.removeItem("email");
 		localStorage.removeItem("givenName");
-		localStorage.removeItem("imgProfil");
+		localStorage.removeItem("picture");
+		alert("You're logged out.")
 	}
-		//localStorage.removeItem("i18nextLng"); //! Uncomment if you want to remove the language from local storage
 }
