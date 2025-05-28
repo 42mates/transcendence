@@ -6,6 +6,27 @@ import { JoinRequest, PlayerInputMessage } from "./types/GameMessages";
 import join from "./routes/join";
 import action from "./routes/action";
 
+export type ConnectedUser = {
+    alias: string;
+    ws: ws.WebSocket;
+    gameMode: "1v1" | "tournament" | "local";
+    status: "idle" | "queued" | "matched";
+};
+
+export const connectedUsers: ConnectedUser[] = [];
+
+export const matchmakingQueues: {
+    ["1v1"]: ConnectedUser[];
+    ["tournament"]: ConnectedUser[];
+} = {
+    "1v1": [],
+    "tournament": [],
+};
+
+export const games: {
+    [gameId: string]: { players: string[] } // or a more detailed structure if needed
+} = {};
+
 function handleWSS(wsSocket: ws.WebSocket) {
 	wsSocket.on("message", (data: ws.RawData) => {
 		console.log("Received message:", data.toString());
@@ -20,7 +41,7 @@ function handleWSS(wsSocket: ws.WebSocket) {
 
 		switch (msg.type) {
 			case "join_request":
-				join(wsSocket, msg.payload as JoinRequest);
+				join(wsSocket, msg as JoinRequest);
 				break;
 			case "action":
 				action(wsSocket, msg.payload as PlayerInputMessage);
@@ -32,6 +53,27 @@ function handleWSS(wsSocket: ws.WebSocket) {
 
 	wsSocket.on("close", () => {
 		console.log("WebSocket connection closed");
+		const idx = connectedUsers.findIndex(u => u.ws === wsSocket);
+		if (idx !== -1) {
+			const user = connectedUsers[idx];
+			// Remove from queue if queued
+			if (user.gameMode === "1v1" || user.gameMode === "tournament") {
+				const queue = matchmakingQueues[user.gameMode];
+				const qIdx = queue.findIndex(u => u.alias === user.alias);
+				if (qIdx !== -1) queue.splice(qIdx, 1);
+			}
+			// Remove from connected users
+			connectedUsers.splice(idx, 1);
+			for (const [gameId, game] of Object.entries(games)) {
+				const idx = game.players.indexOf(user.alias);
+				if (idx !== -1) {
+					game.players.splice(idx, 1);
+					if (game.players.length === 0) {
+						delete games[gameId];
+					}
+				}
+			}
+		}
 	});
 
 	wsSocket.on("error", (error) => {

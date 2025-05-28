@@ -6,7 +6,7 @@ export function joinGame(url: string): void {
 	socket = new WebSocket(url);
 	socket.onopen = () => {
 		console.log('WebSocket connection established');
-		sendJoinRequest('1v1', 'playerId');
+		sendJoinRequest('local', Math.random().toString(36).slice(2, 10));
 	};
 
 	socket.onmessage = (event) => {
