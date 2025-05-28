@@ -1,6 +1,6 @@
 export type JoinRequestPayload = {
 	alias: string;
-	mode: "1v1" | "tournament";
+	mode: "1v1" | "tournament" | "local";
 	gameId: string | null;
 };
 

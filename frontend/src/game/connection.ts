@@ -21,7 +21,7 @@ export function joinGame(url: string): void {
 	};
 }
 
-export function sendJoinRequest(gameMode: "1v1" | "tournament", playerId: string): void {
+export function sendJoinRequest(gameMode: "1v1" | "tournament" | "local", playerId: string): void {
 	if (!socket || socket.readyState !== WebSocket.OPEN) {
 		console.error('[sendJoinRequest] WebSocket is not connected');
 		return;
