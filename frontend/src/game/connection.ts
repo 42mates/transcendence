@@ -1,23 +1,39 @@
+import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage } from '../types/GameMessages';
+
 export let socket: WebSocket | null = null;
 
-export function initiateWSSConnection(url: string): void {
-    socket = new WebSocket(url);
-    socket.onopen = () => {
-        console.log('WebSocket connection established');
-    };
-    socket.onerror = (err) => {
-        console.error('WebSocket error:', err);
-    };
-    socket.onclose = () => {
-        console.log('WebSocket connection closed');
-    };
+export function joinGame(url: string): void {
+	socket = new WebSocket(url);
+	socket.onopen = () => {
+		console.log('WebSocket connection established');
+		sendJoinRequest('1v1', 'playerId');
+	};
+
+	socket.onmessage = (event) => {
+		console.log('Message received from server:', event.data);
+		//const message: JoinResponse | GameStateMessage = JSON.parse(event.data);
+	};
+	socket.onerror = (err) => {
+		console.error('WebSocket error:', err);
+	};
+	socket.onclose = () => {
+		console.log('WebSocket connection closed');
+	};
 }
 
-export function connectToGame(gameId: string, playerId: string): void {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.error('WebSocket is not connected');
-        return;
-    }
-    const message = JSON.stringify({ type: 'join', gameId, playerId });
-    socket.send(message);
+export function sendJoinRequest(gameMode: "1v1" | "tournament", playerId: string): void {
+	if (!socket || socket.readyState !== WebSocket.OPEN) {
+		console.error('[sendJoinRequest] WebSocket is not connected');
+		return;
+	}
+	const message: JoinRequest = {
+		type: "join_request",
+		payload: {
+			alias: playerId,
+			mode: gameMode,
+			gameId: "idk",
+		},
+	};
+	socket.send(JSON.stringify(message));
+
 }

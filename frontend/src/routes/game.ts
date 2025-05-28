@@ -1,10 +1,11 @@
-import { initiateWSSConnection, connectToGame } from '../game/connection';
+import { socket, joinGame } from '../game/connection';
 import { gameLoop } from '../game/gameplay';
 
-export default function initGame() {
+export function initGame() {
     console.log('Game page loaded');
 
-    // initiateWSSConnection('ws://localhost:8080');
-    // connectToGame('gameId', 'playerId');
+	const wsUrl = `wss://${window.location.host}/api/game/join`;
+	joinGame(wsUrl);
+
     // gameLoop((data) => { ... });
 }
