@@ -1,13 +1,13 @@
 import { GameCanvas } from "./gameCanvas.class.js";
-import { GameElement } from "./gameElement.class.js";
+import { Template } from "./template.class.js";
 
-export class Paddle extends GameElement {
+export class Paddle extends Template {
 	down: boolean;
 	up: boolean;
 	score: number;
 	private speed: number;
 
-	constructor(x: number, y: number, h: number, w: number, s: number) {
+	constructor(x: number, y: number, h: number, w: number) {
 		super(x, y, h, w);
 		this.up = false;
 		this.down = false;

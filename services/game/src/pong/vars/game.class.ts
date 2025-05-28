@@ -11,19 +11,16 @@ export class Game {
 	constructor() {
 		this.gameCanvas = new GameCanvas(100, 100);
 
-		let paddleWidth = 5;
-		let paddleHeight = 25;
-		let paddleSpeed = 10;
-		let ballSize = 2.5;
-		let ballSpeed = 5;
-		let wallOffset = 20;
+		let paddleWidth = this.gameCanvas.width / 20;
+		let paddleHeight = this.gameCanvas.height / 5;
+		let ballSize = this.gameCanvas.height / 50;
+		let wallOffset = this.gameCanvas.width / 10;
 
 		this.player1 = new Paddle(
 			wallOffset,
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
-			paddleSpeed,
 		);
 
 		this.player2 = new Paddle(
@@ -31,7 +28,6 @@ export class Game {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
-			paddleSpeed,
 		);
 
 		this.ball = new Ball(
@@ -39,7 +35,6 @@ export class Game {
 			this.gameCanvas.height / 2 - ballSize / 2,
 			ballSize,
 			ballSize,
-			ballSpeed,
 		);
 	}
 
@@ -51,6 +46,6 @@ export class Game {
 
 	gameLoop() {
 		this.update();
-		requestAnimationFrame(this.gameLoop());
+		requestAnimationFrame(this.gameLoop);
 	}
 }

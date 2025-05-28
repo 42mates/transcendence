@@ -1,4 +1,4 @@
-export class GameElement {
+export class Template {
 	x: number;
 	y: number;
 	height: number;
@@ -14,9 +14,4 @@ export class GameElement {
 		this.xVec = 0;
 		this.yVec = 0;
 	}
-
-	/* draw(context) {
-		context.fillStyle("#fff");
-		context.fillRect(this.x, this.y, this.width, this.height);
-	} */
 }

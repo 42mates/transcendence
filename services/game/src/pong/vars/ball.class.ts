@@ -1,18 +1,18 @@
-import { GameElement } from "./gameElement.class.js";
+import { Template } from "./template.class.js";
 import { Paddle } from "./paddle.class.js";
 import { GameCanvas } from "./gameCanvas.class.js";
 
-export class Ball extends GameElement {
+export class Ball extends Template {
 	private speed: number;
 
-	constructor(x: number, y: number, h: number, w: number, s: number) {
+	constructor(x: number, y: number, h: number, w: number) {
 		super(x, y, h, w);
 		this.xVec = 1;
 		this.yVec = -1;
 		this.speed = 5;
 	}
 
-	update(player1: Paddle, player2: Paddle, gameCanvas: Canvas) {
+	update(player1: Paddle, player2: Paddle, gameCanvas: GameCanvas) {
 		if (this.xVec > 0) {
 			if (
 				this.x + this.width + this.speed >= player2.x &&
