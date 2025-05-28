@@ -7,7 +7,7 @@ const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
 const saveToLocalStorage = ({ givenName, picture, email }: GoogleLoginType) => {
 	localStorage.setItem("email", email);
 	localStorage.setItem("givenName", givenName);
-	localStorage.setItem("imgProfil", picture);
+	localStorage.setItem("picture", picture);
 }
 
 const handleCredentialResponse = async (response: any) =>{
@@ -86,7 +86,7 @@ export function initGoogleAuth() {
 }
 
 export function setupLogoutButton() {
-	const email = localStorage.getItem("googleSignInEmail");
+	const email = localStorage.getItem("email");
 	if (!email) {
 		const emailNonExist = "No email found for logout";
 		alert(emailNonExist);
