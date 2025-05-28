@@ -5,14 +5,12 @@ export class GameElement {
 	width: number;
 	xVec: number;
 	yVec: number;
-	speed: number;
 
-	constructor(x: number, y: number, h: number, w: number, s: number) {
+	constructor(x: number, y: number, h: number, w: number) {
 		this.x = x;
 		this.y = y;
 		this.height = h;
 		this.width = w;
-		this.speed = s;
 		this.xVec = 0;
 		this.yVec = 0;
 	}

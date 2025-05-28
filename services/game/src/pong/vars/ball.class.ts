@@ -1,14 +1,18 @@
 import { GameElement } from "./gameElement.class.js";
 import { Paddle } from "./paddle.class.js";
+import { GameCanvas } from "./gameCanvas.class.js";
 
 export class Ball extends GameElement {
+	private speed: number;
+
 	constructor(x: number, y: number, h: number, w: number, s: number) {
-		super(x, y, h, w, s);
+		super(x, y, h, w);
 		this.xVec = 1;
 		this.yVec = -1;
+		this.speed = 5;
 	}
 
-	update(player1: Paddle, player2: Paddle, canvas) {
+	update(player1: Paddle, player2: Paddle, gameCanvas: Canvas) {
 		if (this.xVec > 0) {
 			if (
 				this.x + this.width + this.speed >= player2.x &&
@@ -18,18 +22,18 @@ export class Ball extends GameElement {
 				this.xVec *= -1;
 			}
 			if (this.yVec > 1) {
-				if (this.y + this.height + this.speed >= canvas.height) {
+				if (this.y + this.height + this.speed >= gameCanvas.height) {
 					this.yVec *= -1;
 				}
 			} else {
-				if (this.y - this.speed <= canvas.height) {
+				if (this.y - this.speed <= gameCanvas.height) {
 					this.yVec *= -1;
 				}
 			}
-			if (this.x + this.width + this.speed >= canvas.width) {
+			if (this.x + this.width + this.speed >= gameCanvas.width) {
 				player1.score += 1;
-				this.x = canvas.width / 2 - this.width / 2;
-				this.y = canvas.height / 2 - this.height / 2;
+				this.x = gameCanvas.width / 2 - this.width / 2;
+				this.y = gameCanvas.height / 2 - this.height / 2;
 				this.xVec = 1;
 				this.yVec = -1;
 			}
@@ -42,18 +46,18 @@ export class Ball extends GameElement {
 				this.xVec *= -1;
 			}
 			if (this.yVec > 1) {
-				if (this.y + this.height + this.speed >= canvas.height) {
+				if (this.y + this.height + this.speed >= gameCanvas.height) {
 					this.yVec *= -1;
 				}
 			} else {
-				if (this.y - this.speed <= canvas.height) {
+				if (this.y - this.speed <= gameCanvas.height) {
 					this.yVec *= -1;
 				}
 			}
 			if (this.x - this.speed <= 0) {
 				player2.score += 1;
-				this.x = canvas.width / 2 - this.width / 2;
-				this.y = canvas.height / 2 - this.height / 2;
+				this.x = gameCanvas.width / 2 - this.width / 2;
+				this.y = gameCanvas.height / 2 - this.height / 2;
 				this.xVec = -1;
 				this.yVec = -1;
 			}

@@ -1,23 +1,26 @@
+import { GameCanvas } from "./gameCanvas.class.js";
 import { GameElement } from "./gameElement.class.js";
 
 export class Paddle extends GameElement {
 	down: boolean;
 	up: boolean;
 	score: number;
+	private speed: number;
 
 	constructor(x: number, y: number, h: number, w: number, s: number) {
-		super(x, y, h, w, s);
+		super(x, y, h, w);
 		this.up = false;
 		this.down = false;
 		this.score = 0;
+		this.speed = 10;
 	}
 
-	update(canvas) {
+	update(gameCanvas: GameCanvas) {
 		if (this.up == true && this.y <= 20) {
 			this.yVec = -1;
 		} else if (
 			this.down == true &&
-			this.y + this.height >= canvas.height - 20
+			this.y + this.height >= gameCanvas.height - 20
 		) {
 			this.yVec = 1;
 		} else {

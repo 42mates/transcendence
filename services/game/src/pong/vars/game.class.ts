@@ -1,31 +1,20 @@
 import { Ball } from "./ball.class.js";
 import { Paddle } from "./paddle.class.js";
+import { GameCanvas } from "./gameCanvas.class.js";
 
 export class Game {
-	private gameCanvas;
-	private gameContext;
-	// private static keysPressed: boolean[] = [];
+	private gameCanvas: GameCanvas;
 	private player1: Paddle;
 	private player2: Paddle;
 	private ball: Ball;
 
 	constructor() {
-		this.gameCanvas = document.getElementById("game-canvas");
-		this.gameContext = this.gameCanvas.getContext("2d");
-		this.gameContext.font = "30px Orbitron";
+		this.gameCanvas = new GameCanvas(100, 100);
 
-		/* window.addEventListener("keydown", function (e) {
-			Game.keysPressed[e.which] = true;
-		});
-
-		window.addEventListener("keyup", function (e) {
-			Game.keysPressed[e.which] = false;
-		}); */
-
-		let paddleWidth = 20;
-		let paddleHeight = 60;
+		let paddleWidth = 5;
+		let paddleHeight = 25;
 		let paddleSpeed = 10;
-		let ballSize = 10;
+		let ballSize = 2.5;
 		let ballSpeed = 5;
 		let wallOffset = 20;
 
@@ -54,54 +43,14 @@ export class Game {
 		);
 	}
 
-	/* drawBoardDetails() {
-		this.gameContext.strokeStyle = "#fff";
-		this.gameContext.lineWidth = 5;
-		this.gameContext.strokeRect(
-			this.gameCanvas.width / 2 - 10,
-			i + 10,
-			15,
-			20,
-		);
-
-		for (let i = 0; i + 30 < this.gameCanvas.height; i += 30) {
-			this.gameContext.fillStyle = "#fff";
-			this.gameContext.fillRect(
-				this.gameCanvas.width / 2 - 10,
-				i + 10,
-				15,
-				20,
-			);
-		}
-
-		this.gameContext.fillText(Game.player1.score, 280, 50);
-		this.gameContext.fillText(Game.player2.score, 390, 50);
-	} */
-
 	update() {
 		this.player1.update(this.gameCanvas);
 		this.player2.update(this.gameCanvas);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
 
-	/* draw() {
-		this.gameContext.fillStyle = "#000";
-		this.gameContext.fillRect(
-			0,
-			0,
-			this.gameCanvas.width,
-			this.gameCanvas.height,
-		);
-
-		this.drawBoardDetails();
-		this.player1.draw(this.gameContext);
-		this.player2.draw(this.gameContext);
-		this.ball.draw(this.gameContext);
-	} */
-
 	gameLoop() {
 		this.update();
-		// this.draw();
 		requestAnimationFrame(this.gameLoop());
 	}
 }

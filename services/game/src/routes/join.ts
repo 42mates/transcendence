@@ -1,10 +1,14 @@
-import { FastifyPluginAsync, FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { WebSocket } from "ws";
+import type { JoinRequest, JoinRequestPayload, JoinResponse} from "../types/GameMessages"; // Messages JSON
 
-const joinRoute: FastifyPluginAsync = async (fastify) => {
-	fastify.post('/join', async (request, reply) => {
-	  console.log('auth/join OK, sending response'); // Use Fastify's logger
-	  reply.send({ message: 'api/auth/join route accessed successfully' });
-	});
-  };
-  
-  export default joinRoute;
+export default function join(wsSocket: WebSocket, message: JoinRequest) {
+	console.log("Join message received:", message);
+	const response: JoinResponse = {
+		type: "join_response",
+		status: "accepted",
+		playerId: "CHANGEME", //! This should be replaced with actual player ID logic
+		gameId: "CHANGEME", //! This should be replaced with actual game ID logic
+		reason: null
+	};
+	wsSocket.send(JSON.stringify(response));
+}
