@@ -1,11 +1,10 @@
 import { Ball } from "./ball.class.js";
-import { KeyBinds } from "./keyBinds.js";
 import { Paddle } from "./paddle.class.js";
 
 export class Game {
 	private gameCanvas;
 	private gameContext;
-	private static keysPressed: boolean[] = [];
+	// private static keysPressed: boolean[] = [];
 	private player1: Paddle;
 	private player2: Paddle;
 	private ball: Ball;
@@ -15,13 +14,13 @@ export class Game {
 		this.gameContext = this.gameCanvas.getContext("2d");
 		this.gameContext.font = "30px Orbitron";
 
-		window.addEventListener("keydown", function (e) {
+		/* window.addEventListener("keydown", function (e) {
 			Game.keysPressed[e.which] = true;
 		});
 
 		window.addEventListener("keyup", function (e) {
 			Game.keysPressed[e.which] = false;
-		});
+		}); */
 
 		let paddleWidth = 20;
 		let paddleHeight = 60;
@@ -36,8 +35,6 @@ export class Game {
 			paddleWidth,
 			paddleHeight,
 			paddleSpeed,
-			KeyBinds.KEY_W,
-			KeyBinds.KEY_S,
 		);
 
 		this.player2 = new Paddle(
@@ -46,8 +43,6 @@ export class Game {
 			paddleWidth,
 			paddleHeight,
 			paddleSpeed,
-			KeyBinds.UP,
-			KeyBinds.DOWN,
 		);
 
 		this.ball = new Ball(
@@ -59,7 +54,7 @@ export class Game {
 		);
 	}
 
-	drawBoardDetails() {
+	/* drawBoardDetails() {
 		this.gameContext.strokeStyle = "#fff";
 		this.gameContext.lineWidth = 5;
 		this.gameContext.strokeRect(
@@ -81,7 +76,7 @@ export class Game {
 
 		this.gameContext.fillText(Game.player1.score, 280, 50);
 		this.gameContext.fillText(Game.player2.score, 390, 50);
-	}
+	} */
 
 	update() {
 		this.player1.update(this.gameCanvas);
@@ -89,7 +84,7 @@ export class Game {
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
 	}
 
-	draw() {
+	/* draw() {
 		this.gameContext.fillStyle = "#000";
 		this.gameContext.fillRect(
 			0,
@@ -102,11 +97,11 @@ export class Game {
 		this.player1.draw(this.gameContext);
 		this.player2.draw(this.gameContext);
 		this.ball.draw(this.gameContext);
-	}
+	} */
 
 	gameLoop() {
 		this.update();
-		this.draw();
+		// this.draw();
 		requestAnimationFrame(this.gameLoop());
 	}
 }
