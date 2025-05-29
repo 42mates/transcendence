@@ -9,7 +9,11 @@ export async function initGame() {
 	const form = new GameForm();
 	const formData = await form.getGameForm();
 	console.log('Game form data:', formData);
+	let game: Game | undefined;
+	if (formData.mode === 'online')
+		game = new Game(formData.onlineType, formData.alias);
+	else
+		game = new Game('1v1', formData.alias1);
 
-    const game = new Game('1v1');
-    game.connect();
+	game.connect();
 }

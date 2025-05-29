@@ -8,7 +8,7 @@
   "type": "join",
   "payload": {
     "alias": "pongMaster42",
-    "mode": "1v1" | "tournament", // or "practice", "ai"
+    "mode": "1v1" | "tournament" | "local", // or "practice", "ai"
     "gameId": null
   }
 }
@@ -59,5 +59,5 @@
 
 ## Fields and values
 
-- `mode`: `"1v1", "tournament"`
+- `mode`: `"1v1", "tournament", "local"`
 - `status`: `"running" | "ended"`
