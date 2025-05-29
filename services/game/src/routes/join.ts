@@ -111,9 +111,44 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 
 			return;
 		}
-	} else if (mode === "local") {
-		const gameId = getUniqueGameId();
-
+	} else if (mode === "local" && !message.payload.gameId) {
+		const newGameId = getUniqueGameId();
+		const response: JoinResponse = {
+			type: "join_response",
+			status: "accepted",
+			playerId: cleanAlias,
+			gameId: newGameId,
+			reason: null,
+		};
+		wsSocket.send(JSON.stringify(response));
+		games[newGameId] = { players: [cleanAlias] };
+	return;
+	} else if (mode === "local" && message.payload.gameId) {
+		const { gameId } = message.payload;
+		const existingGame = games[gameId];
+		if (!existingGame || existingGame.players.length !== 1) {
+			const response: JoinResponse = {
+				type: "join_response",
+				status: "rejected",
+				playerId: null,
+				gameId: null,
+				reason: "Invalid or full local game",
+			};
+			wsSocket.send(JSON.stringify(response));
+			return;
+		}
+		if (existingGame.players[0] === cleanAlias) {
+			const response: JoinResponse = {
+				type: "join_response",
+				status: "rejected",
+				playerId: null,
+				gameId: null,
+				reason: "Alias already in use in this game",
+			};
+			wsSocket.send(JSON.stringify(response));
+			return;
+		}
+		existingGame.players.push(cleanAlias);
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "accepted",
@@ -122,9 +157,6 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			reason: null,
 		};
 		wsSocket.send(JSON.stringify(response));
-
-		// Register the game
-		games[gameId] = { players: [cleanAlias] };
 		return;
 	}
 
