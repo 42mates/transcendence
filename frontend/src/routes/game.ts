@@ -1,11 +1,15 @@
-import { socket, joinGame } from '../game/connection';
-import { gameLoop } from '../game/gameplay';
 
-export function initGame() {
+import Game from '../game/Game';
+import { GameForm } from '../game/form';
+import { GameFormType } from '../types/GameForm';
+
+export async function initGame() {
     console.log('Game page loaded');
 
-	const wsUrl = `wss://${window.location.host}/api/game/join`;
-	joinGame(wsUrl);
+	const form = new GameForm();
+	const formData = await form.getGameForm();
+	console.log('Game form data:', formData);
 
-    // gameLoop((data) => { ... });
+    const game = new Game('1v1');
+    game.connect();
 }

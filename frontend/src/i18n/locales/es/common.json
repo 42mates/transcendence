@@ -11,6 +11,8 @@
 	"search": "Buscar",
 	"loading": "Cargando...",
 	"error": {
+		"generic": "Ocurrió un error. Por favor, inténtalo de nuevo más tarde.",
+		"unexpected": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.",
 		"network": "Error de red. Inténtalo de nuevo.",
 		"server": "Error del servidor. Contacta al equipo de soporte.",
 		"notFound": "Recurso no encontrado."

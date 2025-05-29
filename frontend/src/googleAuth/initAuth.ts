@@ -1,4 +1,5 @@
-import GoogleLoginType from "../../types/GoogleLoginType"
+import i18n from "../i18n/i18n";
+import GoogleLoginType from "../types/GoogleLoginType"
 import { handlePostRequest } from "../utils/HTTPRequests";
 
 const client_id = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
@@ -17,7 +18,7 @@ const handleCredentialResponse = async (response: any) =>{
 		const userInfo = await handlePostRequest("/api/auth/login", token);
 		saveToLocalStorage(userInfo);
 		if(userInfo)
-			alert(`Successfully login! Hello, ${userInfo.givenName}`)
+			alert(i18n.t('login:loginSuccess', { user: userInfo.givenName }));
 		if (popup) 
 			popup.style.display = "none";
 	}
@@ -57,7 +58,7 @@ export function initGoogleAuth() {
 	{
 		const alreadyLoggedIn = "User is already logged IN";
 		console.error(alreadyLoggedIn);
-		alert(alreadyLoggedIn);
+		alert(i18n.t('login:error.alreadyLoggedIn'));
 		return;
 	}
 	else
@@ -89,9 +90,8 @@ export function initGoogleAuth() {
 export function setupLogoutButton() {
 	const email = localStorage.getItem("email");
 	if (!email) {
-		const emailNonExist = "No email found for logout";
-		alert(emailNonExist);
-		console.error(emailNonExist);
+		alert(i18n.t('login:error.emailLogoutNotFound'));
+		console.error("No email found for logout");
 		return;
 	}
 
@@ -101,6 +101,6 @@ export function setupLogoutButton() {
 		localStorage.removeItem("email");
 		localStorage.removeItem("givenName");
 		localStorage.removeItem("picture");
-		alert("You're logged out.")
+		alert(i18n.t('login:logoutSuccess', { user: email }));
 	}
 }
