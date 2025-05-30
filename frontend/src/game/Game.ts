@@ -21,10 +21,6 @@ export default class Game {
 		});
 	}
 
-    public async waitForJoin(): Promise<string> {
-        return this.joinPromise;
-    }
-
 	public connect() {
 		const wsUrl = `wss://${window.location.host}/api/game/join`;
 		this.socket = new WebSocket(wsUrl);
@@ -32,12 +28,19 @@ export default class Game {
 		this.socket.onopen = () => {
 			console.log('WebSocket connection established');
 			this.sendJoinRequest();
+			// Draw waiting animation
+			// await Join Response
+			// Draw game state
 		};
 		this.socket.onmessage = (event) => this.handleMessage(event);
 		this.socket.onerror = (err) => console.error('WebSocket error:', err);
 		this.socket.onclose = () => console.log('WebSocket connection closed');
 
 		this.setupInputListeners();
+	}
+
+	public async waitForJoin(): Promise<string> {
+		return this.joinPromise;
 	}
 
 	private sendJoinRequest() {
@@ -73,27 +76,27 @@ export default class Game {
 	}
 
 	private handleJoinResponse(data: JoinResponse) {
-        this.playerId = data.playerId;
-        this.gameStarted = data.status === 'accepted';
+		this.playerId = data.playerId;
+		this.gameStarted = data.status === 'accepted';
 
-        if (data.status === 'rejected') {
-            console.error(`Join rejected: ${data.reason ?? 'No reason provided'}`);
-            this.socket?.close();
+		if (data.status === 'rejected') {
+			console.error(`Join rejected: ${data.reason ?? 'No reason provided'}`);
+			this.socket?.close();
 			//// Optionally reject the promise below
 			//if (this.joinResolve) {
 			//	this.joinResolve = null;
 			//	this.joinPromise = Promise.reject(new Error(`Join rejected: ${data.reason ?? 'No reason provided'}`));
 			//}
-        } else {
-            this.gameStarted = true;
-            this.gameId = data.gameId ?? null;
-            console.log(`Joined game ${data.gameId} as player ${data.playerId}`);
-            if (this.joinResolve && data.gameId) {
-                this.joinResolve(data.gameId);
-                this.joinResolve = null;
-            }
-        }
-    }
+		} else {
+			this.gameStarted = true;
+			this.gameId = data.gameId ?? null;
+			console.log(`Joined game ${data.gameId} as player ${data.playerId}`);
+			if (this.joinResolve && data.gameId) {
+				this.joinResolve(data.gameId);
+				this.joinResolve = null;
+			}
+		}
+	}
 	private handleGameStateMessage(data: GameStateMessage) {
 		// Mets à jour le canvas ou l'état du jeu ici
 	}

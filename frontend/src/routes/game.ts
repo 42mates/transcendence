@@ -3,8 +3,10 @@ import Game from '../game/Game';
 import { GameForm } from '../game/form';
 import { GameFormType } from '../types/GameForm';
 
-function playOnline(data: Extract<GameFormType, { mode: "online" }>) {
+async function playOnline(data: Extract<GameFormType, { mode: "online" }>) {
 	let game = new Game(data.onlineType, data.alias);
+	game.connect();
+    await game.waitForJoin();
 }
 
 async function playLocal(data: Extract<GameFormType, { mode: "local" }>) {
