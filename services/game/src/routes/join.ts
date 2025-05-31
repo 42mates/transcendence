@@ -72,8 +72,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			player1.ws.send(JSON.stringify(matchInfo));
 			player2.ws.send(JSON.stringify(matchInfo2));
 
-			// Register the game
-			games[gameId] = { players: [player1.alias, player2.alias] };
+			// Register the game with ConnectedUser objects
+			games[gameId] = { players: [player1, player2] };
 
 			return;
 		} else if (mode === "tournament" && matchmakingQueues["tournament"].length >= 4) {
@@ -85,8 +85,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			const gameId4 = getUniqueGameId();
 
 			// Register initial games
-			games[gameId1] = { players: [p1.alias, p2.alias] };
-			games[gameId2] = { players: [p3.alias, p4.alias] };
+			games[gameId1] = { players: [p1, p2] };
+			games[gameId2] = { players: [p3, p4] };
 
 			// Build bracket info
 			const bracket = {
@@ -121,7 +121,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			reason: null,
 		};
 		wsSocket.send(JSON.stringify(response));
-		games[newGameId] = { players: [cleanAlias] };
+		games[newGameId] = { players: [user] };
 	return;
 	} else if (mode === "local" && message.payload.gameId) {
 		const { gameId } = message.payload;
@@ -137,7 +137,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			wsSocket.send(JSON.stringify(response));
 			return;
 		}
-		if (existingGame.players[0] === cleanAlias) {
+		if (existingGame.players[0].alias === cleanAlias) { // ✅ compare alias property
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",
@@ -148,7 +148,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			wsSocket.send(JSON.stringify(response));
 			return;
 		}
-		existingGame.players.push(cleanAlias);
+		existingGame.players.push(user);
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "accepted",
