@@ -55,7 +55,7 @@ function handleDisconnect(wsSocket: ws.WebSocket) {
 		// Remove from connected users
 		connectedUsers.splice(idx, 1);
 		for (const [gameId, game] of Object.entries(games)) {
-			const idx = game.players.indexOf(user.alias);
+			const idx = game.players.findIndex(u => u.alias === user.alias); // ✅ compare by alias property
 			if (idx !== -1) {
 				game.players.splice(idx, 1);
 				if (game.players.length === 0) {
