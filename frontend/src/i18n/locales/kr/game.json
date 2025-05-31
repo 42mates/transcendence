@@ -1,15 +1,29 @@
 {
 	"title": "게임",
+	"alias": {
+		"prompt": "별명을 입력하세요:",
+		"promptPlayer1": "플레이어 1의 별명을 입력하세요:",
+		"promptPlayer2": "플레이어 2의 별명을 입력하세요:",
+		"placeholder1": "퍼펫마스터420",
+		"placeholder2": "게임로드69",
+		"error": "잘못된 별명 '{{alias}}'. 다시 시도해주세요.",
+		"prerequisites": "별명은 3자에서 20자 사이여야 하며, 영문, 숫자, 밑줄만 사용할 수 있습니다."
+	},
+	"mode": {
+		"prompt": "게임 모드를 선택하세요:",
+		"local": "로컬",
+		"online": "온라인",
+		"1v1": "1대1",
+		"tournament": "토너먼트"
+	},
 	"playButton": "플레이",
-	"pauseButton": "일시 정지",
-	"resumeButton": "다시 시작",
 	"quitButton": "종료",
 	"highScore": "최고 점수",
 	"gameOver": "게임 오버",
 	"tryAgain": "다시 시도",
 	"success": {
-		"levelComplete": "{{level}} 레벨 완료!",
-		"newHighScore": "새로운 최고 점수: {{score}}!"
+		 "levelComplete": "{{level}} 레벨 완료!",
+		 "newHighScore": "새로운 최고 점수: {{score}}!"
 	},
 	"error": {
 		"connectionLost": "연결이 끊어졌습니다. 다시 시도해주세요.",

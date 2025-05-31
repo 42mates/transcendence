@@ -2,15 +2,20 @@
 	"title": "Iniciar sesión",
 	"username": "Nombre de usuario",
 	"password": "Contraseña",
-	"rememberMe": "Mantener sesión iniciada",
+	"rememberMe": "Recuérdame",
 	"forgotPassword": "¿Olvidaste tu contraseña?",
 	"loginButton": "Iniciar sesión",
+	"loginSuccess": "¡Hola, {{user}}! Has iniciado sesión correctamente.",
 	"logoutButton": "Cerrar sesión",
+	"logoutConfirmation": "¿Estás seguro de que deseas cerrar sesión?",
+	"logoutSuccess": "¡Adiós, {{user}}! Has cerrado sesión correctamente.",
 	"signupPrompt": "¿No tienes una cuenta? Regístrate",
 	"error": {
-		"invalidCredentials": "Credenciales incorrectas. Inténtalo de nuevo.",
+		"alreadyLoggedIn": "Ya has iniciado sesión.",
+		"emailLogoutNotFound": "Correo electrónico no encontrado para cerrar sesión.",
+		"invalidCredentials": "Credenciales inválidas. Por favor, inténtalo de nuevo.",
 		"requiredField": "Este campo es obligatorio.",
-		"accountLocked": "La cuenta está bloqueada. Contacta al administrador."
+		"accountLocked": "Cuenta bloqueada. Contacta al administrador."
 	},
 	"success": {
 		"welcomeBack": "¡Bienvenido de nuevo, {{username}}!"

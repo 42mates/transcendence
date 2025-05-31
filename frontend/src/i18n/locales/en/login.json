@@ -5,9 +5,14 @@
 	"rememberMe": "Remember me",
 	"forgotPassword": "Forgot password?",
 	"loginButton": "Log in",
+	"loginSuccess": "Hello, {{user}}! You have successfully logged in.",
 	"logoutButton": "Log out",
+	"logoutConfirmation": "Are you sure you want to log out?",
+	"logoutSuccess": "Bye bye, {{user}}! You have been successfully logged out.",
 	"signupPrompt": "Don't have an account? Sign up",
 	"error": {
+		"alreadyLoggedIn": "You are already logged in.",
+		"emailLogoutNotFound": "Email not found for logout.",
 		"invalidCredentials": "Invalid credentials. Please try again.",
 		"requiredField": "This field is required.",
 		"accountLocked": "Account locked. Contact the administrator."

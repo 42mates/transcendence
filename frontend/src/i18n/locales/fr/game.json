@@ -1,15 +1,29 @@
 {
 	"title": "Jeu",
+	"alias": {
+		"prompt": "Veuillez entrer votre pseudo :",
+		"promptPlayer1": "Veuillez entrer le pseudo du Joueur 1 :",
+		"promptPlayer2": "Veuillez entrer le pseudo du Joueur 2 :",
+		"placeholder1": "MaîtreDesMarionnettes420",
+		"placeholder2": "SeigneurDuJeu69",
+		"error": "Alias invalide '{{alias}}'. Veuillez réessayer.",
+		"prerequisites": "Le pseudo doit comporter entre 3 et 20 caractères et ne peut contenir que des lettres, des chiffres et des underscores."
+	},
+	"mode": {
+		"prompt": "Sélectionnez le mode de jeu :",
+		"local": "Local",
+		"online": "En ligne",
+		"1v1": "1v1",
+		"tournament": "Tournoi"
+	},
 	"playButton": "Jouer",
-	"pauseButton": "Pause",
-	"resumeButton": "Reprendre",
 	"quitButton": "Quitter",
 	"highScore": "Meilleur Score",
 	"gameOver": "Fin de Partie",
 	"tryAgain": "Réessayer",
 	"success": {
-		"levelComplete": "Niveau {{level}} Terminé !",
-		"newHighScore": "Nouveau Meilleur Score : {{score}} !"
+		"levelComplete": "Niveau {{level}} terminé !",
+		"newHighScore": "Nouveau meilleur score : {{score}} !"
 	},
 	"error": {
 		"connectionLost": "Connexion perdue. Veuillez réessayer.",

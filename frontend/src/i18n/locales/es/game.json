@@ -1,8 +1,22 @@
 {
 	"title": "Juego",
+	"alias": {
+		"prompt": "Por favor, introduce tu alias:",
+		"promptPlayer1": "Por favor, introduce el alias del Jugador 1:",
+		"promptPlayer2": "Por favor, introduce el alias del Jugador 2:",
+		"placeholder1": "Titiritero420",
+		"placeholder2": "SeñorDelJuego69",
+		"error": "Alias inválido '{{alias}}'. Por favor, inténtalo de nuevo.",
+		"prerequisites": "El alias debe tener entre 3 y 20 caracteres y solo puede contener letras, números y guiones bajos."
+	},
+	"mode": {
+		"prompt": "Selecciona el modo de juego:",
+		"local": "Local",
+		"online": "En línea",
+		"1v1": "1v1",
+		"tournament": "Torneo"
+	},
 	"playButton": "Jugar",
-	"pauseButton": "Pausa",
-	"resumeButton": "Reanudar",
 	"quitButton": "Salir",
 	"highScore": "Puntuación más alta",
 	"gameOver": "Fin del juego",
