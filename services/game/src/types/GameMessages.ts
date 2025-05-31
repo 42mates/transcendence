@@ -1,6 +1,6 @@
 export type JoinRequestPayload = {
 	alias: string;
-	mode: "1v1" | "tournament";
+	mode: "1v1" | "tournament" | "local";
 	gameId: string | null;
 };
 
@@ -9,14 +9,21 @@ export type JoinRequest = {
 	payload: JoinRequestPayload;
 };
 
+export type TournamentBracket = {
+    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
+    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
+    game3: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string },
+    game4: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string }
+};
+
 export type JoinResponse = {
 	type: "join_response";
 	status: "accepted" | "rejected";
 	playerId: string | null;
 	gameId: string | null;
 	reason: string | null;
+	bracket?: TournamentBracket; // <-- add this line
 };
-
 
 export type PlayerInputMessage = {
 	type: "player_input";
@@ -33,4 +40,12 @@ export type GameStateMessage = {
 	paddles: { x: number; y: number }[];
 	score: [number, number];
 	status: "running" | "ended" | string;
+};
+
+import * as ws from "ws";
+export type ConnectedUser = {
+	alias: string;
+	ws: ws.WebSocket;
+	gameMode: "1v1" | "tournament" | "local";
+	status: "idle" | "queued" | "matched";
 };

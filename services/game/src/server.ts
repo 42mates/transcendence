@@ -5,6 +5,8 @@ import * as ws from "ws";
 import { JoinRequest, PlayerInputMessage } from "./types/GameMessages";
 import join from "./routes/join";
 import action from "./routes/action";
+import aliasCheckRoute from "./routes/check-alias";
+import { connectedUsers, matchmakingQueues, games } from "./game/state";
 
 function handleWSS(wsSocket: ws.WebSocket) {
 	wsSocket.on("message", (data: ws.RawData) => {
@@ -20,7 +22,7 @@ function handleWSS(wsSocket: ws.WebSocket) {
 
 		switch (msg.type) {
 			case "join_request":
-				join(wsSocket, msg.payload as JoinRequest);
+				join(wsSocket, msg as JoinRequest);
 				break;
 			case "action":
 				action(wsSocket, msg.payload as PlayerInputMessage);
@@ -31,12 +33,37 @@ function handleWSS(wsSocket: ws.WebSocket) {
 	});
 
 	wsSocket.on("close", () => {
-		console.log("WebSocket connection closed");
+		handleDisconnect(wsSocket);
 	});
 
 	wsSocket.on("error", (error) => {
 		console.error(`WebSocket error: ${error}`);
 	});
+}
+
+function handleDisconnect(wsSocket: ws.WebSocket) {
+	console.log("WebSocket connection closed");
+	const idx = connectedUsers.findIndex(u => u.ws === wsSocket);
+	if (idx !== -1) {
+		const user = connectedUsers[idx];
+		// Remove from queue if queued
+		if (user.gameMode === "1v1" || user.gameMode === "tournament") {
+			const queue = matchmakingQueues[user.gameMode];
+			const qIdx = queue.findIndex(u => u.alias === user.alias);
+			if (qIdx !== -1) queue.splice(qIdx, 1);
+		}
+		// Remove from connected users
+		connectedUsers.splice(idx, 1);
+		for (const [gameId, game] of Object.entries(games)) {
+			const idx = game.players.indexOf(user.alias);
+			if (idx !== -1) {
+				game.players.splice(idx, 1);
+				if (game.players.length === 0) {
+					delete games[gameId];
+				}
+			}
+		}
+	}
 }
 
 
@@ -50,10 +77,12 @@ export default async function startServer() {
 
 	const server = fastify.server;
 
+	fastify.register(aliasCheckRoute);
+
 	const wss = new ws.Server({ server });
 
 	wss.on("connection", (wsSocket) => {
-		wsSocket.send("Successfully connected to the game service WebSocket server");
+		wsSocket.send(JSON.stringify({ type: "info", payload: "Successfully connected to the game service WebSocket server" }));
 		console.log("New WebSocket connection established");
 		handleWSS(wsSocket);
 	});

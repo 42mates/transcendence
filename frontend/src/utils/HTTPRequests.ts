@@ -10,7 +10,7 @@ export async function handlePostRequest(endpoint: string, username: string) {
 		const data = await response.json();
 		return data;
 	} catch (error) {
-		alert('An error occurred: ' + error);
+		alert('[DEBUG] An error occurred: ' + error);
 	}
 }
 
@@ -25,8 +25,8 @@ export async function handleGetRequest(endpoint: string, username: string) {
 			// body: JSON.stringify({ username }),
 		});
 		const data = await response.json();
-		alert('GET ' + endpoint + ': ' + data.message);
+		alert('[DEBUG] GET ' + endpoint + ': ' + data.message);
 	} catch (error) {
-		alert('An error occurred: ' + error);
+		alert('[DEBUG] An error occurred: ' + error);
 	}
 }
