@@ -1,14 +1,15 @@
 import { Ball } from "./ball.class.js";
 import { Paddle } from "./paddle.class.js";
 import { GameCanvas } from "./gameCanvas.class.js";
+import { GameBackend } from "../../game/state.js";
 
-export class Game {
+export class GameInstance {
 	private gameCanvas: GameCanvas;
 	private player1: Paddle;
 	private player2: Paddle;
 	private ball: Ball;
 
-	constructor() {
+	constructor(gameBackend: GameBackend) {
 		let canvasWidth = 100;
 		let canvasHeight = canvasWidth * (3 / 4);
 		let wallOffset = canvasWidth / 10;
