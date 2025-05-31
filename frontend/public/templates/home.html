@@ -1,139 +1,30 @@
-<!-- <div class="marging-top flex flex-col justify-between h-screen text-center bg-neutral-800 text-white px-4">
-	<div class="mt-4">
-		<h1 class="text-7xl font-bold text-amber-400" data-i18nkey="common:welcome">
-			Welcome
-		</h1>
-	</div>
-	<div class="flex justify-center">
-		<iframe class="aspect-video w-96" src="https://www.youtube.com/embed/C0DPdy98e4c?si=1toWm4ZETfZLVURZ"></iframe>
-	</div>
-		<div class="mb-8 space-y-2">
-			<button id="loginButton" class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500" data-i18nkey="login:loginButton">
-				Login
-			</button>
-			<br />
-			<button id="guestButton" class="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-400" data-i18nkey="login:guest">
-				Guest
-			</button>
-		</div>
-</div> -->
-
-
-
-
-
-
-
-
-<!-- <div class="flex flex-col justify-between h-[calc(100vh-4rem)] overflow-hidden text-center bg-neutral-800 text-white px-4">
-  <div class="mt-4">
-    <h1 class="text-7xl font-bold text-amber-400">Welcome</h1>
-  </div>
-  <div class="flex justify-center">
-    <iframe class="aspect-video w-96 border-0" src="https://www.youtube.com/embed/C0DPdy98e4c?si=..."></iframe>
-  </div>
-  <div class="mb-0 space-y-2">
-    <button class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500">Login</button><br />
-    <button class="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-400">Guest</button>
-  </div>
-</div> -->
-
-
-
-<div class="flex flex-col justify-between flex-1 text-center bg-neutral-800 text-white px-2">
-  <div class="mt-4">
+<div class="flex flex-col justify-between flex-1 text-center bg-neutral-800 text-white">
+  <div class="pt-16"> <!-- Changé mt-8 en pt-16 -->
     <h1 class="text-8xl tracking-wide text-amber-400" data-i18nkey="common:welcome">
-		Welcome
-	</h1>
+      Welcome
+    </h1>
   </div>
-<div class="relative my-12 h-96">
-  <img
-    src="/assets/image.png"
-    alt="Image 1"
-    class="absolute -left-40 -top-36 rotate-[-12deg] w-[1300px]"
-  />
-  <img
-    src="/assets/image.png"
-    alt="Image 2"
-    class="absolute -right-10 top-10 rotate-[13deg] w-[1100px]"
-  />
-</div>
-  <div class="mb-8 z-10 space-y-2">
-    <button class="px-4 py-2 bg-amber-400 text-white rounded hover:bg-amber-500" data-i18nkey="login:loginButton">
-		Login
-	</button>
-	<br />
-    <button class="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-400" data-i18nkey="login:guest">
-		Guest
-	</button>
+
+  <!-- <div class="relative flex-1 flex items-center justify-center">
+    <img
+      src="/assets/image.png"
+      alt="Image 1"
+      class="absolute -left-40 rotate-[-12deg] w-[1300px] max-w-none select-none pointer-events-none"
+    />
+    <img
+      src="/assets/image.png"
+      alt="Image 2"
+      class="absolute -right-10 rotate-[13deg] w-[1100px] max-w-none select-none pointer-events-none"
+    />
+  </div> -->
+
+  <div class="pb-16 space-y-4"> <!-- Changé mb-8 en pb-16 -->
+    <button class="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500 transition-colors" data-i18nkey="login:loginButton">
+      Login
+    </button>
+    <br />
+    <button class="px-6 py-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-500 transition-colors" data-i18nkey="login:guest">
+      Guest
+    </button>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <div class="flex flex-col items-center justify-center h-screen bg-gray-800 space-y-4">
-	<div class="text-center text-white">
-	<h1 class="text-2xl font-bold text-blue-400">🏠 Welcome to Home</h1>
-	<nav class="space-x-4">
-		<a href="/demo" data-spa class="underline text-teal-300">Demo</a>
-		<a href="/login" data-spa class="underline text-teal-300">Login</a>
-	</nav>
-</div>
-<div class="relative inline-block text-left">
-
-	<button id="langButton" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700" data-i18nkey="common:site_language">
-	  SITE LANGUAGE: English
-	  <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-		   viewBox="0 0 24 24">
-		<path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-	  </svg>
-	</button>
-
-
-	<div id="langMenu" class="absolute z-10 hidden mt-2 w-72 bg-white rounded-lg shadow-lg p-4 grid grid-cols-2 gap-2">
-	  <button id="changeLangButton-en" class="flex items-center gap-2 hover:bg-gray-100 p-2 rounded" data-lang="en">
-		🇺🇸 English
-	  </button>
-	  <button id="changeLangButton-fr" class="flex items-center gap-2 hover:bg-gray-100 p-2 rounded" data-lang="fr">
-		🇫🇷 Français
-	  </button>
-	  <button id="changeLangButton-es" class="flex items-center gap-2 hover:bg-gray-100 p-2 rounded" data-lang="es">
-		🇪🇸 Español
-	  </button>
-	  <button id="changeLangButton-kr" class="flex items-center gap-2 hover:bg-gray-100 p-2 rounded" data-lang="kr">
-		🇰🇷 한국어
-	  </button>
-	</div>
-  </div>
-  
-</div> -->

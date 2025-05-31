@@ -11,24 +11,20 @@ export function initHome() {
 
         // Gestion des clics sur les boutons de langue
         const langButtons = document.querySelectorAll('[id^="changeLangButton-"]');
-        langButtons.forEach(button => {
-            button.addEventListener("click", function(e: Event) {
+        langButtons.forEach(function (button) {
+            button.addEventListener("click", function (this: HTMLElement, e: Event) {
                 e.preventDefault();
                 const lang = this.getAttribute('data-lang');
                 if (lang) {
-                    // Récupérer le texte du bouton (le nom de la langue)
                     const langName = this.textContent?.trim();
                     console.log(`Changing language to: ${langName} (${lang})`);
-                    
-                    // Fermer le menu
                     langMenu.classList.add("hidden");
                 }
             });
 
-            // Empêcher la propagation des clics sur les SVG
             const svg = button.querySelector('svg');
             if (svg) {
-                svg.addEventListener("click", function(e: Event) {
+                svg.addEventListener("click", function (e: Event) {
                     e.stopPropagation();
                     const parentButton = this.closest('[data-lang]') as HTMLElement;
                     if (parentButton) {
