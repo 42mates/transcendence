@@ -49,3 +49,12 @@ export type ConnectedUser = {
 	gameMode: "1v1" | "tournament" | "local";
 	status: "idle" | "queued" | "matched";
 };
+
+export type GameStatusUpdateMessage = {
+    type: "game_status_update";
+    gameId: string;
+    status: "pending" | "waiting" | "running" | "finished";
+    winner?: string;
+    loser?: string;
+    tournamentId?: string;
+};

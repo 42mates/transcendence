@@ -42,3 +42,12 @@ export type GameStateMessage = {
 	score: [number, number];
 	status: "running" | "ended" | string;
 };
+
+export type GameStatusUpdateMessage = {
+    type: "game_status_update";
+    gameId: string;
+    status: "pending" | "waiting" | "running" | "finished";
+    winner?: string;
+    loser?: string;
+    tournamentId?: string;
+};
