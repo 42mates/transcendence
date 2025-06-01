@@ -38,15 +38,26 @@ export default class Game {
 			//this.canvas?.drawError("TESTMESSAGE");
 			this.canvas?.drawLoadingAnimation();
 			this.waitForJoin().then((gameId) => {
-				console.log(`Joined game with ID: ${gameId}`);
 				this.canvas?.stopLoadingAnimation();
-				this.canvas?.drawError("GAME HERE"); // Assuming this method exists to draw an error message
 
-				//this.canvas?.drawGameState(); // Assuming this method exists to draw the game state
+				//this.canvas?.drawError("GAME HERE");
+
+				let firstGameState: GameStateMessage = {
+					type: "game_state",
+					ball: { x: 100 / 2, y: 50 },
+					paddles: [
+						{ x: 0,   y: 50 },
+						{ x: 100, y: 50 }
+					],
+					score: [0, 0],
+					status: "started"
+				};
+				this.canvas?.drawGameState(firstGameState);
+
 			}).catch((error) => {
 				console.error('Failed to join game:', error);
 				this.canvas?.stopLoadingAnimation();
-				this.canvas?.drawError(error.message); // Assuming this method exists to draw an error message
+				this.canvas?.drawError(error.message);
 			});
 		};
 		this.socket.onmessage = (event) => this.handleMessage(event);
@@ -114,8 +125,26 @@ export default class Game {
 			}
 		}
 	}
+
+	private parseGameState(data: GameStateMessage): GameStateMessage {
+		if (this.playerId === "2") 
+		{
+			// Invert the paddles for player 2
+			data.paddles = data.paddles.map((paddle, index) => {
+				if (index === 1) {
+					return { x: paddle.x, y: 100 - paddle.y }; // Invert Y position for player 2
+				}
+				return paddle;
+			});
+			data.ball.y = 100 - data.ball.y; // Invert ball Y position for player 2
+		}
+		return data;
+	}
+
 	private handleGameStateMessage(data: GameStateMessage) {
-		// Mets à jour le canvas ou l'état du jeu ici
+		
+		
+		this.canvas?.drawGameState(data);
 	}
 
 	private setupInputListeners() {
