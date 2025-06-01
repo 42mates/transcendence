@@ -21,6 +21,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "rejected",
+			alias: alias,
 			playerId: null,
 			gameId: null,
 			reason: "Invalid alias",
@@ -32,6 +33,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "rejected",
+			alias: alias,
 			playerId: null,
 			gameId: null,
 			reason: "Alias already in use",
@@ -63,15 +65,17 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			const matchInfo: JoinResponse = {
 				type: "join_response",
 				status: "accepted",
-				playerId: player1.alias,
-				gameId: gameId + "-0",
+				playerId: "1",
+				alias: player1.alias,
+				gameId,
 				reason: null,
 			};
 			const matchInfo2: JoinResponse = {
 				type: "join_response",
 				status: "accepted",
-				playerId: player2.alias,
-				gameId: gameId + "-1",
+				playerId: "2",
+				alias: player2.alias,
+				gameId,
 				reason: null,
 			};
 			player1.ws.send(JSON.stringify(matchInfo));
@@ -132,17 +136,18 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			tournaments[tournamentId] = backendBracket;
 
 			// Send join_response with bracket to all 4 players
-			for (const p of players) {
+			players.forEach((p, idx) => {
 				const response: JoinResponse = {
 					type: "join_response",
 					status: "accepted",
-					playerId: p.alias,
-					gameId: p === p1 || p === p2 ? gameId1 : gameId2,
+					playerId: (idx % 2 === 0 ? "1" : "2"),
+					alias: p.alias,
+					gameId: (p === p1 || p === p2) ? gameId1 : gameId2,
 					reason: null,
 					bracket: frontendBracket,
 				};
 				p.ws.send(JSON.stringify(response));
-			}
+			});
 
 			return;
 		}
@@ -151,7 +156,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "accepted",
-			playerId: cleanAlias,
+			playerId: "1",
+			alias: cleanAlias,
 			gameId: newGameId,
 			reason: null,
 		};
@@ -170,6 +176,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 				type: "join_response",
 				status: "rejected",
 				playerId: null,
+				alias: cleanAlias,
 				gameId: null,
 				reason: "Invalid or full local game",
 			};
@@ -182,6 +189,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 				type: "join_response",
 				status: "rejected",
 				playerId: null,
+				alias: cleanAlias,
 				gameId: null,
 				reason: "Alias already in use in this game",
 			};
@@ -192,7 +200,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "accepted",
-			playerId: cleanAlias,
+			playerId: "2",
+			alias: cleanAlias,
 			gameId,
 			reason: null,
 		};
@@ -204,7 +213,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 	const response: JoinResponse = {
 		type: "join_response",
 		status: "accepted",
-		playerId: cleanAlias,
+		playerId: "1", // Player ID will be assigned later
+		alias: cleanAlias,
 		gameId: null,
 		reason: null,
 	};

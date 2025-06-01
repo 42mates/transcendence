@@ -19,7 +19,8 @@ export type TournamentBracket = {
 export type JoinResponse = {
 	type: "join_response";
 	status: "accepted" | "rejected";
-	playerId: string | null;
+	alias: string | null;
+	playerId: "1" | "2" | null;
 	gameId: string | null;
 	reason: string | null;
 	bracket?: TournamentBracket; // <-- add this line

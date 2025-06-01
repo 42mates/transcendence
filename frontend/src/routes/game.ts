@@ -21,13 +21,15 @@ async function playLocal(data: Extract<GameFormType, { mode: "local" }>) {
 
 export async function initGame() {
     console.log('Game page loaded');
-
-	const form = new GameForm();
-	const data = await form.getGameForm();
-	console.log('Game form data:', data);
-	if (data.mode === 'online')
-		playOnline(data);
-	else
-		playLocal(data);
-
+	try {
+		const form = new GameForm();
+		const data = await form.getGameForm();
+		if (data.mode === 'online')
+			playOnline(data);
+		else
+			playLocal(data);
+	}
+	catch (error) {
+		console.error('Error:', error);
+	}
 }
