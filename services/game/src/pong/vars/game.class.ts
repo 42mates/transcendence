@@ -26,6 +26,7 @@ export class GameInstance {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
+			gameBackend.players[0],
 		);
 
 		this.player2 = new Paddle(
@@ -33,6 +34,7 @@ export class GameInstance {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
+			gameBackend.players[1],
 		);
 
 		this.ball = new Ball(
