@@ -1,4 +1,5 @@
 import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage } from '../types/GameMessages';
+import Canvas from './Canvas';
 
 export default class Game {
 
@@ -8,6 +9,7 @@ export default class Game {
 	private playerId: string | null = null;
 	private mode: "1v1" | "tournament" | "local";
 	private gameStarted = false;
+	private canvas: Canvas | null = null;
 
 	private joinPromise: Promise<string>;
 	private joinResolve: ((gameId: string) => void) | null = null;
@@ -19,6 +21,11 @@ export default class Game {
 		this.joinPromise = new Promise((resolve) => {
 			this.joinResolve = resolve;
 		});
+		const canvasElement = document.getElementById('game-canvas');
+		if (!(canvasElement instanceof HTMLCanvasElement)) {
+			throw new Error('Canvas element with id "game-canvas" invalid or not found in the page.');
+		}
+		this.canvas = new Canvas(canvasElement);
 	}
 
 	public connect() {
@@ -28,9 +35,19 @@ export default class Game {
 		this.socket.onopen = () => {
 			console.log('WebSocket connection established');
 			this.sendJoinRequest();
-			// Draw waiting animation
-			// await Join Response
-			// Draw game state
+			//this.canvas?.drawError("TESTMESSAGE");
+			this.canvas?.drawLoadingAnimation();
+			this.waitForJoin().then((gameId) => {
+				console.log(`Joined game with ID: ${gameId}`);
+				this.canvas?.stopLoadingAnimation();
+				this.canvas?.drawError("GAME HERE"); // Assuming this method exists to draw an error message
+
+				//this.canvas?.drawGameState(); // Assuming this method exists to draw the game state
+			}).catch((error) => {
+				console.error('Failed to join game:', error);
+				this.canvas?.stopLoadingAnimation();
+				this.canvas?.drawError(error.message); // Assuming this method exists to draw an error message
+			});
 		};
 		this.socket.onmessage = (event) => this.handleMessage(event);
 		this.socket.onerror = (err) => console.error('WebSocket error:', err);
@@ -90,7 +107,7 @@ export default class Game {
 		} else {
 			this.gameStarted = true;
 			this.gameId = data.gameId ?? null;
-			console.log(`Joined game ${data.gameId} as player ${data.playerId}`);
+			console.log(`Joined game ${data.gameId} as player ${data.alias} (ID: ${this.playerId})`);
 			if (this.joinResolve && data.gameId) {
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;
@@ -103,7 +120,7 @@ export default class Game {
 
 	private setupInputListeners() {
 		document.addEventListener('keydown', (event) => {
-			if (!this.gameStarted || !this.playerId) return;
+			if (!this.gameStarted || !this.alias || !this.playerId) return;
 			if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
 				const input: PlayerInputMessage['input'] = {
 					up: event.key === 'ArrowUp',

@@ -27,114 +27,44 @@ export default class Canvas {
 	public drawLoadingAnimation() {
 		this.isLoading = true;
 		if (!this.ctx) return;
-		const text = "Looking for players...";
 
 		const base = Math.min(this.canvas.width, this.canvas.height * 4 / 3);
+		const text = "Looking for players";
+		const dotFrames = ["", ".", "..", "...", "..", ".", ""];
+		const frameDuration = 300; // ms per frame
 
-
-		const duration = 2600;
 		let startTime: number | null = null;
 
-		// Some random animation with magnifier effect.
 		const draw = (timestamp?: number) => {
 			if (!this.ctx) return;
 			if (startTime === null && timestamp !== undefined) startTime = timestamp;
-			const elapsed = timestamp !== undefined && startTime !== null ? (timestamp - startTime) % duration : 0;
+			const elapsed = timestamp !== undefined && startTime !== null ? timestamp - startTime : 0;
+			const frame = Math.floor(elapsed / frameDuration) % dotFrames.length;
 
 			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 			const cx = this.canvas.width / 2;
 			const cy = this.canvas.height / 2;
-
 			const fontSize = Math.max(24, base * 0.07);
-			const magnifierRadius = base * 0.09;
 
 			this.ctx.save();
-			this.ctx.font = `bold ${fontSize}px sans-serif`;
-			const textWidth = this.ctx.measureText(text).width;
-			const sideOffset = base * 0.08;
-			const startX = cx - textWidth / 2 + magnifierRadius - sideOffset;
-			const maxOffset = Math.max(0, textWidth - magnifierRadius * 2) + sideOffset * 2;
-
-			const t = elapsed / duration;
-			const ease = 0.5 - 0.5 * Math.cos(2 * Math.PI * t);
-			const offset = ease * maxOffset;
-
-			const magnifierX = startX + offset;
-
 			this.ctx.font = `bold ${fontSize}px sans-serif`;
 			this.ctx.fillStyle = "#fff";
-			this.ctx.textAlign = "center";
+			this.ctx.textAlign = "left"; // Align text to the left
 			this.ctx.textBaseline = "middle";
-			this.ctx.fillText(text, cx, cy);
 
-			// Magnifier with convex fisheye effect (reversed)
-			this.ctx.save();
-			this.ctx.beginPath();
-			this.ctx.arc(magnifierX, cy, magnifierRadius, 0, Math.PI * 2);
-			this.ctx.clip();
+			// Measure the base text width
+			// Find the widest dot frame
+			const widestDot = dotFrames.reduce((a, b) => 
+				this.ctx!.measureText(a).width > this.ctx!.measureText(b).width ? a : b
+			);
+			const baseTextWidth = this.ctx.measureText(text + widestDot).width;
+			// Measure the full text width with dots
+			const fullText = text + dotFrames[frame];
+			// Calculate the starting x so that the base text is centered, but text is left-aligned
+			const startX = cx - (baseTextWidth / 2);
 
-			this.ctx.clearRect(magnifierX - magnifierRadius - 2, cy - magnifierRadius - 2, magnifierRadius * 2 + 4, magnifierRadius * 2 + 4);
-
-			// Convex fisheye effect: warp the text slightly inside the magnifier (reversed)
-			const fisheyeStrength = 0.20; // small value for subtle effect
-			const imageData = this.ctx.getImageData(magnifierX - magnifierRadius, cy - magnifierRadius, magnifierRadius * 2, magnifierRadius * 2);
-			const w = imageData.width;
-			const h = imageData.height;
-			const tempCanvas = document.createElement('canvas');
-			tempCanvas.width = w;
-			tempCanvas.height = h;
-			const tempCtx = tempCanvas.getContext('2d');
-			if (tempCtx) {
-				// Draw the text at normal zoom to temp canvas
-				tempCtx.font = `bold ${fontSize}px sans-serif`;
-				tempCtx.fillStyle = "#fff";
-				tempCtx.textAlign = "center";
-				tempCtx.textBaseline = "middle";
-				tempCtx.clearRect(0, 0, w, h);
-				tempCtx.fillText(
-					text,
-					w / 2 + (cx - magnifierX),
-					h / 2 + (cy - cy)
-				);
-
-				const tempData = tempCtx.getImageData(0, 0, w, h);
-				const dst = this.ctx.createImageData(w, h);
-				const dstData = dst.data;
-
-				for (let y = 0; y < h; y++) {
-					for (let x = 0; x < w; x++) {
-						const dx = x - w / 2;
-						const dy = y - h / 2;
-						const r = Math.sqrt(dx * dx + dy * dy);
-						if (r > magnifierRadius) continue;
-						// Convex fisheye mapping (reversed)
-						const rn = r / magnifierRadius;
-						const rn2 = rn * rn;
-						const factor = 1 / (1 + fisheyeStrength * (1 - rn2));
-						const sx = w / 2 + dx * factor;
-						const sy = h / 2 + dy * factor;
-						const srcX = Math.max(0, Math.min(w - 1, Math.round(sx)));
-						const srcY = Math.max(0, Math.min(h - 1, Math.round(sy)));
-						const srcIdx = (srcY * w + srcX) * 4;
-						const dstIdx = (y * w + x) * 4;
-						dstData[dstIdx] = tempData.data[srcIdx];
-						dstData[dstIdx + 1] = tempData.data[srcIdx + 1];
-						dstData[dstIdx + 2] = tempData.data[srcIdx + 2];
-						dstData[dstIdx + 3] = tempData.data[srcIdx + 3];
-					}
-				}
-				this.ctx.putImageData(dst, magnifierX - magnifierRadius, cy - magnifierRadius);
-			}
-
-			this.ctx.restore();
-
-			this.ctx.beginPath();
-			this.ctx.arc(magnifierX, cy, magnifierRadius, 0, Math.PI * 2);
-			this.ctx.strokeStyle = "#ff0000";
-			this.ctx.lineWidth = Math.max(2, base * 0.008);
-			this.ctx.stroke();
-
+			this.ctx.fillText(fullText, startX, cy);
 			this.ctx.restore();
 
 			this.waitingAnimationFrame = requestAnimationFrame(draw);
@@ -148,5 +78,26 @@ export default class Canvas {
 			cancelAnimationFrame(this.waitingAnimationFrame);
 			this.waitingAnimationFrame = null;
 		}
+	}
+
+	public drawGameState(gameState: any) {
+	}
+
+
+	public drawError(message: string) {
+		if (!this.ctx) return;
+
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		const cx = this.canvas.width / 2;
+		const cy = this.canvas.height / 2;
+		const fontSize = Math.max(24, Math.min(this.canvas.width, this.canvas.height) * 0.07);
+
+		this.ctx.save();
+		this.ctx.font = `bold ${fontSize}px sans-serif`;
+		this.ctx.fillStyle = "#ff0000"; // Red color for error
+		this.ctx.textAlign = "center";
+		this.ctx.textBaseline = "middle";
+		this.ctx.fillText(message, cx, cy);
+		this.ctx.restore();
 	}
 }

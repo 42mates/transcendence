@@ -36,7 +36,7 @@ function handleWSS(wsSocket: ws.WebSocket) {
 		handleDisconnect(wsSocket);
 	});
 
-	wsSocket.on("error", (error) => {
+	wsSocket.on("error", (error: string) => {
 		console.error(`WebSocket error: ${error}`);
 	});
 }
