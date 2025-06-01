@@ -1,9 +1,9 @@
 const hostname = () => window.location.hostname;
 
-const serviceName = "frontend"; // Replace with your service name
+const serviceName = "frontend";
 
-// Override console methods to send logs to /api/log
-const originalConsole = { ...console };
+// Save the original console.log
+const originalLog = console.log;
 
 function sendLog(method: string, args: any[]) {
 	const logEntry = {
@@ -12,14 +12,11 @@ function sendLog(method: string, args: any[]) {
 		service: serviceName,
 		message: args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg)).join(" "),
 		context: {
-			pid: "browser", // Replace with a static value since process.pid is unavailable in the browser
+			pid: "browser",
 			host: hostname(),
 			port: window.location.port || "unknown",
 		},
 	};
-
-	// Log the formatted entry to the console
-	originalConsole.log(JSON.stringify(logEntry));
 
 	const logData = JSON.stringify(logEntry);
 
@@ -33,21 +30,16 @@ function sendLog(method: string, args: any[]) {
 				"Content-Type": "application/json",
 			},
 		}).catch((error) => {
-			originalConsole.error("Failed to send log to server:", error);
+			originalLog("Failed to send log to server:", error);
 		});
 	}
 }
 
-["log", "info", "warn", "error", "debug"].forEach((method) => {
-	const originalMethod = (console as any)[method];
-	(console as any)[method] = function (...args: any[]) {
-		// Call the original console method to ensure logs still appear in the console
-		originalMethod.apply(console, args);
-
-		// Send the log to the server
-		sendLog(method, args);
-	};
-});
+// Override only console.log to preserve stack trace in browser devtools
+console.log = function (...args: any[]) {
+	originalLog.apply(console, args);
+	sendLog("log", args);
+};
 
 window.onunhandledrejection = function (event) {
 	sendLog("unhandledrejection", [

@@ -1,8 +1,22 @@
 {
 	"title": "Game",
+	"alias": {
+		"prompt": "Please enter your alias:",
+		"promptPlayer1": "Please enter Player 1's alias:",
+		"promptPlayer2": "Please enter Player 2's alias:",
+		"placeholder1": "PuppetMaster420",
+		"placeholder2": "GameLord69",
+		"error": "Invalid alias '{{alias}}'. Please try again.", 
+		"prerequisites": "Alias must be between 3 and 20 characters long and can only contain letters, numbers, and underscores."
+	},
+	"mode": {
+		"prompt": "Select Game Mode:",
+		"local": "Local",
+		"online": "Online",
+		"1v1": "1v1",
+		"tournament": "Tournament"
+	},
 	"playButton": "Play",
-	"pauseButton": "Pause",
-	"resumeButton": "Resume",
 	"quitButton": "Quit",
 	"highScore": "High Score",
 	"gameOver": "Game Over",
