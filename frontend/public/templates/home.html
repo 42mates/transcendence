@@ -5,7 +5,7 @@
 				<path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25M8.547 4.505a8.25 8.25 0 1 0 11.672 8.214l-.46-.46a2.3 2.3 0 0 1-.422-.586l-1.08-2.16a.414.414 0 0 0-.663-.107.83.83 0 0 1-.812.21l-1.273-.363a.89.89 0 0 0-.738 1.595l.587.39c.59.395.674 1.23.172 1.732l-.2.2c-.211.212-.33.498-.33.796v.41c0 .409-.11.809-.32 1.158l-1.315 2.191a2.11 2.11 0 0 1-1.81 1.025 1.055 1.055 0 0 1-1.055-1.055v-1.172c0-.92-.56-1.747-1.414-2.089l-.654-.261a2.25 2.25 0 0 1-1.384-2.46l.007-.042a2.3 2.3 0 0 1 .29-.787l.09-.15a2.25 2.25 0 0 1 2.37-1.048l1.178.236a1.125 1.125 0 0 0 1.302-.795l.208-.73a1.125 1.125 0 0 0-.578-1.315l-.665-.332-.091.091a2.25 2.25 0 0 1-1.591.659h-.18a.94.94 0 0 0-.662.274.931.931 0 0 1-1.458-1.137z" clip-rule="evenodd"/>
 			</svg>
 		</button>
-		<div id="langMenu" class="absolute right-4 z-10 hidden mt-2 bg-white rounded-lg shadow-lg p-4 grid grid-cols-2 gap-4 ">
+		<div id="langMenu" class="absolute right-4 z-10 hidden mt-2 bg-zinc-600 text-white rounded-lg shadow-lg p-4 grid grid-cols-2 gap-4 ">
 			<button id="changeLangButton-en" class="w-full flex items-center gap-2 hover:bg-gray-100 p-2 rounded" data-lang="en">
 				<svg class="flag-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 					<path d="M255.977 12.777c67.146 0 127.956 27.227 171.96 71.241 44.013 44.004 71.24 104.813 71.24 171.96 0 67.145-27.227 127.955-71.24 171.959-44.004 44.013-104.814 71.24-171.96 71.24s-127.955-27.227-171.959-71.24c-44.014-44.004-71.24-104.814-71.24-171.96s27.227-127.955 71.24-171.959c44.004-44.014 104.813-71.24 171.96-71.24z"/>
@@ -52,50 +52,43 @@
 	</div>
 </header>
 <div class="flex flex-col justify-between flex-1 text-center bg-neutral-800 text-white">
-  <div class="pt-16 pb-16"> <!-- Ajoute pb-16 ici pour le même espace que le bas -->
-    <h1 class="text-8xl tracking-wide text-amber-400" data-i18nkey="common:welcome">
-      Welcome
-    </h1>
-  </div>
-
-        <div class="w-full py-24"> <!-- MODIFIÉ ICI -->
-    <div class="text-center">
-        <!-- Logo Carousel animation  -->
-        <div
-            class="w-full h-[40rem] inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
-            <ul class="w-full flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll">
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Facebook" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Disney" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Airbnb" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Apple" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Spark" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Samsung" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Quora" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Sass" /></li>
-    <!-- Duplique la liste ici -->
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Facebook" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Disney" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Airbnb" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Apple" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Spark" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Samsung" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Quora" /></li>
-    <li><img class="h-[38rem] object-contain" src="../assets/image.png" alt="Sass" /></li>
-</ul>
-                </div>
-                <!-- End: Logo Carousel animation  -->
-                
-            </div>
-
-        </div>
-
-  <div class="pt-16 pb-16 space-y-4"> <!-- Changé mb-8 en pb-16 -->
-    <button class="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500 transition-colors" data-i18nkey="login:loginButton">
-      Login
-    </button>
-    <br />
-    <button class="px-6 py-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-500 transition-colors" data-i18nkey="login:guest">
-      Guest
-    </button>
-  </div>
+	<div class="pt-16 pb-16">
+		<h1 class="text-8xl tracking-wide text-amber-400" data-i18nkey="common:welcome">
+		Welcome
+		</h1>
+	</div>
+	<div class="w-full py-24">
+		<div class="text-center">
+			<div class="w-full h-[40rem] inline-flex flex-nowrap overflow-h idden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]">
+				<ul class="w-full flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll">
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<!-- Duplique la liste ici -->
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+					<li><img class="h-[38rem] object-contain" src="../assets/image.png"/></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="pt-16 pb-16 space-y-4">
+		<button class="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500 transition-colors" data-i18nkey="login:loginButton">
+			Login
+		</button>
+		<br />
+		<button class="px-6 py-3 bg-zinc-600 text-white rounded-lg hover:bg-zinc-500 transition-colors" data-i18nkey="login:guest">
+			Guest
+		</button>
+	</div>
 </div>
