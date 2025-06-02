@@ -7,6 +7,7 @@
 		"placeholder1": "MaîtreDesMarionnettes420",
 		"placeholder2": "SeigneurDuJeu69",
 		"error": "Alias invalide '{{alias}}'. Veuillez réessayer.",
+		"in_use": "Le pseudo '{{alias}}' est déjà utilisé. Veuillez en choisir un autre.",
 		"prerequisites": "Le pseudo doit comporter entre 3 et 20 caractères et ne peut contenir que des lettres, des chiffres et des underscores."
 	},
 	"mode": {

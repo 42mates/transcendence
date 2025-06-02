@@ -7,7 +7,8 @@
 		"placeholder1": "PuppetMaster420",
 		"placeholder2": "GameLord69",
 		"error": "Invalid alias '{{alias}}'. Please try again.", 
-		"prerequisites": "Alias must be between 3 and 20 characters long and can only contain letters, numbers, and underscores."
+		"prerequisites": "Alias must be between 3 and 20 characters long and can only contain letters, numbers, and underscores.",
+		"in_use": "Alias '{{alias}}' is already in use. Please choose another."
 	},
 	"mode": {
 		"prompt": "Select Game Mode:",

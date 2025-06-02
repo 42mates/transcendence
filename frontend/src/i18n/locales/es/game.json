@@ -7,7 +7,8 @@
 		"placeholder1": "Titiritero420",
 		"placeholder2": "SeñorDelJuego69",
 		"error": "Alias inválido '{{alias}}'. Por favor, inténtalo de nuevo.",
-		"prerequisites": "El alias debe tener entre 3 y 20 caracteres y solo puede contener letras, números y guiones bajos."
+		"prerequisites": "El alias debe tener entre 3 y 20 caracteres y solo puede contener letras, números y guiones bajos.",
+		"in_use": "El alias '{{alias}}' ya está en uso. Por favor, elige otro."
 	},
 	"mode": {
 		"prompt": "Selecciona el modo de juego:",

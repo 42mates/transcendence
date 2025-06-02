@@ -4,10 +4,18 @@ import i18n from "../i18n/i18n";
 type Mode = 'local' | 'online' | null;
 
 class InvalidAlias extends Error {
-    constructor(alias: string) {
-        super(i18n.t('game:alias.error', { alias: alias }));
-        this.name = "InvalidAlias";
-    }
+	reason: "in_use" | "prerequisites";
+	constructor(alias: string, reason: "in_use" | "prerequisites") {
+		let message = "";
+		if (reason === "in_use") {
+			message = i18n.t('game:alias.in_use', { alias });
+		} else {
+			message = i18n.t('game:alias.error', { alias });
+		}
+		super(message);
+		this.name = "InvalidAlias";
+		this.reason = reason;
+	}
 }
 
 export class GameForm {
@@ -72,16 +80,25 @@ export class GameForm {
 
 	private async checkAliasValidity(alias: string): Promise<boolean> {
 		try {
-			const response = await fetch(`/api/game/check-alias?alias=${encodeURIComponent(alias)}`, {
-				method: 'GET',
-				headers: {
-					'Accept': 'application/json'
-				}
-			});
-			if (!response.ok) return false;
+			const response = await fetch(`/api/game/check-alias?alias=${encodeURIComponent(alias)}`);
 			const result = await response.json();
-			return result.valid === true;
-		} catch {
+
+			if (response.status === 400) {
+				throw new InvalidAlias(alias, "prerequisites");
+			} else if (response.status === 409) {
+				throw new InvalidAlias(alias, "in_use");
+			} else if (result.valid) {
+				return true;
+			}
+			// Optionally handle other status codes here
+			throw new Error("Unexpected response from server.");
+		} catch (error) {
+			// Only handle network or unexpected errors here
+			if (error instanceof InvalidAlias) {
+				throw error; // Let validation errors propagate
+			}
+			console.error("Network or server error:", error);
+			alert(i18n.t('common:error.network'));
 			return false;
 		}
 	}
@@ -91,12 +108,8 @@ export class GameForm {
 		if (this.selectedMode === 'local') {
 			const alias1 = (this.form.elements.namedItem('alias1') as HTMLInputElement)?.value;
 			const alias2 = (this.form.elements.namedItem('alias2') as HTMLInputElement)?.value;
-			const valid1 = await this.checkAliasValidity(alias1);
-			const valid2 = await this.checkAliasValidity(alias2);
-			if (!valid1)
-				throw new InvalidAlias(alias1);
-			if (!valid2) 
-				throw new InvalidAlias(alias2);
+			await this.checkAliasValidity(alias1); // will throw if invalid
+			await this.checkAliasValidity(alias2); // will throw if invalid
 			data = {
 				mode: 'local',
 				alias1,
@@ -105,9 +118,7 @@ export class GameForm {
 		} else if (this.selectedMode === 'online') {
 			const alias = (this.form.elements.namedItem('alias') as HTMLInputElement)?.value;
 			const onlineType = (this.form.elements.namedItem('onlineType') as HTMLInputElement)?.value as '1v1' | 'tournament';
-			const valid = await this.checkAliasValidity(alias);
-			if (!valid)
-				throw new InvalidAlias(alias);
+			await this.checkAliasValidity(alias); // will throw if invalid
 			data = {
 				mode: 'online',
 				alias,
@@ -169,7 +180,13 @@ export class GameForm {
 				}
 				catch (error) {
 					if (error instanceof InvalidAlias) {
-						alert(error.message + "\n" + i18n.t('game:alias.prerequisites'));
+						let extra = "";
+						if (error.reason === "prerequisites") {
+							extra = "\n" + i18n.t('game:alias.prerequisites');
+						} else if (error.reason === "in_use") {
+							extra = "\n" + i18n.t('game:alias.in_use');
+						}
+						alert(error.message + extra);
 						return;
 					} else {
 						console.error('Unexpected error:', error);
