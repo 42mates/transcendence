@@ -28,7 +28,8 @@ export type JoinResponse = {
 
 export type PlayerInputMessage = {
 	type: "player_input";
-	playerId: string;
+	playerId: "1" | "2" | null;
+	gameId: string | null;
 	input: {
 		up: boolean;
 		down: boolean;

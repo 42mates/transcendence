@@ -2,6 +2,7 @@ import { ConnectedUser, GameStateMessage } from "../../types/GameMessages.js";
 import { GameCanvas } from "./gameCanvas.class.js";
 import { Template } from "./template.class.js";
 import { Ball } from "./ball.class.js";
+import { GameInstance } from "./game.class.js";
 
 export class Paddle extends Template {
 	down: boolean;
@@ -34,7 +35,7 @@ export class Paddle extends Template {
 		this.y += this.speed * this.yVec;
 	}
 
-	sendUpdate(player2: Paddle, ball: Ball) {
+	sendUpdate(player2: Paddle, ball: Ball, gameInstance: GameInstance) {
 		const response: GameStateMessage = {
 			type: "game_state",
 			ball: { x: ball.x, y: ball.y },
@@ -42,8 +43,8 @@ export class Paddle extends Template {
 				{ x: player2.x, y: player2.y },
 				{ x: player2.x, y: player2.y },
 			],
-			score: this.score,
-			status: 
+			score: [this.score, player2.score],
+			status: gameInstance.status,
 		};
 		this.connectedUsers.ws.send(JSON.stringify(response));
 	}

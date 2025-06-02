@@ -24,7 +24,7 @@ function handleWSS(wsSocket: ws.WebSocket) {
 			case "join_request":
 				join(wsSocket, msg as JoinRequest);
 				break;
-			case "action":
+			case "player_input":
 				action(wsSocket, msg.payload as PlayerInputMessage);
 				break;
 			default:
