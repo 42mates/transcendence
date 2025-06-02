@@ -21,13 +21,15 @@ export class Paddle extends Template {
 	}
 
 	update(gameCanvas: GameCanvas) {
-		if (this.up == true && this.y <= 20) {
+		if (this.up == true && this.y <= this.height) {
 			this.yVec = -1;
+			this.up = false;
 		} else if (
 			this.down == true &&
-			this.y + this.height >= gameCanvas.height - 20
+			this.y + this.height >= gameCanvas.height - this.height
 		) {
 			this.yVec = 1;
+			this.down = false;
 		} else {
 			this.yVec = 0;
 		}
@@ -35,12 +37,12 @@ export class Paddle extends Template {
 		this.y += this.speed * this.yVec;
 	}
 
-	sendUpdate(player2: Paddle, ball: Ball, gameInstance: GameInstance) {
+	sendUpdate(player1: Paddle, : Paddle, ball: Ball, gameInstance: GameInstance) {
 		const response: GameStateMessage = {
 			type: "game_state",
 			ball: { x: ball.x, y: ball.y },
 			paddles: [
-				{ x: player2.x, y: player2.y },
+				{ x: player1.x, y: player1.y },
 				{ x: player2.x, y: player2.y },
 			],
 			score: [this.score, player2.score],
