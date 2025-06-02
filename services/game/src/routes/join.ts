@@ -1,9 +1,14 @@
 import { WebSocket } from "ws";
 import type { JoinRequest, JoinResponse } from "../types/GameMessages";
 import { ConnectedUser } from "../types/GameMessages";
-import { connectedUsers, matchmakingQueues, games, tournaments, TournamentBracketBackend } from "../game/state";
+import {
+	connectedUsers,
+	matchmakingQueues,
+	games,
+	tournaments,
+	TournamentBracketBackend,
+} from "../game/state";
 import { sanitizeAlias, getUniqueGameId } from "../utils";
-
 
 export default function join(wsSocket: WebSocket, message: JoinRequest) {
 	console.log("Join message received:", message);
@@ -81,11 +86,14 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			games[gameId] = {
 				id: gameId,
 				players: [player1, player2],
-				status: "pending"
+				status: "pending",
 			};
 			console.log(games);
 			return;
-		} else if (mode === "tournament" && matchmakingQueues["tournament"].length >= 4) {
+		} else if (
+			mode === "tournament" &&
+			matchmakingQueues["tournament"].length >= 4
+		) {
 			const players = matchmakingQueues["tournament"].splice(0, 4);
 			const [p1, p2, p3, p4] = players;
 			const gameId1 = getUniqueGameId();
@@ -99,13 +107,32 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 				game1: { id: gameId1, players: [p1, p2], status: "pending" },
 				game2: { id: gameId2, players: [p3, p4], status: "pending" },
 				game3: { id: gameId3, players: [], status: "waiting" },
-				game4: { id: gameId4, players: [], status: "waiting" }
+				game4: { id: gameId4, players: [], status: "waiting" },
 			};
 			const frontendBracket = {
-				game1: { id: gameId1, players: [p1.alias, p2.alias] as [string, string], status: "pending" as const },
-				game2: { id: gameId2, players: [p3.alias, p4.alias] as [string, string], status: "pending" as const },
-				game3: { id: gameId3, players: ["winner_game1", "winner_game2"] as [string, string], status: "waiting" as const },
-				game4: { id: gameId4, players: ["loser_game1", "loser_game2"] as [string, string], status: "waiting" as const }
+				game1: {
+					id: gameId1,
+					players: [p1.alias, p2.alias] as [string, string],
+					status: "pending" as const,
+				},
+				game2: {
+					id: gameId2,
+					players: [p3.alias, p4.alias] as [string, string],
+					status: "pending" as const,
+				},
+				game3: {
+					id: gameId3,
+					players: ["winner_game1", "winner_game2"] as [
+						string,
+						string,
+					],
+					status: "waiting" as const,
+				},
+				game4: {
+					id: gameId4,
+					players: ["loser_game1", "loser_game2"] as [string, string],
+					status: "waiting" as const,
+				},
 			};
 			tournaments[tournamentId] = backendBracket;
 
@@ -136,8 +163,12 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			reason: null,
 		};
 		wsSocket.send(JSON.stringify(response));
-		games[newGameId] = { players: [user], id: newGameId, status: "pending" };
-	return;
+		games[newGameId] = {
+			players: [user],
+			id: newGameId,
+			status: "pending",
+		};
+		return;
 	} else if (mode === "local" && message.payload.gameId) {
 		const { gameId } = message.payload;
 		const existingGame = games[gameId];
@@ -153,7 +184,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			wsSocket.send(JSON.stringify(response));
 			return;
 		}
-		if (existingGame.players[0].alias === cleanAlias) { // ✅ compare alias property
+		if (existingGame.players[0].alias === cleanAlias) {
+			// ✅ compare alias property
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",

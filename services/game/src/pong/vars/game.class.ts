@@ -11,7 +11,7 @@ export class GameInstance {
 
 	constructor(gameBackend: GameBackend) {
 		let canvasWidth = 100;
-		let canvasHeight = canvasWidth * (3 / 4);
+		let canvasHeight = 100;
 		let wallOffset = canvasWidth / 10;
 
 		let paddleWidth = canvasWidth / 20;
@@ -26,6 +26,7 @@ export class GameInstance {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
+			gameBackend.players[0],
 		);
 
 		this.player2 = new Paddle(
@@ -33,6 +34,7 @@ export class GameInstance {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
+			gameBackend.players[1],
 		);
 
 		this.ball = new Ball(
@@ -47,6 +49,11 @@ export class GameInstance {
 		this.player1.update(this.gameCanvas);
 		this.player2.update(this.gameCanvas);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
+	}
+
+	sendUpdate() {
+		this.player1.sendUpdate(this.ball);
+		this.player2.sendUpdate(this.ball);
 	}
 
 	gameLoop() {
