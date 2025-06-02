@@ -6,7 +6,7 @@ export default class Game {
 	private socket: WebSocket | null = null;
 	private alias: string;
 	private gameId: string | null = null;
-	private playerId: string | null = null;
+	private playerId: "1" | "2" | null = null;
 	private mode: "1v1" | "tournament" | "local";
 	private controls: { up: string, down: string } | null = null;
 	private gameStarted = false;
@@ -175,6 +175,7 @@ export default class Game {
 			let message: PlayerInputMessage = {
 				type: "player_input",
 				playerId: this.playerId,
+				gameId: this.gameId || null,
 				input: input
 			};
 			this.socket.send(JSON.stringify(message));
