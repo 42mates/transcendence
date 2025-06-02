@@ -4,13 +4,20 @@ import i18n from "../i18n/i18n";
 type Mode = 'local' | 'online' | null;
 
 class InvalidAlias extends Error {
-    constructor(alias: string) {
-        super(i18n.t('game:alias.error', { alias: alias }));
-        this.name = "InvalidAlias";
-    }
+	constructor(alias: string) {
+		super(i18n.t('game:alias.error.invalid', { alias: alias }));
+		this.name = "InvalidAlias";
+	}
 }
 
-export class GameForm {
+class DuplicateAlias extends Error {
+	constructor(alias: string) {
+		super(i18n.t('game:alias.error.duplicate', { alias: alias }));
+		this.name = "DuplicateAlias";
+	}
+}
+
+export default class GameForm {
 	private dialogOverlay: HTMLDivElement;
 	private dialog: HTMLDivElement;
 	private form: HTMLFormElement;
@@ -32,8 +39,8 @@ export class GameForm {
 		const onlineForm = document.getElementById('online-form') as HTMLDivElement;
 	
 		const onlineAlias = this.form.elements.namedItem('alias') as HTMLInputElement | null;
-	    const localAlias1 = this.form.elements.namedItem('alias1') as HTMLInputElement | null;
-	    const localAlias2 = this.form.elements.namedItem('alias2') as HTMLInputElement | null;
+		const localAlias1 = this.form.elements.namedItem('alias1') as HTMLInputElement | null;
+		const localAlias2 = this.form.elements.namedItem('alias2') as HTMLInputElement | null;
 
 		if (mode === 'local') {
 			localForm.classList.remove('hidden');
@@ -70,7 +77,7 @@ export class GameForm {
 		}
 	}
 
-	private async checkAliasValidity(alias: string): Promise<boolean> {
+	private async checkAliasValidity(alias: string): Promise<boolean | string> {
 		try {
 			const response = await fetch(`/api/game/check-alias?alias=${encodeURIComponent(alias)}`, {
 				method: 'GET',
@@ -78,24 +85,36 @@ export class GameForm {
 					'Accept': 'application/json'
 				}
 			});
-			if (!response.ok) return false;
 			const result = await response.json();
-			return result.valid === true;
-		} catch {
-			return false;
+			if (!response.ok || result.valid !== true) {
+				console.log('Alias check failed:', result.reason);
+				return result.reason || false;
+			}
+			return true;
+		} catch (err) {
+			console.log('Alias check error:', err);
+			return 'network_error';
 		}
 	}
+
 
 	private async fillGameForm(): Promise<GameFormType | undefined> {
 		let data: GameFormType;
 		if (this.selectedMode === 'local') {
 			const alias1 = (this.form.elements.namedItem('alias1') as HTMLInputElement)?.value;
 			const alias2 = (this.form.elements.namedItem('alias2') as HTMLInputElement)?.value;
+			if ((!alias1 || !alias2)) {
+				alert(i18n.t('game:alias.error.duplicate'));
+				return;
+			}
+			if (alias1 === alias2) {
+				throw new DuplicateAlias(alias1);
+			}
 			const valid1 = await this.checkAliasValidity(alias1);
 			const valid2 = await this.checkAliasValidity(alias2);
-			if (!valid1)
+			if (!valid1 && valid1 !== "Alias already in use")
 				throw new InvalidAlias(alias1);
-			if (!valid2) 
+			if (!valid2 && valid2 !== "Alias already in use")
 				throw new InvalidAlias(alias2);
 			data = {
 				mode: 'local',
@@ -169,7 +188,10 @@ export class GameForm {
 				}
 				catch (error) {
 					if (error instanceof InvalidAlias) {
-						alert(error.message + "\n" + i18n.t('game:alias.prerequisites'));
+						alert(error.message + "\n" + i18n.t('game:alias.prerequisites'))
+						return;
+					} else if (error instanceof DuplicateAlias) {
+						alert(error.message);
 						return;
 					} else {
 						console.error('Unexpected error:', error);

@@ -24,7 +24,7 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 		wsSocket.send(JSON.stringify(response));
 		return;
 	}
-	if (connectedUsers.some(u => u.alias === cleanAlias)) {
+	if (mode !== "local" && connectedUsers.some(u => u.alias === cleanAlias)) {
 		const response: JoinResponse = {
 			type: "join_response",
 			status: "rejected",
@@ -44,7 +44,8 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 		gameMode: mode,
 		status: "queued",
 	};
-	connectedUsers.push(user);
+	// Add user to connected users if online
+	if (mode !== "local") connectedUsers.push(user);
 
 	if (mode === "1v1" || mode === "tournament") {
 		matchmakingQueues[mode].push(user);

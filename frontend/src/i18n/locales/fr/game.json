@@ -6,7 +6,13 @@
 		"promptPlayer2": "Veuillez entrer le pseudo du Joueur 2 :",
 		"placeholder1": "MaîtreDesMarionnettes420",
 		"placeholder2": "SeigneurDuJeu69",
-		"error": "Alias invalide '{{alias}}'. Veuillez réessayer.",
+		"error": {
+			"empty": "Le pseudo ne peut pas être vide.",
+			"invalid": "Alias invalide '{{alias}}'. Veuillez réessayer.",
+			"duplicate": "Le pseudo '{{alias}}' est déjà utilisé. Veuillez en choisir un autre.",
+			"length": "Le pseudo doit comporter entre 3 et 20 caractères.",
+			"characters": "Le pseudo ne peut contenir que des lettres, des chiffres et des underscores."
+		},
 		"prerequisites": "Le pseudo doit comporter entre 3 et 20 caractères et ne peut contenir que des lettres, des chiffres et des underscores."
 	},
 	"mode": {
