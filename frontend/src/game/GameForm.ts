@@ -124,7 +124,9 @@ export default class GameForm {
 		} else if (this.selectedMode === 'online') {
 			const alias = (this.form.elements.namedItem('alias') as HTMLInputElement)?.value;
 			const onlineType = (this.form.elements.namedItem('onlineType') as HTMLInputElement)?.value as '1v1' | 'tournament';
-			await this.checkAliasValidity(alias); // will throw if invalid
+			const valid = await this.checkAliasValidity(alias);
+			if (!valid)
+				throw new InvalidAlias(alias);
 			data = {
 				mode: 'online',
 				alias,
