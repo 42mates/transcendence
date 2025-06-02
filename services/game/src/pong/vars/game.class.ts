@@ -8,6 +8,7 @@ export class GameInstance {
 	private player1: Paddle;
 	private player2: Paddle;
 	private ball: Ball;
+	status: string;
 
 	constructor(gameBackend: GameBackend) {
 		let canvasWidth = 100;
@@ -43,21 +44,29 @@ export class GameInstance {
 			ballSize,
 			ballSize,
 		);
+
+		this.status = "running";
 	}
 
 	update() {
 		this.player1.update(this.gameCanvas);
 		this.player2.update(this.gameCanvas);
 		this.ball.update(this.player1, this.player2, this.gameCanvas);
+		if (this.player1.score >= 11 || this.player2.score >= 11) {
+			this.status = "ended";
+		}
 	}
 
 	sendUpdate() {
-		this.player1.sendUpdate(this.ball);
-		this.player2.sendUpdate(this.ball);
+		this.player1.sendUpdate(this.player2, this.ball, this);
+		this.player2.sendUpdate(this.player1, this.ball, this);
 	}
 
 	gameLoop() {
 		this.update();
-		requestAnimationFrame(this.gameLoop);
+		this.sendUpdate();
+		if (this.status == "running") {
+			requestAnimationFrame(this.gameLoop);
+		}
 	}
 }
