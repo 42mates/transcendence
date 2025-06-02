@@ -9,6 +9,7 @@ import {
 	TournamentBracketBackend,
 } from "../game/state";
 import { sanitizeAlias, getUniqueGameId } from "../utils";
+import { startGame } from "../pong/pong";
 
 export default function join(wsSocket: WebSocket, message: JoinRequest) {
 	console.log("Join message received:", message);
@@ -87,6 +88,10 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 				players: [player1, player2],
 				status: "pending",
 			};
+
+			// Start the game
+			// startGame(games[gameId]);
+
 			console.log(games);
 			return;
 		} else if (
@@ -134,6 +139,9 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 				},
 			};
 			tournaments[tournamentId] = backendBracket;
+
+			// Start the tournament (will start first two games)
+			// startGame(tournaments[tournamentId]);
 
 			// Send join_response with bracket to all 4 players
 			players.forEach((p, idx) => {
@@ -184,7 +192,6 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			return;
 		}
 		if (existingGame.players[0].alias === cleanAlias) {
-			// ✅ compare alias property
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",
@@ -206,6 +213,10 @@ export default function join(wsSocket: WebSocket, message: JoinRequest) {
 			reason: null,
 		};
 		wsSocket.send(JSON.stringify(response));
+
+		// Start the local game now that both players have joined
+		// startGame(existingGame);
+
 		return;
 	}
 
