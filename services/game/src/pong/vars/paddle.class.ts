@@ -37,7 +37,12 @@ export class Paddle extends Template {
 		this.y += this.speed * this.yVec;
 	}
 
-	sendUpdate(player1: Paddle, : Paddle, ball: Ball, gameInstance: GameInstance) {
+	sendUpdate(
+		player1: Paddle,
+		player2: Paddle,
+		ball: Ball,
+		gameInstance: GameInstance,
+	) {
 		const response: GameStateMessage = {
 			type: "game_state",
 			ball: { x: ball.x, y: ball.y },
@@ -45,7 +50,7 @@ export class Paddle extends Template {
 				{ x: player1.x, y: player1.y },
 				{ x: player2.x, y: player2.y },
 			],
-			score: [this.score, player2.score],
+			score: [player1.score, player2.score],
 			status: gameInstance.status,
 		};
 		this.connectedUsers.ws.send(JSON.stringify(response));

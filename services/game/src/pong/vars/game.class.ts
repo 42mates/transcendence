@@ -59,7 +59,7 @@ export class GameInstance {
 
 	sendUpdate() {
 		this.player1.sendUpdate(this.player1, this.player2, this.ball, this);
-		this.player2.sendUpdate(this.player1.this.player2, this.ball, this);
+		this.player2.sendUpdate(this.player1, this.player2, this.ball, this);
 	}
 
 	gameLoop() {
