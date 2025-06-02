@@ -1,6 +1,6 @@
 
 import Game from '../game/Game';
-import { GameForm } from '../game/form';
+import { GameForm } from '../game/GameForm';
 import { GameFormType } from '../types/GameForm';
 
 async function playOnline(data: Extract<GameFormType, { mode: "online" }>) {
