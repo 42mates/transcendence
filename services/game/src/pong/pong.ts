@@ -1,4 +1,4 @@
-import { Game, GameInstance } from "./vars/game.class.js";
+import { GameInstance } from "./vars/game.class.js";
 import { GameBackend, TournamentBracketBackend } from "../game/state";
 import { ConnectedUser, GameStatusUpdateMessage } from "../types/GameMessages";
 import { games, tournaments } from "../game/state";
@@ -116,4 +116,3 @@ function handleTournamentProgression(
 		runGame(bracket.game4, tournamentId);
 	}
 }
-
