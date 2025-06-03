@@ -2,6 +2,10 @@ import { Ball } from "./ball.class.js";
 import { Paddle } from "./paddle.class.js";
 import { GameCanvas } from "./gameCanvas.class.js";
 import { GameBackend } from "../../game/state.js";
+import {
+	GameStateMessage,
+	PlayerInputMessage,
+} from "../../types/GameMessages.js";
 
 export class GameInstance {
 	private gameCanvas: GameCanvas;
@@ -23,6 +27,7 @@ export class GameInstance {
 		this.gameCanvas = new GameCanvas(canvasWidth, canvasHeight);
 
 		this.player1 = new Paddle(
+			1,
 			wallOffset,
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
@@ -31,6 +36,7 @@ export class GameInstance {
 		);
 
 		this.player2 = new Paddle(
+			2,
 			this.gameCanvas.width - (wallOffset + paddleWidth),
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
@@ -48,6 +54,8 @@ export class GameInstance {
 		this.status = "running";
 	}
 
+	receivedInputs(playerInputMessage: PlayerInputMessage[]) {}
+
 	update() {
 		this.player1.update(this.gameCanvas);
 		this.player2.update(this.gameCanvas);
@@ -58,8 +66,18 @@ export class GameInstance {
 	}
 
 	sendUpdate() {
-		this.player1.sendUpdate(this.player1, this.player2, this.ball, this);
-		this.player2.sendUpdate(this.player1, this.player2, this.ball, this);
+		const response: GameStateMessage = {
+			type: "game_state",
+			ball: { x: this.ball.x, y: this.ball.y },
+			paddles: [
+				{ x: this.player1.x, y: this.player1.y },
+				{ x: this.player2.x, y: this.player2.y },
+			],
+			score: [this.player1.score, this.player2.score],
+			status: this.status,
+		};
+		this.player1.connectedUser.ws.send(JSON.stringify(response));
+		this.player2.connectedUser.ws.send(JSON.stringify(response));
 	}
 
 	gameLoop() {
