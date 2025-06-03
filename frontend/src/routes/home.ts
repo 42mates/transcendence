@@ -1,5 +1,13 @@
-import { loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
-import { googleSignIn } from '../router'
+import { loadGoogleSignInScript, setupLogoutButton, googleSignIn } from '../googleAuth/initAuth';
+import { googleSignIn as routerGoogleSignIn } from '../router'
+
+if (window.opener && window.opener !== window) {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+        window.opener.postMessage({ code }, "*");
+    }
+    window.close();
+}
 
 export function initHome() {
     const langButton = document.getElementById("langButton");

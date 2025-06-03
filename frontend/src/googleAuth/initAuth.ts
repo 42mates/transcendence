@@ -52,57 +52,57 @@ export function loadGoogleSignInScript(): Promise<void> {
   }
   
 export function initGoogleAuth() {
-    const email = localStorage.getItem("email");
-    if (email) {
-        const alreadyLoggedIn = "User is already logged IN";
-        console.error(alreadyLoggedIn);
-        alert(i18n.t('login:error.alreadyLoggedIn'));
-        return;
-    }
+    // const email = localStorage.getItem("email");
+    // if (email) {
+    //     const alreadyLoggedIn = "User is already logged IN";
+    //     console.error(alreadyLoggedIn);
+    //     alert(i18n.t('login:error.alreadyLoggedIn'));
+    //     return;
+    // }
 
-    if (typeof google !== 'undefined') {
-        google.accounts.id.initialize({
-            client_id: client_id,
-            callback: handleCredentialResponse,
-        });
+    // if (typeof google !== 'undefined') {
+    //     google.accounts.id.initialize({
+    //         client_id: client_id,
+    //         callback: handleCredentialResponse,
+    //     });
 
-        // Ajoutez un callback pour surveiller l'état du One Tap
-        google.accounts.id.prompt((notification: any) => {
-            // Affiche le bouton si One Tap n'est pas affiché OU ignoré
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                const reason = notification.isNotDisplayed()
-                    ? notification.getNotDisplayedReason()
-                    : notification.getSkippedReason();
-                console.log("Affichage du bouton central (motif) :", reason);
+    //     // Ajoutez un callback pour surveiller l'état du One Tap
+    //     google.accounts.id.prompt((notification: any) => {
+    //         // Affiche le bouton si One Tap n'est pas affiché OU ignoré
+    //         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+    //             const reason = notification.isNotDisplayed()
+    //                 ? notification.getNotDisplayedReason()
+    //                 : notification.getSkippedReason();
+    //             console.log("Affichage du bouton central (motif) :", reason);
 
-                let popup = document.getElementById("loginPopup");
-                if (!popup) {
-                    popup = document.createElement("div");
-                    popup.setAttribute("id", "loginPopup");
-                    popup.setAttribute("data-size", "medium");
-                    document.body.appendChild(popup);
-                    popup.style.position = "absolute";
-                    popup.style.top = "50%";
-                    popup.style.left = "50%";
-                    popup.style.transform = "translateX(-50%)";
-                }
-                google.accounts.id.renderButton(
-                    popup,
-                    { theme: "filled_black", size: "large" }
-                );
-            }
+    //             let popup = document.getElementById("loginPopup");
+    //             if (!popup) {
+    //                 popup = document.createElement("div");
+    //                 popup.setAttribute("id", "loginPopup");
+    //                 popup.setAttribute("data-size", "medium");
+    //                 document.body.appendChild(popup);
+    //                 popup.style.position = "absolute";
+    //                 popup.style.top = "50%";
+    //                 popup.style.left = "50%";
+    //                 popup.style.transform = "translateX(-50%)";
+    //             }
+    //             google.accounts.id.renderButton(
+    //                 popup,
+    //                 { theme: "filled_black", size: "large" }
+    //             );
+    //         }
 
-            if (notification.isNotDisplayed()) {
-                console.log("One Tap non affiché :", notification.getNotDisplayedReason());
-            } else if (notification.isSkippedMoment()) {
-                console.log("One Tap ignoré :", notification.getSkippedReason());
-            } else if (notification.isDismissedMoment()) {
-                console.log("One Tap fermé :", notification.getDismissedReason());
-            } else {
-                console.log("One Tap affiché (prompt ouvert)");
-            }
-        });
-    }
+    //         if (notification.isNotDisplayed()) {
+    //             console.log("One Tap non affiché :", notification.getNotDisplayedReason());
+    //         } else if (notification.isSkippedMoment()) {
+    //             console.log("One Tap ignoré :", notification.getSkippedReason());
+    //         } else if (notification.isDismissedMoment()) {
+    //             console.log("One Tap fermé :", notification.getDismissedReason());
+    //         } else {
+    //             console.log("One Tap affiché (prompt ouvert)");
+    //         }
+    //     });
+    // }
 }
 
 export function setupLogoutButton() {
@@ -121,4 +121,28 @@ export function setupLogoutButton() {
 		localStorage.removeItem("picture");
 		alert(i18n.t('login:logoutSuccess', { user: email }));
 	}
+}
+
+export function googleSignIn() {
+    const clientId = import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID;
+    const redirectUri = "https://localhost:8443/";
+    const scope = "openid email profile";
+    const url =
+        `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${encodeURIComponent(clientId)}` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&response_type=code` +
+        `&scope=${encodeURIComponent(scope)}`;
+
+    // Ouvre la popup centrée
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+
+    window.open(
+        url,
+        "google_oauth_popup",
+        `width=${width},height=${height},left=${left},top=${top},resizable,scrollbars`
+    );
 }
