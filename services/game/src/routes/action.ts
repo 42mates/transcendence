@@ -1,7 +1,7 @@
 import { WebSocket } from "ws";
-import type { PlayerInputMessage, GameStateMessage} from "../types/GameMessages"; // Messages JSON
+import type { PlayerInputMessage, GameStateMessage} from "../types/messages"; // Messages JSON
 import { games } from "../game/state";
-import { startGame } from "../pong/pong";
+import { startGame } from "../pong/run";
 
 export default function action(wsSocket: WebSocket, payload: PlayerInputMessage) {
 	console.log("Action message received:", payload);
@@ -25,3 +25,5 @@ export default function action(wsSocket: WebSocket, payload: PlayerInputMessage)
 		payload: { message: "Action route accessed successfully" }
 	}));
 }
+
+

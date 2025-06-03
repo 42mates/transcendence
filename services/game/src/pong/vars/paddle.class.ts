@@ -1,23 +1,24 @@
-import { ConnectedUser, GameStateMessage } from "../../types/GameMessages.js";
-import { GameCanvas } from "./gameCanvas.class.js";
-import { Template } from "./template.class.js";
-import { Ball } from "./ball.class.js";
-import { GameInstance } from "./game.class.js";
+import { GameStateMessage } from "../../types/messages.js";
+import { User }             from "../../join/User.js";
+import { GameCanvas }       from "./gameCanvas.class.js";
+import { Template }         from "./template.class.js";
+import { Ball }             from "./ball.class.js";
+import { GameInstance }     from "./game.class.js";
 
 export class Paddle extends Template {
 	down: boolean;
 	up: boolean;
 	score: number;
-	connectedUsers: ConnectedUser;
+	user: User;
 	private speed: number;
 
-	constructor(x: number, y: number, h: number, w: number, cu: ConnectedUser) {
+	constructor(x: number, y: number, h: number, w: number, cu: User) {
 		super(x, y, h, w);
 		this.up = false;
 		this.down = false;
 		this.score = 0;
 		this.speed = 10;
-		this.connectedUsers = cu;
+		this.user = cu;
 	}
 
 	update(gameCanvas: GameCanvas) {
@@ -53,6 +54,6 @@ export class Paddle extends Template {
 			score: [player1.score, player2.score],
 			status: gameInstance.status,
 		};
-		this.connectedUsers.ws.send(JSON.stringify(response));
+		this.user.send(response);
 	}
 }

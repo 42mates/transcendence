@@ -1,25 +1,23 @@
 import type { WebSocket } from "ws";
-import type { JoinResponse } from "../types/GameMessages";
-import { ConnectedUser } from "../types/GameMessages";
+import type { JoinResponse } from "../types/messages";
+import { User } from "../join/User";
 import { games } from "../game/state";
 import { getUniqueGameId } from "../utils";
 
 // Création d'une nouvelle partie locale
 export function createLocalGame(
-    wsSocket: WebSocket,
-    user: ConnectedUser,
-    cleanAlias: string
+    user: User,
 ) {
     const newGameId = getUniqueGameId();
     const response: JoinResponse = {
         type: "join_response",
         status: "accepted",
         playerId: "1",
-        alias: cleanAlias,
+        alias: user.alias,
         gameId: newGameId,
         reason: null,
     };
-    wsSocket.send(JSON.stringify(response));
+    user.send(response);
     games[newGameId] = {
         players: [user],
         id: newGameId,
@@ -29,10 +27,8 @@ export function createLocalGame(
 
 // Rejoindre une partie locale existante
 export function joinLocalGame(
-    wsSocket: WebSocket,
-    user: ConnectedUser,
-    cleanAlias: string,
-    gameId: string
+    user: User,
+	gameId: string
 ) {
     const existingGame = games[gameId];
     if (!existingGame || existingGame.players.length !== 1) {
@@ -40,23 +36,23 @@ export function joinLocalGame(
             type: "join_response",
             status: "rejected",
             playerId: null,
-            alias: cleanAlias,
+            alias: user.alias,
             gameId: null,
             reason: "Invalid or full local game",
         };
-        wsSocket.send(JSON.stringify(response));
+        user.send(response);
         return;
     }
-    if (existingGame.players[0].alias === cleanAlias) {
+    if (existingGame.players[0].alias === user.alias) {
         const response: JoinResponse = {
             type: "join_response",
             status: "rejected",
             playerId: null,
-            alias: cleanAlias,
+            alias: user.alias,
             gameId: null,
             reason: "Alias already in use in this game",
         };
-        wsSocket.send(JSON.stringify(response));
+        user.send(response);
         return;
     }
     existingGame.players.push(user);
@@ -64,9 +60,9 @@ export function joinLocalGame(
         type: "join_response",
         status: "accepted",
         playerId: "2",
-        alias: cleanAlias,
+        alias: user.alias,
         gameId,
         reason: null,
     };
-    wsSocket.send(JSON.stringify(response));
+    user.send(response);
 }
