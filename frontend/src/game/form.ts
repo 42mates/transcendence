@@ -52,14 +52,24 @@ export class GameForm {
 				const btnTournament = document.getElementById('btn-tournament') as HTMLButtonElement;
 				const onlineType = this.form.querySelector('input[name="onlineType"]') as HTMLInputElement;
 				if (btn1v1 && btnTournament && onlineType) {
+					btn1v1.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+					btnTournament.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+					btn1v1.classList.add('bg-amber-400');
+					btnTournament.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
+					onlineType.value = '1v1';
+
 					btn1v1.onclick = () => {
-						btn1v1.classList.add('bg-blue-700');
-						btnTournament.classList.remove('bg-purple-700');
+						btn1v1.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+						btnTournament.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+						btn1v1.classList.add('bg-amber-400');
+						btnTournament.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
 						onlineType.value = '1v1';
 					};
 					btnTournament.onclick = () => {
-						btnTournament.classList.add('bg-purple-700');
-						btn1v1.classList.remove('bg-blue-700');
+						btn1v1.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+						btnTournament.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+						btnTournament.classList.add('bg-amber-400');
+						btn1v1.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
 						onlineType.value = 'tournament';
 					};
 				}
@@ -148,11 +158,27 @@ export class GameForm {
 
 	public getGameForm(): Promise<GameFormType> {
 		return new Promise((resolve) => {
-			(this.modeSelection.querySelector('#local-btn') as HTMLButtonElement).onclick = () => {
+			const localBtn = this.modeSelection.querySelector('#local-btn') as HTMLButtonElement;
+			const onlineBtn = this.modeSelection.querySelector('#online-btn') as HTMLButtonElement;
+
+			localBtn.classList.remove('bg-amber-400', 'bg-zinc-600', 'hover:bg-zinc-500');
+			onlineBtn.classList.remove('bg-amber-400', 'bg-zinc-600', 'hover:bg-zinc-500');
+			localBtn.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
+			onlineBtn.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
+
+			localBtn.onclick = () => {
+				localBtn.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+				onlineBtn.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+				localBtn.classList.add('bg-amber-400');
+				onlineBtn.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
 				this.selectedMode = 'local';
 				this.showForm('local');
 			};
-			(this.modeSelection.querySelector('#online-btn') as HTMLButtonElement).onclick = () => {
+			onlineBtn.onclick = () => {
+				localBtn.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+				onlineBtn.classList.remove('bg-zinc-600', 'bg-amber-400', 'hover:bg-zinc-500');
+				onlineBtn.classList.add('bg-amber-400');
+				localBtn.classList.add('bg-zinc-600', 'hover:bg-zinc-500');
 				this.selectedMode = 'online';
 				this.showForm('online');
 			};

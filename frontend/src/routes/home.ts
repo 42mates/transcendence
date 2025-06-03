@@ -1,3 +1,6 @@
+import { loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
+import { googleSignIn } from '../router'
+
 export function initHome() {
     const langButton = document.getElementById("langButton");
     const langMenu = document.getElementById("langMenu");
@@ -42,6 +45,9 @@ export function initHome() {
             }
         });
     }
+
+    loadGoogleSignInScript();
+    document.getElementById('loginButton')!.addEventListener('click', googleSignIn);
 
     console.log('Home page loaded');
 }
