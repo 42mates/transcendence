@@ -52,54 +52,51 @@ export function loadGoogleSignInScript(): Promise<void> {
   }
   
 export function initGoogleAuth() {
-    const email = localStorage.getItem("email");
-    if (email) {
-        const alreadyLoggedIn = "User is already logged IN";
-        console.error(alreadyLoggedIn);
-        alert(i18n.t('login:error.alreadyLoggedIn'));
-        return;
-    }
 
-    if (typeof google !== 'undefined') {
-        google.accounts.id.initialize({
-            client_id: client_id,
-            callback: handleCredentialResponse,
-        });
+	const email = localStorage.getItem("email");
+	if(email)
+	{
+		const alreadyLoggedIn = "User is already logged IN";
+		console.error(alreadyLoggedIn);
+		alert(i18n.t('login:error.alreadyLoggedIn'));
+		return;
+	}
+	else
+	{
+		if (typeof google !== 'undefined') 
+		{
+			google.accounts.id.initialize({
+				client_id: client_id,
+				callback: handleCredentialResponse,
+			});
+		}
+			
+		const popup = document.createElement("div");
+		popup.setAttribute("id", "loginPopup");
+		popup.setAttribute("data-size", "medium");
+		document.body.appendChild(popup);
+		popup.style.position = "absolute";
+		popup.style.top = "50%";
+		popup.style.left = "50%";
+		popup.style.transform = "translateX(-50%)";
+		google.accounts.id.renderButton(
+			document.getElementById("loginPopup")!,
+			{ theme: "filled_black", size: "large" }
+		);
 
-        let buttonShown = false;
-
-        const showCenteredButton = () => {
-            if (buttonShown) return;
-            buttonShown = true;
-            if (!document.getElementById("loginPopup")) {
-                const popup = document.createElement("div");
-                popup.setAttribute("id", "loginPopup");
-                popup.setAttribute("data-size", "medium");
-                document.body.appendChild(popup);
-                popup.style.position = "absolute";
-                popup.style.top = "50%";
-                popup.style.left = "50%";
-                popup.style.transform = "translateX(-50%)";
-                google.accounts.id.renderButton(
-                    document.getElementById("loginPopup")!,
-                    { theme: "filled_black", size: "large" }
-                );
-            }
-        };
-
-        // Timeout de secours pour navigation privée
-        const fallbackTimeout = setTimeout(() => {
-            showCenteredButton();
-        }, 1200);
-
-        google.accounts.id.prompt((notification: any) => {
-            clearTimeout(fallbackTimeout);
-            if (notification.isNotDisplayed()) {
-                showCenteredButton();
-            }
-            // Si la One Tap s'affiche ou si l'utilisateur la ferme, ne rien faire
-        });
-    }
+		// Ajoutez un callback pour surveiller l'état du One Tap
+		google.accounts.id.prompt((notification: any) => {
+			if (notification.isNotDisplayed()) {
+				console.log("One Tap non affiché :", notification.getNotDisplayedReason());
+			} else if (notification.isSkippedMoment()) {
+				console.log("One Tap ignoré :", notification.getSkippedReason());
+			} else if (notification.isDismissedMoment()) {
+				console.log("One Tap fermé :", notification.getDismissedReason());
+			} else {
+				console.log("One Tap affiché (prompt ouvert)");
+			}
+		});
+	}
 }
 
 export function setupLogoutButton() {
