@@ -2,10 +2,7 @@ import { Ball } from "./ball.class.js";
 import { Paddle } from "./paddle.class.js";
 import { GameCanvas } from "./gameCanvas.class.js";
 import { GameBackend } from "../../game/state.js";
-import {
-	GameStateMessage,
-	PlayerInputMessage,
-} from "../../types/GameMessages.js";
+import { GameStateMessage, PlayerInputMessage } from "../../types/messages.js";
 
 export class GameInstance {
 	private gameCanvas: GameCanvas;
@@ -76,8 +73,8 @@ export class GameInstance {
 			score: [this.player1.score, this.player2.score],
 			status: this.status,
 		};
-		this.player1.connectedUser.ws.send(JSON.stringify(response));
-		this.player2.connectedUser.ws.send(JSON.stringify(response));
+		this.player1.user.send(response);
+		this.player2.user.send(response);
 	}
 
 	gameLoop() {

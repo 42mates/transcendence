@@ -1,13 +1,13 @@
+import { User } from "../../join/User.js";
 import { GameCanvas } from "./gameCanvas.class.js";
 import { Template } from "./template.class.js";
-import { ConnectedUser } from "../../types/GameMessages.js";
 
 export class Paddle extends Template {
 	ID: number;
 	down: boolean;
 	up: boolean;
 	score: number;
-	connectedUser: ConnectedUser;
+	user: User;
 	private speed: number;
 
 	constructor(
@@ -16,7 +16,7 @@ export class Paddle extends Template {
 		y: number,
 		h: number,
 		w: number,
-		cu: ConnectedUser,
+		cu: User,
 	) {
 		super(x, y, h, w);
 		this.ID = id;
@@ -24,7 +24,7 @@ export class Paddle extends Template {
 		this.down = false;
 		this.score = 0;
 		this.speed = 10;
-		this.connectedUser = cu;
+		this.user = cu;
 	}
 
 	update(gameCanvas: GameCanvas) {

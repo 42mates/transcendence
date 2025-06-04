@@ -44,14 +44,6 @@ export type GameStateMessage = {
 	status: "running" | "ended" | string;
 };
 
-import * as ws from "ws";
-export type ConnectedUser = {
-	alias: string;
-	ws: ws.WebSocket;
-	gameMode: "1v1" | "tournament" | "local";
-	status: "idle" | "queued" | "matched";
-};
-
 export type GameStatusUpdateMessage = {
     type: "game_status_update";
     gameId: string;

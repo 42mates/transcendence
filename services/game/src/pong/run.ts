@@ -1,7 +1,8 @@
-import { GameInstance } from "./vars/game.class.js";
+import { GameInstance } from "./vars/game.class";
 import { GameBackend, TournamentBracketBackend } from "../game/state";
-import { ConnectedUser, GameStatusUpdateMessage } from "../types/GameMessages";
+import { GameStatusUpdateMessage } from "../types/messages";
 import { games, tournaments } from "../game/state";
+import { User } from "../join/User";
 
 // fonction Game: => arg: GameBackend: (toutes les infos de la game)
 // - return
@@ -30,42 +31,33 @@ function isGame(obj: any): obj is GameBackend {
 	return obj && typeof obj.id === "string" && Array.isArray(obj.players);
 }
 function isTournament(obj: any): obj is TournamentBracketBackend {
-	return (
-		obj && typeof obj.tournamentId === "string" && obj.game1 && obj.game2
-	);
+	return obj && typeof obj.tournamentId === "string" && obj.game1 && obj.game2;
 }
 
-// Game status table:
-//  pending:	Game created, players matched, not started yet
-//  waiting:	Game cannot start yet (e.g., waiting for previous games or players)
-//  running:	Game is actively being played
-// finished:	Game is over, results are final
 
 function runGame(gameBackend: GameBackend, tournamentId?: string) {
 	gameBackend.status = "running";
 	broadcastGameStatus(gameBackend, tournamentId);
 
-	// Example: Start the game loop (replace with your actual logic)
-	const gameInstance = new GameInstance(gameBackend); // Pass the game object to your Game class
+	const gameInstance = new GameInstance(gameBackend);
 	requestAnimationFrame(gameInstance.gameLoop);
 
-	// When the game ends, update status and notify clients
-	gameInstance.onEnd = (winner: ConnectedUser, loser: ConnectedUser) => {
-		gameBackend.status = "finished";
-		gameBackend.winner = winner;
-		gameBackend.loser = loser;
-		broadcastGameStatus(gameBackend, tournamentId);
+	//// When the game ends, update status and notify clients
+	//gameInstance.onEnd = (winner: User, loser: User) => {
+	//	gameBackend.status = "finished";
+	//	gameBackend.winner = winner;
+	//	gameBackend.loser = loser;
+	//	broadcastGameStatus(gameBackend, tournamentId);
+	//	if (tournamentId) {
+	//		handleTournamentProgression(
+	//			tournamentId,
+	//			gameBackend,
+	//			winner,
+	//			loser,
+	//		);
+	//	}
+	//};
 
-		// If tournament, handle progression
-		if (tournamentId) {
-			handleTournamentProgression(
-				tournamentId,
-				gameBackend,
-				winner,
-				loser,
-			);
-		}
-	};
 }
 
 function broadcastGameStatus(game: GameBackend, tournamentId?: string) {
@@ -78,15 +70,15 @@ function broadcastGameStatus(game: GameBackend, tournamentId?: string) {
 		tournamentId,
 	};
 	game.players.forEach((player) => {
-		player.ws.send(JSON.stringify(payload));
+		player.send(payload);
 	});
 }
 
 function handleTournamentProgression(
 	tournamentId: string,
 	finishedGame: GameBackend,
-	winner: ConnectedUser,
-	loser: ConnectedUser,
+	winner: User,
+	loser: User,
 ) {
 	const bracket = tournaments[tournamentId];
 	if (!bracket) return;

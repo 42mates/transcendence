@@ -1,5 +1,4 @@
-import { WebSocket } from "ws";
-import type { JoinRequest, JoinResponse } from "../types/GameMessages";
+import type { JoinRequest } from "../types/messages";
 import { connectedUsers } from "../game/state";
 
 
@@ -12,36 +11,15 @@ export function sanitizeAlias(alias: string): string | null {
 }
 
 export function validateAlias(
-	wsSocket: WebSocket,
 	message: JoinRequest
-): string | null {
+): string {
 	const { alias, mode } = message.payload;
 	const cleanAlias = sanitizeAlias(alias);
 
-	// Validate alias
-	if (!cleanAlias) {
-		const response: JoinResponse = {
-			type: "join_response",
-			status: "rejected",
-			alias: alias,
-			playerId: null,
-			gameId: null,
-			reason: "Invalid alias",
-		};
-		wsSocket.send(JSON.stringify(response));
-		return null;
-	}
-	if (mode !== "local" && connectedUsers.some(u => u.alias === cleanAlias)) {
-		const response: JoinResponse = {
-			type: "join_response",
-			status: "rejected",
-			alias: alias,
-			playerId: null,
-			gameId: null,
-			reason: "Alias already in use",
-		};
-		wsSocket.send(JSON.stringify(response));
-		return null;
-	}
+	if (!cleanAlias)
+		throw new Error("Invalid alias");
+	if (mode !== "local" && connectedUsers.some(u => u.alias === cleanAlias))
+		throw new Error("Alias already in use");
+
 	return cleanAlias;
 }
