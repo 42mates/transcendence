@@ -24,7 +24,6 @@ export class GameInstance {
 		this.gameCanvas = new GameCanvas(canvasWidth, canvasHeight);
 
 		this.player1 = new Paddle(
-			1,
 			wallOffset,
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
@@ -33,7 +32,6 @@ export class GameInstance {
 		);
 
 		this.player2 = new Paddle(
-			2,
 			this.gameCanvas.width - (wallOffset + paddleWidth),
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
@@ -51,7 +49,12 @@ export class GameInstance {
 		this.status = "running";
 	}
 
-	receivedInputs(playerInputMessage: PlayerInputMessage[]) {}
+	receivedInputs(playerInputMessage: PlayerInputMessage[]) {
+		this.player1.up = playerInputMessage[0].input.up;
+		this.player1.down = playerInputMessage[0].input.down;
+		this.player2.up = playerInputMessage[1].input.up;
+		this.player2.down = playerInputMessage[1].input.down;
+	}
 
 	update() {
 		this.player1.update(this.gameCanvas);
