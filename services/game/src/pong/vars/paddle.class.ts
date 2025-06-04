@@ -3,7 +3,6 @@ import { GameCanvas } from "./gameCanvas.class.js";
 import { Template } from "./template.class.js";
 
 export class Paddle extends Template {
-	ID: number;
 	down: boolean;
 	up: boolean;
 	score: number;
@@ -11,7 +10,6 @@ export class Paddle extends Template {
 	private speed: number;
 
 	constructor(
-		id: number,
 		x: number,
 		y: number,
 		h: number,
@@ -19,7 +17,6 @@ export class Paddle extends Template {
 		cu: User,
 	) {
 		super(x, y, h, w);
-		this.ID = id;
 		this.up = false;
 		this.down = false;
 		this.score = 0;
