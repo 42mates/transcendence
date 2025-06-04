@@ -6,7 +6,13 @@
 		"promptPlayer2": "Please enter Player 2's alias:",
 		"placeholder1": "PuppetMaster420",
 		"placeholder2": "GameLord69",
-		"error": "Invalid alias '{{alias}}'. Please try again.", 
+		"error": {
+			"empty": "Alias cannot be empty.",
+			"invalid": "Invalid alias '{{alias}}'. Please try again.",
+			"duplicate": "Alias '{{alias}}' is already in use. Please choose another.",
+			"length": "Alias must be between 3 and 20 characters long.",
+			"characters": "Alias can only contain letters, numbers, and underscores."
+		},
 		"prerequisites": "Alias must be between 3 and 20 characters long and can only contain letters, numbers, and underscores."
 	},
 	"mode": {

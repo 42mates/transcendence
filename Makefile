@@ -6,7 +6,7 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/05/27 18:05:39 by mbecker          ###   ########.fr        #
+#    Updated: 2025/06/03 18:28:18 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -85,6 +85,14 @@ fclean: clean nodeclean
 	@rm -rf $(DATA)
 
 re: fclean all
+
+node:
+	@for module in $(MODULES); do \
+		echo "$(CYAN)Installing npm dependencies in $(BCYAN)$$module$(CYAN)...$(RESET)"; \
+		cd $$module && npm install; \
+		cd -; \
+	done
+	
 
 deepclean:
 	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"
