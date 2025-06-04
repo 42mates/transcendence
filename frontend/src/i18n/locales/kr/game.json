@@ -6,7 +6,13 @@
 		"promptPlayer2": "플레이어 2의 별명을 입력하세요:",
 		"placeholder1": "퍼펫마스터420",
 		"placeholder2": "게임로드69",
-		"error": "잘못된 별명 '{{alias}}'. 다시 시도해주세요.",
+		"error": {
+			"empty": "별명을 입력해주세요.",
+			"invalid": "잘못된 별명 '{{alias}}'. 다시 시도해주세요.",
+			"duplicate": "별명 '{{alias}}'은(는) 이미 사용 중입니다. 다른 별명을 선택해주세요.",
+			"length": "별명은 3자에서 20자 사이여야 합니다.",
+			"characters": "별명은 영문, 숫자, 밑줄(_)만 사용할 수 있습니다."
+		},
 		"prerequisites": "별명은 3자에서 20자 사이여야 하며, 영문, 숫자, 밑줄만 사용할 수 있습니다."
 	},
 	"mode": {
@@ -22,8 +28,8 @@
 	"gameOver": "게임 오버",
 	"tryAgain": "다시 시도",
 	"success": {
-		 "levelComplete": "{{level}} 레벨 완료!",
-		 "newHighScore": "새로운 최고 점수: {{score}}!"
+		"levelComplete": "{{level}} 레벨 완료!",
+		"newHighScore": "새로운 최고 점수: {{score}}!"
 	},
 	"error": {
 		"connectionLost": "연결이 끊어졌습니다. 다시 시도해주세요.",

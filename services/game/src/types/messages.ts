@@ -19,7 +19,8 @@ export type TournamentBracket = {
 export type JoinResponse = {
 	type: "join_response";
 	status: "accepted" | "rejected";
-	playerId: string | null;
+	alias: string | null;
+	playerId: "1" | "2" | null;
 	gameId: string | null;
 	reason: string | null;
 	bracket?: TournamentBracket; // <-- add this line
@@ -27,7 +28,8 @@ export type JoinResponse = {
 
 export type PlayerInputMessage = {
 	type: "player_input";
-	playerId: string;
+	playerId: "1" | "2" | null;
+	gameId: string | null;
 	input: {
 		up: boolean;
 		down: boolean;
@@ -42,10 +44,11 @@ export type GameStateMessage = {
 	status: "running" | "ended" | string;
 };
 
-import * as ws from "ws";
-export type ConnectedUser = {
-	alias: string;
-	ws: ws.WebSocket;
-	gameMode: "1v1" | "tournament" | "local";
-	status: "idle" | "queued" | "matched";
+export type GameStatusUpdateMessage = {
+    type: "game_status_update";
+    gameId: string;
+    status: "pending" | "waiting" | "running" | "finished";
+    winner?: string;
+    loser?: string;
+    tournamentId?: string;
 };
