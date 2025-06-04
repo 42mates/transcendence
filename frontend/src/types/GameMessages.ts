@@ -20,8 +20,8 @@ export type JoinResponse = {
 	bracket?: {
 	    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
 	    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
-	    game3: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string },
-	    game4: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string }
+	    game3: { id: string, players?: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string },
+	    game4: { id: string, players?: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string }
 	}
 };
 
@@ -51,7 +51,7 @@ export type GameStateMessage = {
 export type GameStatusUpdateMessage = {
     type: "game_status_update";
     gameId: string;
-    status: "pending" | "waiting" | "running" | "finished";
+    status: "pending" | "waiting" | "running" | "ended";
     winner?: string;
     loser?: string;
     tournamentId?: string;

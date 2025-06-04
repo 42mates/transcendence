@@ -119,7 +119,7 @@ export default class Game {
 
 		if (data.status === 'rejected') {
 			console.error(`Join rejected: ${data.reason ?? 'No reason provided'}`);
-			this.socket?.close();
+			//this.socket?.close();
 			//// Optionally reject the promise below
 			//if (this.joinResolve) {
 			//	this.joinResolve = null;

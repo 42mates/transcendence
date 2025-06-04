@@ -1,6 +1,6 @@
-import { User } from "../../join/User.js";
-import { GameCanvas } from "./gameCanvas.class.js";
-import { Template } from "./template.class.js";
+import { User }       from "../../join/User";
+import { GameCanvas } from "./gameCanvas.class";
+import { Template }   from "./template.class";
 
 export class Paddle extends Template {
 	down: boolean;

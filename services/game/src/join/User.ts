@@ -46,6 +46,7 @@ export class User {
 			}
 			else {
 				// Handle game state messages differently
+				console.warn("How to handle game state messages in HTTP responses?");
 			}
 		}
 	}

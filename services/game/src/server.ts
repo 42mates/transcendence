@@ -113,7 +113,6 @@ export default async function startServer() {
 	const wss = new ws.Server({ server });
 
 	wss.on("connection", (wsSocket: ws.WebSocket) => {
-		wsSocket.send(JSON.stringify({ type: "info", payload: "Successfully connected to the game service WebSocket server" }));
 		console.log("New WebSocket connection established");
 		handleWSS(wsSocket);
 	});

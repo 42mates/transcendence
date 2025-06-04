@@ -9,6 +9,13 @@ import { tryMatchmake1v1, tryMatchmakeTournament }                           fro
 import { User }                                                              from "../join/User";
 import { connectedUsers }                                                    from "../game/state";
 
+export class WaitingForPlayers extends Error {
+	constructor(message = "Waiting for more players to join") {
+		super(message);
+		this.name = "WaitingForPlayers";
+	}
+}
+
 function registerUser(message: JoinRequest, connection: WebSocket | FastifyReply): User | null
 {
 	const mode = message.payload.mode;
@@ -53,19 +60,38 @@ export default function join(message: JoinRequest, connection: WebSocket | Fasti
 	if (!user) return ;
 
 	const mode = message.payload.mode;
-
-	if (mode === "1v1" || mode === "tournament") {
-		matchmakingQueues[mode].push(user);
-		if (mode === "1v1")
-			if (tryMatchmake1v1()) return;
-		else
-			if (tryMatchmakeTournament()) return;
-	} else if (mode === "local") {
-		const { gameId } = message.payload;
-		if (!gameId)
-			createLocalGame(user);
-		else
-			joinLocalGame(user, gameId);
+	try {
+		
+		if (mode === "1v1" || mode === "tournament") {
+			matchmakingQueues[mode].push(user);
+			if (mode === "1v1")
+				tryMatchmake1v1();
+			else
+				tryMatchmakeTournament();
+		} else if (mode === "local") {
+			const { gameId } = message.payload;
+			if (!gameId)
+				createLocalGame(user);
+			else
+				joinLocalGame(user, gameId);
+		}
+	}
+	catch (error: any) {
+		if (error instanceof WaitingForPlayers) {
+			console.log(error.message);
+		}
+		else {
+			console.error("Error during join process:", error);
+			const response: JoinResponse = {
+				type: "join_response",
+				status: "rejected",
+				alias: user.alias,
+				playerId: null,
+				gameId: null,
+				reason: "An error occurred while processing your request.",
+			};
+			user.send(response);
+		}
 	}
 }
 

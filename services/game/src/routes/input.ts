@@ -4,7 +4,7 @@ import { send } from "../utils";
 
 import type { PlayerInputMessage, GameStateMessage, GameError} from "../types/messages"; // Messages JSON
 import { games } from "../game/state";
-import { startGame } from "../pong/run";
+
 
 export default function input(msg: PlayerInputMessage, connection: WebSocket | FastifyReply): void {
 	if (msg.gameId === null || msg.playerId === null) {
@@ -31,27 +31,15 @@ export default function input(msg: PlayerInputMessage, connection: WebSocket | F
 		send(connection, errorResponse, 404);
 		return;
 	}
-
-	if (game.status !== "running")
- 		game.start();
-	else {
-		console.log("Received player input:", msg.input);
-		game.receivedInputs();
+	if (game.status !== "running") {
+		game.run();
 	}
+		
 
-
-	//const okResponse: GameStateMessage = {
-	//	type: "game_state",
-	//	ball: { x: Math.floor(Math.random() * 101), y: Math.floor(Math.random() * 101) },
-	//	paddles: [
-	//		{ x: 0,   y: Math.floor(Math.random() * 101) },
-	//		{ x: 100, y: Math.floor(Math.random() * 101) }
-	//	],
-	//	score: [0, 0],
-	//	status: "action received successfully: " + (msg.input.up ? "up" : "down"),
-	//};
-	//console.log("Sending game state response:", okResponse);
-	//send(connection, okResponse);
+	console.log("Received player input:", msg.input);
+	const playersinput: PlayerInputMessage["input"][] = msg.playerId === "1" ?
+		[msg.input, { up: false, down: false }] :
+		[{ up: false, down: false }, msg.input];
+	game.receivedInputs(playersinput);
 }
-
 
