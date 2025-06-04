@@ -1,20 +1,14 @@
-export type JoinRequestPayload = {
-	alias: string;
-	mode: "1v1" | "tournament" | "local";
-	gameId: string | null;
-};
+/*******  JOIN MESSAGES  *******/
 
 export type JoinRequest = {
 	type: "join_request";
-	payload: JoinRequestPayload;
+	payload: {
+		alias: string;
+		mode: "1v1" | "tournament" | "local";
+		gameId: string | null;
+	}
 };
 
-export type TournamentBracket = {
-    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
-    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
-    game3: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string },
-    game4: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string }
-};
 
 export type JoinResponse = {
 	type: "join_response";
@@ -23,8 +17,16 @@ export type JoinResponse = {
 	playerId: "1" | "2" | null;
 	gameId: string | null;
 	reason: string | null;
-	bracket?: TournamentBracket; // <-- add this line
+	bracket?: {
+	    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
+	    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
+	    game3: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string },
+	    game4: { id: string, players: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string }
+	}
 };
+
+
+/*******  GAME MESSAGES  *******/
 
 export type PlayerInputMessage = {
 	type: "player_input";
@@ -36,6 +38,7 @@ export type PlayerInputMessage = {
 	};
 };
 
+
 export type GameStateMessage = {
 	type: "game_state";
 	ball: { x: number; y: number };
@@ -44,6 +47,7 @@ export type GameStateMessage = {
 	status: "running" | "ended" | string;
 };
 
+
 export type GameStatusUpdateMessage = {
     type: "game_status_update";
     gameId: string;
@@ -51,4 +55,12 @@ export type GameStatusUpdateMessage = {
     winner?: string;
     loser?: string;
     tournamentId?: string;
+};
+
+
+export type GameError = {
+	type: "game_error";
+	gameId?: string;
+	playerId?: "1" | "2";
+	message: string;
 };

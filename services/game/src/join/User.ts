@@ -36,13 +36,13 @@ export class User {
 		return this._status;
 	}
 
-	send(msg: JoinResponse | GameStateMessage | GameStatusUpdateMessage): void {
+	send(msg: JoinResponse | GameStateMessage | GameStatusUpdateMessage, HTTPstatus: number = 200): void {
 		if (this._connection instanceof WebSocket)
 			this._connection.send(JSON.stringify(msg));
 		else {
 			if (msg.type !== "game_state") {
 				// Handle join response and game status update messages
-				this._connection.status(200).send(msg);
+				this._connection.status(HTTPstatus).send(msg);
 			}
 			else {
 				// Handle game state messages differently

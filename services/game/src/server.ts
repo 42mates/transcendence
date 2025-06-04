@@ -4,7 +4,7 @@ import * as ws from "ws";
 
 import { JoinRequest, PlayerInputMessage } from "./types/messages";
 import join from "./routes/join";
-import action from "./routes/action";
+import input from "./routes/input";
 import aliasCheckRoute from "./routes/check-alias";
 import { joinRoute } from "./routes/join";
 import { connectedUsers, matchmakingQueues, games } from "./game/state";
@@ -26,7 +26,7 @@ function handleWSS(wsSocket: ws.WebSocket) {
 				join(msg as JoinRequest, wsSocket);
 				break;
 			case "player_input":
-				action(wsSocket, msg.payload as PlayerInputMessage);
+				input(msg as PlayerInputMessage, wsSocket);
 				break;
 			default:
 				wsSocket.send(JSON.stringify({ type: "error", payload: "Unknown type" }));

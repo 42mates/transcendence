@@ -35,30 +35,30 @@ function isTournament(obj: any): obj is TournamentBracketBackend {
 }
 
 
-function runGame(gameBackend: GameBackend, tournamentId?: string) {
-	gameBackend.status = "running";
-	broadcastGameStatus(gameBackend, tournamentId);
+//function runGame(gameBackend: GameBackend, tournamentId?: string) {
+//	gameBackend.status = "running";
+//	broadcastGameStatus(gameBackend, tournamentId);
 
-	const gameInstance = new GameInstance(gameBackend);
-	requestAnimationFrame(gameInstance.gameLoop);
+//	const gameInstance = new GameInstance(gameBackend);
+//	requestAnimationFrame(gameInstance.gameLoop);
 
-	//// When the game ends, update status and notify clients
-	//gameInstance.onEnd = (winner: User, loser: User) => {
-	//	gameBackend.status = "finished";
-	//	gameBackend.winner = winner;
-	//	gameBackend.loser = loser;
-	//	broadcastGameStatus(gameBackend, tournamentId);
-	//	if (tournamentId) {
-	//		handleTournamentProgression(
-	//			tournamentId,
-	//			gameBackend,
-	//			winner,
-	//			loser,
-	//		);
-	//	}
-	//};
+//	//// When the game ends, update status and notify clients
+//	//gameInstance.onEnd = (winner: User, loser: User) => {
+//	//	gameBackend.status = "finished";
+//	//	gameBackend.winner = winner;
+//	//	gameBackend.loser = loser;
+//	//	broadcastGameStatus(gameBackend, tournamentId);
+//	//	if (tournamentId) {
+//	//		handleTournamentProgression(
+//	//			tournamentId,
+//	//			gameBackend,
+//	//			winner,
+//	//			loser,
+//	//		);
+//	//	}
+//	//};
 
-}
+//}
 
 function broadcastGameStatus(game: GameBackend, tournamentId?: string) {
 	const payload: GameStatusUpdateMessage = {

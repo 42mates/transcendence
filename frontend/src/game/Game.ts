@@ -1,4 +1,4 @@
-import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage } from '../types/GameMessages';
+import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameError } from '../types/GameMessages';
 import Canvas from './Canvas';
 
 export default class Game {
@@ -102,6 +102,8 @@ export default class Game {
 				this.handleJoinResponse(data as JoinResponse);
 			} else if (data.type === 'game_state') {
 				this.handleGameStateMessage(data as GameStateMessage);
+			} else if (data.type === 'game_error') {
+				console.warn('Game error:', data.message);
 			} else {
 				console.warn('Received unknown message type:', data);
 			}
@@ -134,19 +136,20 @@ export default class Game {
 		}
 	}
 
-	private parseGameState(data: GameStateMessage): GameStateMessage {
-		if (this.playerId === "2") 
+	private handleGameStateMessage(data: GameStateMessage) {
+		// In local mode, only player 1's game updates are processed, since they share the canvas.
+		if (this.mode === 'local' && this.playerId === "2")
+			return; 
+	
+		if (this.playerId === "2")
 		{
 			data.paddles[0].x = 100 - data.paddles[0].x;
 			data.paddles[1].x = 100 - data.paddles[1].x;
 			data.ball.x = 100 - data.ball.x;
 		}
-		return data;
+		this.canvas?.updateGameState(data);
 	}
 
-	private handleGameStateMessage(data: GameStateMessage) {
-		this.canvas?.updateGameState(this.parseGameState(data));
-	}
 	private listenForPlayerInput() {
 		const canvasElement = document.getElementById('game-canvas');
 		if (!canvasElement) return;

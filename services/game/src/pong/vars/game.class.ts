@@ -1,17 +1,20 @@
 import { Ball } from "./ball.class.js";
 import { Paddle } from "./paddle.class.js";
 import { GameCanvas } from "./gameCanvas.class.js";
-import { GameBackend } from "../../game/state.js";
-import { GameStateMessage, PlayerInputMessage } from "../../types/messages.js";
+import { User } from "../../join/User.js";
+import { GameStateMessage, PlayerInputMessage, GameStatusUpdateMessage } from "../../types/messages.js";
 
 export class GameInstance {
 	private gameCanvas: GameCanvas;
+	private id: string;
 	private player1: Paddle;
 	private player2: Paddle;
 	private ball: Ball;
-	status: string;
+	status: "pending" | "waiting" | "running" | "ended";
+	private winner?: User;
+	private loser?: User;
 
-	constructor(gameBackend: GameBackend) {
+	constructor(players: User[], id: string) {
 		let canvasWidth = 100;
 		let canvasHeight = 100;
 		let wallOffset = canvasWidth / 10;
@@ -28,7 +31,7 @@ export class GameInstance {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
-			gameBackend.players[0],
+			players[0],
 		);
 
 		this.player2 = new Paddle(
@@ -36,7 +39,7 @@ export class GameInstance {
 			this.gameCanvas.height / 2 - paddleHeight / 2,
 			paddleWidth,
 			paddleHeight,
-			gameBackend.players[1],
+			players[1],
 		);
 
 		this.ball = new Ball(
@@ -46,7 +49,25 @@ export class GameInstance {
 			ballSize,
 		);
 
+		this.id = id;
+		this.status = "pending";
+	}
+
+	public start()
+	{
 		this.status = "running";
+		const msg: GameStatusUpdateMessage = {
+			type: "game_status_update",
+			gameId: this.id,
+			status: this.status,
+			winner: this.winner?.alias,
+			loser: this.loser?.alias,
+		};
+		this.player1.user.send(msg);
+		this.player2.user.send(msg);
+		//this.gameLoop();
+
+		//console.log("Game started with players:", this.player1.user.alias, "and", this.player2.user.alias);
 	}
 
 	receivedInputs(playerInputMessage: PlayerInputMessage[]) {
