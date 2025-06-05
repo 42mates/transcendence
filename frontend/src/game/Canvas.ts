@@ -1,11 +1,9 @@
 import { GameStateMessage } from '../types/GameMessages';
-import { drawRoundedRect } from '../utils/canvas_helpers';
 
 export default class Canvas {
 	private canvas: HTMLCanvasElement;
 	private ctx: CanvasRenderingContext2D | null;
 	private waitingAnimationFrame: number | null = null;
-	private angle: number = 0;
 	private raw_data: GameStateMessage | null = null; 
 	private data: GameStateMessage | null = null; 
 	private isLoading: boolean = false; 
@@ -42,25 +40,25 @@ export default class Canvas {
 	}
 
 	private drawGrid(): void {
-	    if (!this.ctx) return;
-	    this.ctx.save();
-	    this.ctx.strokeStyle = "#444";
-	    this.ctx.lineWidth = 1;
-	    for (let i = 0; i <= 100; i++) {
-	        const x = this.scaleX(i);
-	        this.ctx.beginPath();
-	        this.ctx.moveTo(x, 0);
-	        this.ctx.lineTo(x, this.canvas.height);
-	        this.ctx.stroke();
-	    }
-	    for (let j = 0; j <= 100; j++) {
-	        const y = this.scaleY(j);
-	        this.ctx.beginPath();
-	        this.ctx.moveTo(0, y);
-	        this.ctx.lineTo(this.canvas.width, y);
-	        this.ctx.stroke();
-	    }
-	    this.ctx.restore();
+		if (!this.ctx) return;
+		this.ctx.save();
+		this.ctx.strokeStyle = "#444";
+		this.ctx.lineWidth = 1;
+		for (let i = 0; i <= 100; i++) {
+			const x = this.scaleX(i);
+			this.ctx.beginPath();
+			this.ctx.moveTo(x, 0);
+			this.ctx.lineTo(x, this.canvas.height);
+			this.ctx.stroke();
+		}
+		for (let j = 0; j <= 100; j++) {
+			const y = this.scaleY(j);
+			this.ctx.beginPath();
+			this.ctx.moveTo(0, y);
+			this.ctx.lineTo(this.canvas.width, y);
+			this.ctx.stroke();
+		}
+		this.ctx.restore();
 	}
 
 	private drawPaddle(i: number): void {
@@ -68,41 +66,27 @@ export default class Canvas {
 
 		const paddleWidth = this.scaleY(2.5);
 		const paddleHeight = this.scaleY(14.5);
-		const borderRadius = this.scaleY(1.7);
 
 		let x = this.data.paddles[i].x;
 		let y = this.data.paddles[i].y;
 
 		this.ctx.save();
 
-		// Draw shadow
-		this.ctx.shadowColor = "#00e0ff";
-		this.ctx.shadowBlur = this.scaleY(3.3);
+		// Draw blurred glow using a larger, semi-transparent rectangle
+		const glowSize = this.scaleY(4);
+		this.ctx.fillStyle = "rgba(0,224,255,0.35)";
+		this.ctx.filter = `blur(${glowSize}px)`;
+		this.ctx.fillRect(
+			x - glowSize / 2,
+			y - glowSize / 2,
+			paddleWidth + glowSize,
+			paddleHeight + glowSize
+		);
 
-		// Draw rounded rectangle paddle
+		// Draw the main paddle
+		this.ctx.filter = "none";
 		this.ctx.fillStyle = "#00e0ff";
-		drawRoundedRect(
-			this.ctx,
-			x - paddleWidth / 2,
-			y - paddleHeight / 2,
-			paddleWidth,
-			paddleHeight,
-			borderRadius
-		);
-		this.ctx.fill();
-
-		// Add a subtle white highlight (top third, rounded)
-		this.ctx.globalAlpha = 0.25;
-		this.ctx.fillStyle = "#fff";
-		drawRoundedRect(
-			this.ctx,
-			x - paddleWidth / 2,
-			y - paddleHeight / 2,
-			paddleWidth,
-			paddleHeight / 3,
-			borderRadius
-		);
-		this.ctx.fill();
+		this.ctx.fillRect(x, y, paddleWidth, paddleHeight);
 
 		this.ctx.restore();
 	}
@@ -110,20 +94,29 @@ export default class Canvas {
 	private drawBall(): void {
 		if (!this.ctx || !this.data) return;
 
-		const ballRadius = this.scaleY(1.5);
+		const ballSize = this.scaleY(3);
 
 		let x = this.data.ball.x;
 		let y = this.data.ball.y;
 
 		this.ctx.save();
-		this.ctx.fillStyle = "#ff0000"; // Red color for the ball
-		this.ctx.shadowColor = "#ff0000";
-		this.ctx.shadowBlur = this.scaleY(3.3);
-		this.ctx.beginPath();
 
-		this.ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-		this.ctx.closePath();
-		this.ctx.fill();
+		// Draw a blurred glow behind the square ball
+		const glowSize = this.scaleY(6);
+		this.ctx.filter = `blur(${glowSize / 2}px)`;
+		this.ctx.fillStyle = "rgba(255,0,0,0.45)";
+		this.ctx.fillRect(
+			x - (glowSize - ballSize) / 2,
+			y - (glowSize - ballSize) / 2,
+			ballSize + (glowSize - ballSize),
+			ballSize + (glowSize - ballSize)
+		);
+
+		// Draw the main square ball
+		this.ctx.filter = "none";
+		this.ctx.fillStyle = "#ff0000";
+		this.ctx.fillRect(x, y, ballSize, ballSize);
+
 		this.ctx.restore();
 	}
 
