@@ -1,14 +1,14 @@
 export class GameCanvas {
-	_height: number;
 	_width: number;
+	_height: number;
 	_paddleWidth: number;
 	_paddleHeight: number;
 	_ballSize: number;
 
-	constructor(h: number, w: number) {
-		this._height = h;
+	constructor(w: number, h: number) {
 		this._width = w;
-		this._paddleWidth = w / 20;
+		this._height = h;
+		this._paddleWidth = w / 50;
 		this._paddleHeight = h / 5;
 		this._ballSize = w / 50;
 	}

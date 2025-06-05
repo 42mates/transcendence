@@ -1,6 +1,6 @@
-import { User }       from "../../join/User";
-import { GameCanvas } from "./gameCanvas.class";
-import { Template }   from "./template.class";
+import {User} from "../join/User";
+import {GameCanvas} from "./gameCanvas.class";
+import {Template} from "./template.class";
 
 export class Paddle extends Template {
 	down: boolean;
@@ -25,18 +25,19 @@ export class Paddle extends Template {
 	}
 
 	update(gameCanvas: GameCanvas) {
-		if (this.up == true && this.y <= this.height) {
+		if (this.up == true && this.y - this.speed <= this.height) {
 			this.yVec = -1;
-			this.up = false;
 		} else if (
 			this.down == true &&
-			this.y + this.height >= gameCanvas.height - this.height
+			this.y + this.speed + this.height >= gameCanvas.height
 		) {
 			this.yVec = 1;
-			this.down = false;
 		} else {
 			this.yVec = 0;
 		}
+
+		this.up = false;
+		this.down = false;
 
 		this.y += this.speed * this.yVec;
 	}

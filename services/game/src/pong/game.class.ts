@@ -1,8 +1,8 @@
-import { Ball }       from "./ball.class";
-import { Paddle }     from "./paddle.class";
-import { GameCanvas } from "./gameCanvas.class";
-import { User }       from "../../join/User";
-import { GameStateMessage, PlayerInputMessage, GameStatusUpdateMessage } from "../../types/messages";
+import {Ball} from "./ball.class";
+import {Paddle} from "./paddle.class";
+import {GameCanvas} from "./gameCanvas.class";
+import {User} from "../join/User";
+import {GameStateMessage, PlayerInputMessage, GameStatusUpdateMessage} from "../types/messages";
 
 export class GameInstance {
 	private _gameCanvas: GameCanvas;
@@ -16,38 +16,31 @@ export class GameInstance {
 	private _loser?: User;
 
 	constructor(players: User[], id: string, status: "pending" | "waiting" = "pending") {
-
-		this._gameCanvas = new GameCanvas(100, 100);
-
-		let wallOffset = this._gameCanvas.width / 10;
-		
-		let paddleWidth = this._gameCanvas.paddleWidth;
-		let paddleHeight = this._gameCanvas.paddleHeight;
-
-		let ballSize = this._gameCanvas.ballSize;
+		this._gameCanvas = new GameCanvas(100, 75);
 
 		this._players = players;
+
 		this._player1 = new Paddle(
-			wallOffset,
-			this._gameCanvas.height / 2 - paddleHeight / 2,
-			paddleWidth,
-			paddleHeight,
-			players[0],
+			0,
+			this._gameCanvas.height / 2 - this._gameCanvas.paddleHeight / 2,
+			this._gameCanvas.paddleWidth,
+			this._gameCanvas.paddleHeight,
+			this._players[0],
 		);
 
 		this._player2 = new Paddle(
-			this._gameCanvas.width - (wallOffset + paddleWidth),
-			this._gameCanvas.height / 2 - paddleHeight / 2,
-			paddleWidth,
-			paddleHeight,
-			players[1],
+			this._gameCanvas.width - this._gameCanvas.paddleWidth,
+			this._gameCanvas.height / 2 - this._gameCanvas.paddleHeight / 2,
+			this._gameCanvas.paddleWidth,
+			this._gameCanvas.paddleHeight,
+			this._players[1],
 		);
 
 		this._ball = new Ball(
-			this._gameCanvas.width / 2 - ballSize / 2,
-			this._gameCanvas.height / 2 - ballSize / 2,
-			ballSize,
-			ballSize,
+			this._gameCanvas.width / 2 - this._gameCanvas.ballSize / 2,
+			this._gameCanvas.height / 2 - this._gameCanvas.ballSize / 2,
+			this._gameCanvas.ballSize,
+			this._gameCanvas.ballSize,
 		);
 
 		this._id = id;
@@ -70,10 +63,9 @@ export class GameInstance {
 		return this._gameCanvas.dimensions;
 	}
 
-	public run()
-	{
-		this._status = "running";
 
+	public run() {
+		this._status = "running";
 		//const msg: GameStatusUpdateMessage = {
 		//	type: "game_status_update",
 		//	gameId: this._id,
@@ -83,8 +75,8 @@ export class GameInstance {
 		//};
 		//this._player1.user.send(msg);
 		//this._player2.user.send(msg);
-		
-		
+
+
 		this.gameLoop();
 
 		console.log("Game started with players:", this._player1.user.alias, "and", this._player2.user.alias);
@@ -109,10 +101,10 @@ export class GameInstance {
 	public getState(): GameStateMessage {
 		return {
 			type: "game_state",
-			ball: { x: this._ball.x, y: this._ball.y },
+			ball: {x: this._ball.x, y: this._ball.y},
 			paddles: [
-				{ x: this._player1.x, y: this._player1.y },
-				{ x: this._player2.x, y: this._player2.y },
+				{x: this._player1.x, y: this._player1.y},
+				{x: this._player2.x, y: this._player2.y},
 			],
 			score: [this._player1.score, this._player2.score],
 			status: this._status,

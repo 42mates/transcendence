@@ -1,6 +1,6 @@
-import { Template }	  from "./template.class";
-import { Paddle }     from "./paddle.class";
-import { GameCanvas } from "./gameCanvas.class";
+import {Template} from "./template.class";
+import {Paddle} from "./paddle.class";
+import {GameCanvas} from "./gameCanvas.class";
 
 export class Ball extends Template {
 	private speed: number;
