@@ -8,7 +8,6 @@ const aliasRoute: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 		const { alias } = request.query;
 		const cleanAlias = sanitizeAlias(alias);
 		console.log(`Checking alias: "${alias}" -> "${cleanAlias}"`);
-		console.log(`Connected users: ${connectedUsers.map(u => u.alias).join(', ')}`);
 		if (!cleanAlias) {
 			console.log(`Alias "${alias}" is invalid.`);
 			reply.status(400).send({ valid: false, reason: 'Invalid alias' });

@@ -181,7 +181,6 @@ export default class GameForm {
 				try {
 					const data = await this.fillGameForm();
 					if (data) {
-						console.log('Game setup:', data);
 						this.closeDialog();
 						resolve(data);
 					}

@@ -12,13 +12,11 @@ export type TournamentBracketBackend = {
 
 export const connectedUsers: User[] = [];
 
-export const matchmakingQueues = {
+export const localQueue: {[gameId: string]: User } = {};
+export const onlineQueues = {
 	"1v1": [] as User[],
 	"tournament": [] as User[],
 };
 
 export const games: {[gameId: string]: GameInstance } = {};
-
-export const localUsersWaiting: {[gameId: string]: User } = {};
-
 export const tournaments: { [tournamentId: string]: TournamentBracketBackend } = {};

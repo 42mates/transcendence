@@ -1,8 +1,7 @@
 import { games }        from "./game/state";
 import { WebSocket }    from "ws";
 import { FastifyReply } from 'fastify';
-	
- // Helper function for unique game IDs
+
 export function getUniqueGameId(): string {
 	let gameId: string;
 	do {

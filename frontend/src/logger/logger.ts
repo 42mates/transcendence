@@ -2,7 +2,6 @@ const hostname = () => window.location.hostname;
 
 const serviceName = "frontend";
 
-// Save the original console.log
 const originalLog = console.log;
 
 function sendLog(method: string, args: any[]) {
@@ -35,7 +34,7 @@ function sendLog(method: string, args: any[]) {
 	}
 }
 
-// Override only console.log to preserve stack trace in browser devtools
+// Override only console log to preserve stack trace in browser devtools
 console.log = function (...args: any[]) {
 	originalLog.apply(console, args);
 	sendLog("log", args);

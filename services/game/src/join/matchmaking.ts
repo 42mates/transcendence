@@ -1,54 +1,28 @@
-import type { JoinResponse } from "../types/messages";
-import {
-	games,
-	tournaments,
-	TournamentBracketBackend,
-	matchmakingQueues,
-} from "../game/state";
-import { getUniqueGameId } from "../utils";
-import { GameInstance } from "../pong/vars/game.class";
-import { match } from "assert";
-import { WaitingForPlayers } from "../routes/join";
+import { tournaments, TournamentBracketBackend, onlineQueues} from "../game/state";
+import { getUniqueGameId }                                         from "../utils";
+import { WaitingForPlayers }                                       from "./exceptions";
+import { GameInstance }                                            from "../pong/vars/game.class";
+import { joinGame }                                                from "./join";
+import { User }                                                    from "../join/User";
 
 
 // 1v1 matchmaking
-export function tryMatchmake1v1() {
-	if (matchmakingQueues["1v1"].length < 2)
-		throw new WaitingForPlayers();
+export function tryMatchmake1v1(user: User) {
+	if (onlineQueues["1v1"].length < 2)
+		throw new WaitingForPlayers(user);
 	
-	const [player1, player2] = matchmakingQueues["1v1"].splice(0, 2);
+	const [player1, player2] = onlineQueues["1v1"].splice(0, 2);
 	const gameId = getUniqueGameId();
 
-	const matchInfo: JoinResponse = {
-		type: "join_response",
-		status: "accepted",
-		playerId: "1",
-		alias: player1.alias,
-		gameId,
-		reason: null,
-	};
-	const matchInfo2: JoinResponse = {
-		type: "join_response",
-		status: "accepted",
-		playerId: "2",
-		alias: player2.alias,
-		gameId,
-		reason: null,
-	};
-	player1.send(matchInfo);
-	player2.send(matchInfo2);
-
-	games[gameId] = new GameInstance([player1, player2], gameId, "pending");
-
-	console.log(games);
+	joinGame([player1, player2], gameId);
 }
 
 // Tournament matchmaking
-export function tryMatchmakeTournament() {
-	if (matchmakingQueues["tournament"].length < 4) 
-		throw new WaitingForPlayers();	
+export function tryMatchmakeTournament(user: User) {
+	if (onlineQueues["tournament"].length < 4) 
+		throw new WaitingForPlayers(user);	
 
-	const players = matchmakingQueues["tournament"].splice(0, 4);
+	const players = onlineQueues["tournament"].splice(0, 4);
 	const [p1, p2, p3, p4] = players;
 	const gameId1 = getUniqueGameId();
 	const gameId2 = getUniqueGameId();
@@ -85,17 +59,6 @@ export function tryMatchmakeTournament() {
 	};
 	tournaments[tournamentId] = backendBracket;
 
-	players.forEach((p, idx) => {
-		const response: JoinResponse = {
-			type: "join_response",
-			status: "accepted",
-			playerId: idx % 2 === 0 ? "1" : "2",
-			alias: p.alias,
-			gameId: p === p1 || p === p2 ? gameId1 : gameId2,
-			reason: null,
-			bracket: frontendBracket,
-		};
-		p.send(response);
-	});
-
+	joinGame([p1, p2], gameId1, frontendBracket);
+	joinGame([p3, p4], gameId2, frontendBracket);
 }

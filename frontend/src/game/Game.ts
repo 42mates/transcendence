@@ -33,7 +33,7 @@ export default class Game {
 			throw new Error('Canvas element with id "game-canvas" invalid or not found in the page.');
 		}
 		this.canvas = new Canvas(canvasElement);
-		console.log(`Game initialized with mode '${this.mode}' for alias '${this.alias}', gameId '${this.gameId}', and controls: ${JSON.stringify(this.controls)}`); 
+		console.log(`[${this.gameId}] Game initialized in '${this.mode}' for '${this.alias}' (${JSON.stringify(this.controls)})`); 
 	}
 
 	public connect() {
@@ -41,7 +41,7 @@ export default class Game {
 		this.socket = new WebSocket(wsUrl);
 
 		this.socket.onopen = () => {
-			console.log('WebSocket connection established');
+			console.log(`[${this.gameId}] WebSocket connection established`);
 			this.sendJoinRequest();
 			//this.canvas?.printError("TESTMESSAGE");
 			this.canvas?.drawLoadingAnimation();
@@ -69,8 +69,8 @@ export default class Game {
 			});
 		};
 		this.socket.onmessage = (event) => this.handleMessage(event);
-		this.socket.onerror = (err) => console.error('WebSocket error:', err);
-		this.socket.onclose = () => console.log('WebSocket connection closed');
+		this.socket.onerror = (err) => console.error(`[${this.gameId}] WebSocket error:`, err);
+		this.socket.onclose = () => console.log(`[${this.gameId}] WebSocket connection closed`);
 
 		this.listenForPlayerInput();
 	}
@@ -120,15 +120,16 @@ export default class Game {
 		if (data.status === 'rejected') {
 			console.error(`Join rejected: ${data.reason ?? 'No reason provided'}`);
 			//this.socket?.close();
-			//// Optionally reject the promise below
-			//if (this.joinResolve) {
-			//	this.joinResolve = null;
-			//	this.joinPromise = Promise.reject(new Error(`Join rejected: ${data.reason ?? 'No reason provided'}`));
-			//}
+			//optionally reject the promise 
 		} else {
-			this.gameStarted = true;
+			if (data.status === 'accepted') {
+				this.gameStarted = true;
+				console.log(`[${this.gameId}] Joined game as '${data.alias}' (playerId: ${this.playerId})`);
+			}
+			else
+				console.log(`[${this.gameId}] First player waiting.`);
+			
 			this.gameId = data.gameId ?? null;
-			console.log(`Joined game ${data.gameId} as player ${data.alias} (ID: ${this.playerId})`);
 			if (this.joinResolve && data.gameId) {
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;

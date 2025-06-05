@@ -1,17 +1,20 @@
 import Fastify, { type FastifyRequest } from "fastify";
-import fs from 'fs';
+import fs, { stat } from 'fs';
 import * as ws from "ws";
 
 import { JoinRequest, PlayerInputMessage } from "./types/messages";
-import join from "./routes/join";
-import input from "./routes/input";
+import join from "./join/join";
+import input           from "./routes/input";
+
 import aliasCheckRoute from "./routes/check-alias";
-import { joinRoute } from "./routes/join";
-import { connectedUsers, matchmakingQueues, games } from "./game/state";
+import joinRoute       from "./routes/join";
+import stateRoute      from "./routes/state";
+
+
+import { connectedUsers, onlineQueues, games } from "./game/state";
 
 function handleWSS(wsSocket: ws.WebSocket) {
 	wsSocket.on("message", (data: ws.RawData) => {
-		console.log("Received message:", data.toString());
 		let msg;
 		try {
 			msg = JSON.parse(data.toString());
@@ -49,7 +52,7 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 		const user = connectedUsers[idx];
 		// Remove from queue if queued
 		if (user.gameMode === "1v1" || user.gameMode === "tournament") {
-			const queue = matchmakingQueues[user.gameMode];
+			const queue = onlineQueues[user.gameMode];
 			const qIdx = queue.findIndex(u => u.alias === user.alias);
 			if (qIdx !== -1) queue.splice(qIdx, 1);
 		}
@@ -74,7 +77,7 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 //		const user = connectedUsers[idx];
 //		// Remove from queue if queued
 //		if (user.gameMode === "1v1" || user.gameMode === "tournament") {
-//			const queue = matchmakingQueues[user.gameMode];
+//			const queue = onlineQueues[user.gameMode];
 //			const qIdx = queue.findIndex(u => u.alias === user.alias);
 //			if (qIdx !== -1) queue.splice(qIdx, 1);
 //		}
@@ -109,6 +112,7 @@ export default async function startServer() {
 
 	fastify.register(aliasCheckRoute);
 	fastify.register(joinRoute);
+	fastify.register(stateRoute);
 
 	const wss = new ws.Server({ server });
 

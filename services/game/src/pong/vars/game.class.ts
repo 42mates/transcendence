@@ -102,8 +102,8 @@ export class GameInstance {
 		}
 	}
 
-	sendUpdate() {
-		const response: GameStateMessage = {
+	public getState(): GameStateMessage {
+		return {
 			type: "game_state",
 			ball: { x: this._ball.x, y: this._ball.y },
 			paddles: [
@@ -113,6 +113,10 @@ export class GameInstance {
 			score: [this._player1.score, this._player2.score],
 			status: this._status,
 		};
+	}
+
+	sendUpdate() {
+		const response: GameStateMessage = this.getState();
 		this._player1.user.send(response);
 		this._player2.user.send(response);
 	}
