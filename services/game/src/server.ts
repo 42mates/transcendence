@@ -10,6 +10,7 @@ import input           from "./routes/input";
 import aliasCheckRoute from "./routes/check-alias";
 import joinRoute       from "./routes/join";
 import stateRoute      from "./routes/state";
+import { inputRoute } from "./routes/input";
 
 
 import { connectedUsers, onlineQueues, games } from "./game/state";
@@ -114,6 +115,7 @@ export default async function startServer() {
 	fastify.register(aliasCheckRoute);
 	fastify.register(joinRoute);
 	fastify.register(stateRoute);
+	fastify.register(inputRoute);
 
 	const wss = new ws.Server({ server });
 

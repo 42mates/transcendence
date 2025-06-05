@@ -10,6 +10,15 @@ export function getUniqueGameId(): string {
 	return gameId;
 }
 
+/**
+ * Checks if the provided game ID is exactly 8 lowercase alphanumeric characters (a-z, 0-9).
+ */
+export function isValidGameId(id: string): boolean {
+	return /^[a-z0-9]{8}$/.test(id);
+}
+
+
+
 export function send(connection: WebSocket | FastifyReply, msg: any, HTTPstatus: number = 200): void {
 	if (connection instanceof WebSocket)
 		connection.send(JSON.stringify(msg));
