@@ -34,12 +34,12 @@ export default function input(msg: PlayerInputMessage, connection: WebSocket | F
 	if (game.status !== "running") {
 		game.run();
 	}
-		
-
-	console.log("Received player input:", msg.input);
-	const playersinput: PlayerInputMessage["input"][] = msg.playerId === "1" ?
-		[msg.input, { up: false, down: false }] :
-		[{ up: false, down: false }, msg.input];
-	game.receivedInputs(playersinput);
+	else {
+		console.log("Received player input:", msg.input);
+		const playersinput: PlayerInputMessage["input"][] = msg.playerId === "1" ?
+			[msg.input, { up: false, down: false }] :
+			[{ up: false, down: false }, msg.input];
+		game.receivedInputs(playersinput);
+	}
 }
 
