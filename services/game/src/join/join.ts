@@ -7,7 +7,7 @@ import { validateAlias,  }                         from "./alias";
 import { createLocalGame, joinLocalGame }          from "./local";
 import { tryMatchmake1v1, tryMatchmakeTournament } from "./matchmaking";
 import { User }                                    from "./User";
-import { GameInstance }                            from "../pong/vars/game.class";
+import { GameInstance }                            from "../pong/game.class";
 import { InvalidAlias, WaitingForPlayers }         from "./exceptions";
 
 

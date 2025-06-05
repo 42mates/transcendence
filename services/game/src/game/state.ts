@@ -1,5 +1,5 @@
 import { User } from "../join/User";
-import { GameInstance } from "../pong/vars/game.class";
+import { GameInstance } from "../pong/game.class";
 
 
 export type TournamentBracketBackend = {

@@ -3,7 +3,8 @@ import fs, { stat } from 'fs';
 import * as ws from "ws";
 
 import { JoinRequest, PlayerInputMessage } from "./types/messages";
-import join from "./join/join";
+import join            from "./join/join";
+import { User }        from "./join/User";
 import input           from "./routes/input";
 
 import aliasCheckRoute from "./routes/check-alias";
@@ -59,7 +60,7 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 		// Remove from connected users
 		connectedUsers.splice(idx, 1);
 		for (const [gameId, game] of Object.entries(games)) {
-			const idx = game.players.findIndex(u => u.alias === user.alias); // ✅ compare by alias property
+			const idx = game.players.findIndex((u: User) => u.alias === user.alias); // ✅ compare by alias property
 			if (idx !== -1) {
 				game.players.splice(idx, 1);
 				if (game.players.length === 0) {

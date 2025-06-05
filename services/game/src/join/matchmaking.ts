@@ -1,7 +1,7 @@
 import { tournaments, TournamentBracketBackend, onlineQueues} from "../game/state";
 import { getUniqueGameId }                                         from "../utils";
 import { WaitingForPlayers }                                       from "./exceptions";
-import { GameInstance }                                            from "../pong/vars/game.class";
+import { GameInstance }                                            from "../pong/game.class";
 import { joinGame }                                                from "./join";
 import { User }                                                    from "../join/User";
 

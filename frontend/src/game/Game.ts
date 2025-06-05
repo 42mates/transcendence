@@ -138,6 +138,9 @@ export default class Game {
 			data.paddles[1].x = this.canvas.serverDimensions.width - data.paddles[1].x;
 			data.ball.x = this.canvas.serverDimensions.width - data.ball.x;
 		}
+
+		console.log(`[${this.gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
+
 		this.canvas?.updateGameState(data);
 	}
 
