@@ -1,6 +1,6 @@
-import {User} from "../join/User";
-import {GameCanvas} from "./gameCanvas.class";
-import {Template} from "./template.class";
+import { User } from "../join/User";
+import { GameCanvas } from "./gameCanvas.class";
+import { Template } from "./template.class";
 
 export class Paddle extends Template {
 	down: boolean;
@@ -9,13 +9,7 @@ export class Paddle extends Template {
 	user: User;
 	private speed: number;
 
-	constructor(
-		x: number,
-		y: number,
-		h: number,
-		w: number,
-		cu: User,
-	) {
+	constructor(x: number, y: number, h: number, w: number, cu: User) {
 		super(x, y, h, w);
 		this.up = false;
 		this.down = false;

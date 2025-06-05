@@ -1,8 +1,12 @@
-import {Ball} from "./ball.class";
-import {Paddle} from "./paddle.class";
-import {GameCanvas} from "./gameCanvas.class";
-import {User} from "../join/User";
-import {GameStateMessage, PlayerInputMessage, GameStatusUpdateMessage} from "../types/messages";
+import { Ball } from "./ball.class";
+import { Paddle } from "./paddle.class";
+import { GameCanvas } from "./gameCanvas.class";
+import { User } from "../join/User";
+import {
+	GameStateMessage,
+	PlayerInputMessage,
+	GameStatusUpdateMessage,
+} from "../types/messages";
 
 export class GameInstance {
 	private _gameCanvas: GameCanvas;
@@ -15,7 +19,11 @@ export class GameInstance {
 	private _winner?: User;
 	private _loser?: User;
 
-	constructor(players: User[], id: string, status: "pending" | "waiting" = "pending") {
+	constructor(
+		players: User[],
+		id: string,
+		status: "pending" | "waiting" = "pending",
+	) {
 		this._gameCanvas = new GameCanvas(100, 75);
 
 		this._players = players;
@@ -63,7 +71,6 @@ export class GameInstance {
 		return this._gameCanvas.dimensions;
 	}
 
-
 	public run() {
 		this._status = "running";
 		//const msg: GameStatusUpdateMessage = {
@@ -76,10 +83,14 @@ export class GameInstance {
 		//this._player1.user.send(msg);
 		//this._player2.user.send(msg);
 
-
 		this.gameLoop();
 
-		console.log("Game started with players:", this._player1.user.alias, "and", this._player2.user.alias);
+		console.log(
+			"Game started with players:",
+			this._player1.user.alias,
+			"and",
+			this._player2.user.alias,
+		);
 	}
 
 	receivedInputs(playersInput: PlayerInputMessage["input"][]) {
@@ -101,10 +112,10 @@ export class GameInstance {
 	public getState(): GameStateMessage {
 		return {
 			type: "game_state",
-			ball: {x: this._ball.x, y: this._ball.y},
+			ball: { x: this._ball.x, y: this._ball.y },
 			paddles: [
-				{x: this._player1.x, y: this._player1.y},
-				{x: this._player2.x, y: this._player2.y},
+				{ x: this._player1.x, y: this._player1.y },
+				{ x: this._player2.x, y: this._player2.y },
 			],
 			score: [this._player1.score, this._player2.score],
 			status: this._status,
