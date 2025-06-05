@@ -1,16 +1,16 @@
-import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameError } from '../types/GameMessages';
+import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameStatusUpdateMessage, GameError } from '../types/GameMessages';
 import Canvas from './Canvas';
 
 export default class Game {
 
-	private socket: WebSocket | null = null;
-	private alias: string;
-	private gameId: string | null = null;
-	private playerId: "1" | "2" | null = null;
-	private mode: "1v1" | "tournament" | "local";
-	private controls: { up: string, down: string } | null = null;
-	private gameStarted = false;
-	private canvas: Canvas | null = null;
+	private socket:     WebSocket | null = null;
+	private alias:      string;
+	private gameId:     string | null = null;
+	private playerId:   "1" | "2" | null = null;
+	private mode:       "1v1" | "tournament" | "local";
+	private controls:   { up: string, down: string };
+	private gameStarted: boolean = false;
+	private canvas:      Canvas | null = null;
 
 	private joinPromise: Promise<string>;
 	private joinResolve: ((gameId: string) => void) | null = null;
@@ -48,19 +48,8 @@ export default class Game {
 			this.waitForJoin().then((gameId) => {
 				this.canvas?.stopLoadingAnimation();
 
-				//this.canvas?.printError("GAME HERE");
-
-				let firstGameState: GameStateMessage = {
-					type: "game_state",
-					ball: { x: 100 / 2, y: 50 },
-					paddles: [
-						{ x: 0,   y: 50 },
-						{ x: 100, y: 50 }
-					],
-					score: [0, 0],
-					status: "started"
-				};
-				this.canvas?.updateGameState(firstGameState);
+				// Send first input to initialize the game
+				this.sendPlayerInput({ up: false, down: false });
 
 			}).catch((error) => {
 				console.error('Failed to join game:', error);
@@ -73,10 +62,6 @@ export default class Game {
 		this.socket.onclose = () => console.log(`[${this.gameId}] WebSocket connection closed`);
 
 		this.listenForPlayerInput();
-	}
-
-	public async waitForJoin(): Promise<string> {
-		return this.joinPromise;
 	}
 
 	private sendJoinRequest() {
@@ -113,6 +98,10 @@ export default class Game {
 
 	}
 
+	public async waitForJoin(): Promise<string> {
+		return this.joinPromise;
+	}
+
 	private handleJoinResponse(data: JoinResponse) {
 		this.playerId = data.playerId;
 		this.gameStarted = data.status === 'accepted';
@@ -130,6 +119,8 @@ export default class Game {
 				console.log(`[${this.gameId}] First player waiting.`);
 			
 			this.gameId = data.gameId ?? null;
+			if (data.dimensions) 
+				this.canvas?.setServerDimensions(data.dimensions);
 			if (this.joinResolve && data.gameId) {
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;
@@ -140,13 +131,12 @@ export default class Game {
 	private handleGameStateMessage(data: GameStateMessage) {
 		// In local mode, only player 1's game updates are processed, since they share the canvas.
 		if (this.mode === 'local' && this.playerId === "2")
-			return; 
-	
-		if (this.playerId === "2")
-		{
-			data.paddles[0].x = 100 - data.paddles[0].x;
-			data.paddles[1].x = 100 - data.paddles[1].x;
-			data.ball.x = 100 - data.ball.x;
+			return;
+
+		if (this.playerId === "2" && this.canvas?.serverDimensions) {
+			data.paddles[0].x = this.canvas.serverDimensions.width - data.paddles[0].x;
+			data.paddles[1].x = this.canvas.serverDimensions.width - data.paddles[1].x;
+			data.ball.x = this.canvas.serverDimensions.width - data.ball.x;
 		}
 		this.canvas?.updateGameState(data);
 	}

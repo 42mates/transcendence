@@ -17,6 +17,13 @@ export type JoinResponse = {
 	playerId: "1" | "2" | null;
 	gameId: string | null;
 	reason: string | null;
+	dimensions?: {
+		height: number;
+		width: number;
+		paddleWidth: number;
+		paddleHeight: number;
+		ballSize: number;
+	}
 	bracket?: {
 	    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
 	    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },

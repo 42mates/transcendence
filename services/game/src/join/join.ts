@@ -53,6 +53,8 @@ function registerUser(message: JoinRequest, connection: WebSocket | FastifyReply
 
 export function joinGame(players: User[], gameId: string, bracket?: JoinResponse["bracket"])
 {
+	games[gameId] = new GameInstance([players[0], players[1]], gameId, "pending");
+
 	const matchInfo1: JoinResponse = {
 		type: "join_response",
 		status: "accepted",
@@ -60,6 +62,7 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		alias: players[0].alias,
 		gameId: gameId,
 		reason: null,
+		dimensions: games[gameId].dimensions,
 		bracket: bracket || undefined
 	};
 	const matchInfo2: JoinResponse = {
@@ -69,12 +72,11 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		alias: players[1].alias,
 		gameId: gameId,
 		reason: null,
+		dimensions: games[gameId].dimensions,
 		bracket: bracket || undefined
 	};
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
-
-	games[gameId] = new GameInstance([players[0], players[1]], gameId, "pending");
 }
 
 export default function join(message: JoinRequest, connection: WebSocket | FastifyReply): void {

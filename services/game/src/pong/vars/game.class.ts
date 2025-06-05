@@ -16,16 +16,15 @@ export class GameInstance {
 	private _loser?: User;
 
 	constructor(players: User[], id: string, status: "pending" | "waiting" = "pending") {
-		let canvasWidth = 100;
-		let canvasHeight = 100;
-		let wallOffset = canvasWidth / 10;
 
-		let paddleWidth = canvasWidth / 20;
-		let paddleHeight = canvasHeight / 5;
+		this._gameCanvas = new GameCanvas(100, 100);
 
-		let ballSize = canvasWidth / 50;
+		let wallOffset = this._gameCanvas.width / 10;
+		
+		let paddleWidth = this._gameCanvas.paddleWidth;
+		let paddleHeight = this._gameCanvas.paddleHeight;
 
-		this._gameCanvas = new GameCanvas(canvasWidth, canvasHeight);
+		let ballSize = this._gameCanvas.ballSize;
 
 		this._players = players;
 		this._player1 = new Paddle(
@@ -67,9 +66,14 @@ export class GameInstance {
 		return this._status;
 	}
 
+	public get dimensions() {
+		return this._gameCanvas.dimensions;
+	}
+
 	public run()
 	{
 		this._status = "running";
+
 		//const msg: GameStatusUpdateMessage = {
 		//	type: "game_status_update",
 		//	gameId: this._id,
