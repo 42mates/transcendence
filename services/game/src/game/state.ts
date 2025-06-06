@@ -1,11 +1,11 @@
-import { ConnectedUser } from "../types/GameMessages";
+import { User } from "../join/User";
 
 export type GameBackend = {
 	id: string;
-	players: ConnectedUser[];
+	players: User[];
 	status: "pending" | "waiting" | "running" | "finished";
-	winner?: ConnectedUser;
-	loser?: ConnectedUser;
+	winner?: User;
+	loser?: User;
 	// Add more fields as needed (score, etc.)
 };
 
@@ -17,10 +17,13 @@ export type TournamentBracketBackend = {
 	game4: GameBackend;
 };
 
-export const connectedUsers: ConnectedUser[] = [];
+export const connectedUsers: User[] = [];
+
 export const matchmakingQueues = {
-	"1v1": [] as ConnectedUser[],
-	"tournament": [] as ConnectedUser[],
+	"1v1": [] as User[],
+	"tournament": [] as User[],
 };
+
 export const games: { [gameId: string]: GameBackend } = {};
+
 export const tournaments: { [tournamentId: string]: TournamentBracketBackend } = {};

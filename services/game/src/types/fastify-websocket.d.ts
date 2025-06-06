@@ -1,5 +1,4 @@
 import 'fastify';
-import { SocketStream } from '@fastify/websocket';
 import { IncomingMessage } from 'http';
 import { ServerResponse } from 'http';
 

@@ -1,8 +1,9 @@
-import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyPluginAsync, FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
 import { connectedUsers } from "../game/state";
 import { sanitizeAlias } from "../join/alias";
 
-const aliasRoute: FastifyPluginAsync = async (fastify) => {
+const aliasRoute: FastifyPluginAsync = async (fastify: FastifyInstance) => 
+{
 	fastify.get('/check-alias', async (request: FastifyRequest<{ Querystring: { alias: string } }>, reply: FastifyReply) => {
 		const { alias } = request.query;
 		const cleanAlias = sanitizeAlias(alias);

@@ -1,4 +1,4 @@
-import type { JoinResponse } from "../types/GameMessages";
+import type { JoinResponse } from "../types/messages";
 import {
 	games,
 	tournaments,
@@ -6,15 +6,14 @@ import {
 	matchmakingQueues,
 } from "../game/state";
 import { getUniqueGameId } from "../utils";
+import { match } from "assert";
 
 // 1v1 matchmaking
 export function tryMatchmake1v1() {
+	console.log("MATCHMAKING:", matchmakingQueues["1v1"]);
 	if (matchmakingQueues["1v1"].length >= 2) {
 		const [player1, player2] = matchmakingQueues["1v1"].splice(0, 2);
 		const gameId = getUniqueGameId();
-
-		player1.status = "matched";
-		player2.status = "matched";
 
 		const matchInfo: JoinResponse = {
 			type: "join_response",
@@ -32,8 +31,8 @@ export function tryMatchmake1v1() {
 			gameId,
 			reason: null,
 		};
-		player1.ws.send(JSON.stringify(matchInfo));
-		player2.ws.send(JSON.stringify(matchInfo2));
+		player1.send(matchInfo);
+		player2.send(matchInfo2);
 
 		games[gameId] = {
 			id: gameId,
@@ -98,7 +97,7 @@ export function tryMatchmakeTournament() {
 				reason: null,
 				bracket: frontendBracket,
 			};
-			p.ws.send(JSON.stringify(response));
+			p.send(response);
 		});
 
 		return true;

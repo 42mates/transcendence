@@ -1,51 +1,46 @@
-import { ConnectedUser, GameStateMessage } from "../../types/GameMessages.js";
+import { User } from "../../join/User.js";
 import { GameCanvas } from "./gameCanvas.class.js";
 import { Template } from "./template.class.js";
-import { Ball } from "./ball.class.js";
-import { GameInstance } from "./game.class.js";
 
 export class Paddle extends Template {
+	ID: number;
 	down: boolean;
 	up: boolean;
 	score: number;
-	connectedUsers: ConnectedUser;
+	user: User;
 	private speed: number;
 
-	constructor(x: number, y: number, h: number, w: number, cu: ConnectedUser) {
+	constructor(
+		id: number,
+		x: number,
+		y: number,
+		h: number,
+		w: number,
+		cu: User,
+	) {
 		super(x, y, h, w);
+		this.ID = id;
 		this.up = false;
 		this.down = false;
 		this.score = 0;
 		this.speed = 10;
-		this.connectedUsers = cu;
+		this.user = cu;
 	}
 
 	update(gameCanvas: GameCanvas) {
-		if (this.up == true && this.y <= 20) {
+		if (this.up == true && this.y <= this.height) {
 			this.yVec = -1;
+			this.up = false;
 		} else if (
 			this.down == true &&
-			this.y + this.height >= gameCanvas.height - 20
+			this.y + this.height >= gameCanvas.height - this.height
 		) {
 			this.yVec = 1;
+			this.down = false;
 		} else {
 			this.yVec = 0;
 		}
 
 		this.y += this.speed * this.yVec;
-	}
-
-	sendUpdate(player2: Paddle, ball: Ball, gameInstance: GameInstance) {
-		const response: GameStateMessage = {
-			type: "game_state",
-			ball: { x: ball.x, y: ball.y },
-			paddles: [
-				{ x: player2.x, y: player2.y },
-				{ x: player2.x, y: player2.y },
-			],
-			score: [this.score, player2.score],
-			status: gameInstance.status,
-		};
-		this.connectedUsers.ws.send(JSON.stringify(response));
 	}
 }
