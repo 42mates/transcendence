@@ -9,8 +9,8 @@ export class Paddle extends Template {
 	user: User;
 	private speed: number;
 
-	constructor(x: number, y: number, h: number, w: number, cu: User) {
-		super(x, y, h, w);
+	constructor(x: number, y: number, w: number, h: number, cu: User) {
+		super(x, y, w, h);
 		this.up = false;
 		this.down = false;
 		this.score = 0;
@@ -19,20 +19,22 @@ export class Paddle extends Template {
 	}
 
 	update(gameCanvas: GameCanvas) {
-		if (this.up == true && this.y - this.speed <= this.height) {
+
+		if (this.up && (this.y - this.speed) >= 0)
 			this.yVec = -1;
-		} else if (
-			this.down == true &&
-			this.y + this.speed + this.height >= gameCanvas.height
-		) {
+		else if (this.down && (this.y + this.height + this.speed) <= gameCanvas.height)
+		{
+			console.log(`height: ${this.height}`);
+			console.log(`previous y:${this.y}, next y: ${this.y + this.height + this.speed}, gameCanvas height: ${gameCanvas.height}`);
 			this.yVec = 1;
-		} else {
-			this.yVec = 0;
 		}
+		else
+			this.yVec = 0;
 
 		this.up = false;
 		this.down = false;
 
-		this.y += this.speed * this.yVec;
+		this.y += (this.speed * this.yVec);
+		this.yVec = 0;
 	}
 }

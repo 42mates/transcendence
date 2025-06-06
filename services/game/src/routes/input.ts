@@ -35,7 +35,6 @@ export default function input(msg: PlayerInputMessage, connection: WebSocket | F
 		game.run();
 	}
 	else {
-		console.log("Received player input:", msg.input);
 		const playersinput: PlayerInputMessage["input"][] = msg.playerId === "1" ?
 			[msg.input, { up: false, down: false }] :
 			[{ up: false, down: false }, msg.input];

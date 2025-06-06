@@ -98,6 +98,14 @@ export class GameInstance {
 		this._player1.down = playersInput[0].down;
 		this._player2.up = playersInput[1].up;
 		this._player2.down = playersInput[1].down;
+
+		{ // Debugging, delete me later
+			const player = (playersInput[0].up  || playersInput[0].down) ? "player 1" : "player 2";
+			const input = (player === "player 1")
+				? (playersInput[0].up ? "up" : playersInput[0].down ? "down" : "none")
+				: (playersInput[1].up ? "up" : playersInput[1].down ? "down" : "none");
+			console.log(`Received input from ${player}: ${input}`);
+		}
 	}
 
 	update() {

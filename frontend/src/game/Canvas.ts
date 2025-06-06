@@ -1,8 +1,8 @@
 import { GameStateMessage } from '../types/GameMessages';
 
 type ServerDimensions = {
-	height: number;
 	width: number;
+	height: number;
 	paddleWidth: number;
 	paddleHeight: number;
 	ballSize: number;
@@ -31,8 +31,8 @@ export default class Canvas {
 				this.draw();
 		});
 		this._serverDimensions = {
-			height: 100,
 			width: 100,
+			height: 75,
 			paddleWidth: 100 / 20,
 			paddleHeight: 100 / 5,
 			ballSize: 100 / 50,
@@ -89,8 +89,8 @@ export default class Canvas {
 	private drawPaddle(i: number): void {
 		if (!this._ctx || !this._data) return;
 
-		const paddleWidth = this.scaleY(2.5);
-		const paddleHeight = this.scaleY(14.5);
+		const paddleWidth = this.scaleX(this._serverDimensions.paddleWidth);
+		const paddleHeight = this.scaleY(this._serverDimensions.paddleHeight);
 
 		let x = this._data.paddles[i].x;
 		let y = this._data.paddles[i].y;
@@ -98,7 +98,7 @@ export default class Canvas {
 		this._ctx.save();
 
 		// Draw blurred glow using a larger, semi-transparent rectangle
-		const glowSize = this.scaleY(4);
+		const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
 		this._ctx.fillStyle = "rgba(0,224,255,0.35)";
 		this._ctx.filter = `blur(${glowSize}px)`;
 		this._ctx.fillRect(
@@ -119,7 +119,7 @@ export default class Canvas {
 	private drawBall(): void {
 		if (!this._ctx || !this._data) return;
 
-		const ballSize = this.scaleY(3);
+		const ballSize = this.scaleY(this.serverDimensions.ballSize);
 
 		let x = this._data.ball.x;
 		let y = this._data.ball.y;
@@ -127,7 +127,7 @@ export default class Canvas {
 		this._ctx.save();
 
 		// Draw a blurred glow behind the square ball
-		const glowSize = this.scaleY(6);
+		const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
 		this._ctx.filter = `blur(${glowSize / 2}px)`;
 		this._ctx.fillStyle = "rgba(255,0,0,0.45)";
 		this._ctx.fillRect(
