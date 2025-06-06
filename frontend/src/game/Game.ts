@@ -4,14 +4,16 @@ import Canvas from './Canvas';
 
 export default class Game {
 
-	private _socket:     WebSocket | null = null;
-	private _alias:      string;
-	private _gameId:     string | null = null;
-	private _playerId:   "1" | "2" | null = null;
-	private _mode:       "1v1" | "tournament" | "local";
-	private _controls:   { up: string, down: string };
+	private _socket:      WebSocket | null = null;
+	private _alias:       string;
+	private _gameId:      string | null = null;
+	private _playerId:    "1" | "2" | null = null;
+	private _mode:        "1v1" | "tournament" | "local";
+	private _controls:    { up: string, down: string };
 	private _gameStarted: boolean = false;
 	private _canvas:      Canvas | null = null;
+	private keyState: Record<string, boolean> = {};
+	private inputLoopActive = false;
 
 	private joinPromise: Promise<string>;
 	private joinResolve: ((gameId: string) => void) | null = null;
@@ -152,33 +154,60 @@ export default class Game {
 			data.ball.x = this._canvas.serverDimensions.width - data.ball.x;
 		}
 
-		console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
+		//console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
 
 		this._canvas?.updateGameState(data);
 	}
 
 	private listenForPlayerInput() {
 		const canvasElement = document.getElementById('game-canvas');
-		if (!canvasElement) return;
+		if (!(canvasElement instanceof HTMLCanvasElement)) return;
 
-		canvasElement.tabIndex = 0; // Make canvas focusable
-		// Focus canvas by default without showing the default focus outline
+		// Ensure the canvas can receive keyboard events
+		canvasElement.tabIndex = 0;
 		canvasElement.style.outline = 'none';
 		canvasElement.focus();
 
+		// Track keydown and keyup for this Game instance
 		canvasElement.addEventListener('keydown', (event) => {
-			if (!this._gameStarted || !this._alias || !this._playerId || !this._controls) return;
-
+			if (!this._controls) return;
 			if (event.key === this._controls.up || event.key === this._controls.down) {
-				event.preventDefault(); // Prevent scrolling or other default actions
-				const input: PlayerInputMessage['input'] = {
-					up: event.key === this._controls.up,
-					down: event.key === this._controls.down
-				};
-				this.sendPlayerInput(input);
+				this.keyState[event.key] = true;
+				event.preventDefault();
+				if (!this.inputLoopActive) {
+					this.inputLoopActive = true;
+					this.inputLoop();
+				}
+			}
+		});
+
+		canvasElement.addEventListener('keyup', (event) => {
+			if (!this._controls) return;
+			if (event.key === this._controls.up || event.key === this._controls.down) {
+				this.keyState[event.key] = false;
+				event.preventDefault();
 			}
 		});
 	}
+
+	// Called repeatedly while any relevant key is pressed
+	private inputLoop = () => {
+		if (!this._controls) return;
+		const up = !!this.keyState[this._controls.up];
+		const down = !!this.keyState[this._controls.down];
+
+		// Only send input if something is pressed
+		if (up || down) {
+			this.sendPlayerInput({ up, down });
+		}
+
+		// Continue loop if any key is still pressed
+		if (up || down) {
+			requestAnimationFrame(this.inputLoop);
+		} else {
+			this.inputLoopActive = false;
+		}
+	};
 
 	private sendPlayerInput(input: PlayerInputMessage['input']) {
 		if (this._socket && this._socket.readyState === WebSocket.OPEN && this._playerId){

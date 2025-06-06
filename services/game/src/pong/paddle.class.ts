@@ -14,7 +14,7 @@ export class Paddle extends Template {
 		this.up = false;
 		this.down = false;
 		this.score = 0;
-		this.speed = 10;
+		this.speed = 3;
 		this.user = cu;
 	}
 
@@ -23,13 +23,12 @@ export class Paddle extends Template {
 		if (this.up && (this.y - this.speed) >= 0)
 			this.yVec = -1;
 		else if (this.down && (this.y + this.height + this.speed) <= gameCanvas.height)
-		{
-			console.log(`height: ${this.height}`);
-			console.log(`previous y:${this.y}, next y: ${this.y + this.height + this.speed}, gameCanvas height: ${gameCanvas.height}`);
 			this.yVec = 1;
-		}
 		else
 			this.yVec = 0;
+		
+		if (this.yVec)
+			console.log("updating paddle", this.up? "up" : "down"); 
 
 		this.up = false;
 		this.down = false;

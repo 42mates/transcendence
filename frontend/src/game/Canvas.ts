@@ -97,16 +97,16 @@ export default class Canvas {
 
 		this._ctx.save();
 
-		// Draw blurred glow using a larger, semi-transparent rectangle
-		const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
-		this._ctx.fillStyle = "rgba(0,224,255,0.35)";
-		this._ctx.filter = `blur(${glowSize}px)`;
-		this._ctx.fillRect(
-			x - glowSize / 2,
-			y - glowSize / 2,
-			paddleWidth + glowSize,
-			paddleHeight + glowSize
-		);
+		//// Draw blurred glow using a larger, semi-transparent rectangle
+		//const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
+		//this._ctx.fillStyle = "rgba(0,224,255,0.35)";
+		//this._ctx.filter = `blur(${glowSize}px)`;
+		//this._ctx.fillRect(
+		//	x - glowSize / 2,
+		//	y - glowSize / 2,
+		//	paddleWidth + glowSize,
+		//	paddleHeight + glowSize
+		//);
 
 		// Draw the main paddle
 		this._ctx.filter = "none";
@@ -114,6 +114,18 @@ export default class Canvas {
 		this._ctx.fillRect(x, y, paddleWidth, paddleHeight);
 
 		this._ctx.restore();
+	}
+
+	private clearPaddle(i: number): void {
+		if (!this._ctx || !this._data) return;
+
+		const paddleWidth = this.scaleX(this._serverDimensions.paddleWidth);
+		const paddleHeight = this.scaleY(this._serverDimensions.paddleHeight);
+
+		let x = this._data.paddles[i].x;
+		let y = this._data.paddles[i].y;
+
+		this._ctx.clearRect(x, y, paddleWidth, paddleHeight);
 	}
 
 	private drawBall(): void {
@@ -126,16 +138,16 @@ export default class Canvas {
 
 		this._ctx.save();
 
-		// Draw a blurred glow behind the square ball
-		const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
-		this._ctx.filter = `blur(${glowSize / 2}px)`;
-		this._ctx.fillStyle = "rgba(255,0,0,0.45)";
-		this._ctx.fillRect(
-			x - (glowSize - ballSize) / 2,
-			y - (glowSize - ballSize) / 2,
-			ballSize + (glowSize - ballSize),
-			ballSize + (glowSize - ballSize)
-		);
+		//// Draw a blurred glow behind the square ball
+		//const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
+		//this._ctx.filter = `blur(${glowSize / 2}px)`;
+		//this._ctx.fillStyle = "rgba(255,0,0,0.45)";
+		//this._ctx.fillRect(
+		//	x - (glowSize - ballSize) / 2,
+		//	y - (glowSize - ballSize) / 2,
+		//	ballSize + (glowSize - ballSize),
+		//	ballSize + (glowSize - ballSize)
+		//);
 
 		// Draw the main square ball
 		this._ctx.filter = "none";
@@ -145,15 +157,38 @@ export default class Canvas {
 		this._ctx.restore();
 	}
 
-	private draw(): void {
+	private clearBall(): void {
 		if (!this._ctx || !this._data) return;
 
-		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+		const ballSize = this.scaleY(this.serverDimensions.ballSize);
 
-		// Draw paddles and ball
-		this.drawPaddle(0);
-		this.drawPaddle(1);
-		this.drawBall();
+		let x = this._data.ball.x;
+		let y = this._data.ball.y;
+
+		this._ctx.clearRect(x, y, ballSize, ballSize);
+	}
+
+	private draw(prev_data?: GameStateMessage): void {
+		if (!this._ctx || !this._data) return;
+
+		if (prev_data) 
+		{
+			for (let i = 0; i < 2; i++) {
+				if (this._data.paddles[i].x !== prev_data.paddles[i].x || this._data.paddles[i].y !== prev_data.paddles[i].y) {
+					this.clearPaddle(i);
+					this.drawPaddle(i);
+				}
+			}
+			this.clearBall();
+			this.drawBall();
+		}
+		else
+		{
+			this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+			this.drawPaddle(0);
+			this.drawPaddle(1);
+			this.drawBall();
+		}
 
 		//this.drawGrid();
 	}
@@ -281,14 +316,14 @@ export default class Canvas {
 		if (!this._ctx) return;
 
 		this._raw_data = msg; // Store the raw data for debugging or other purposes
-		this.translateGameState(msg);
 		
+		const previousData = this._data;
+		this.translateGameState(msg);
+
 		this.draw();
 
 		//if (this._data && this._data.status === "started") 
 		//	this.drawCountdown();
-
-
 	}
 
 

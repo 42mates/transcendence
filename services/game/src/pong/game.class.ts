@@ -100,18 +100,19 @@ export class GameInstance {
 		this._player2.down = playersInput[1].down;
 
 		{ // Debugging, delete me later
-			const player = (playersInput[0].up  || playersInput[0].down) ? "player 1" : "player 2";
-			const input = (player === "player 1")
-				? (playersInput[0].up ? "up" : playersInput[0].down ? "down" : "none")
-				: (playersInput[1].up ? "up" : playersInput[1].down ? "down" : "none");
-			console.log(`Received input from ${player}: ${input}`);
+			if (this._player1.up || this._player1.down)
+				console.log(`Received input from ${this._player1.user.alias}:`, this._player1.up, this._player1.down);
+			else if (this._player2.up || this._player2.down)
+				console.log(`Received input from ${this._player2.user.alias}:`, this._player2.up, this._player2.down);
+			else
+				console.log("Received input EMPTY");
 		}
 	}
 
 	update() {
 		this._player1.update(this._gameCanvas);
 		this._player2.update(this._gameCanvas);
-		this._ball.update(this._player1, this._player2, this._gameCanvas);
+		//this._ball.update(this._player1, this._player2, this._gameCanvas);
 		if (this._player1.score >= 11 || this._player2.score >= 11) {
 			this._status = "ended";
 		}
