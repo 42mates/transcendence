@@ -1,16 +1,17 @@
+import i18n from '../i18n/i18n';
 import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameStatusUpdateMessage, GameError } from '../types/GameMessages';
 import Canvas from './Canvas';
 
 export default class Game {
 
-	private socket:     WebSocket | null = null;
-	private alias:      string;
-	private gameId:     string | null = null;
-	private playerId:   "1" | "2" | null = null;
-	private mode:       "1v1" | "tournament" | "local";
-	private controls:   { up: string, down: string };
-	private gameStarted: boolean = false;
-	private canvas:      Canvas | null = null;
+	private _socket:     WebSocket | null = null;
+	private _alias:      string;
+	private _gameId:     string | null = null;
+	private _playerId:   "1" | "2" | null = null;
+	private _mode:       "1v1" | "tournament" | "local";
+	private _controls:   { up: string, down: string };
+	private _gameStarted: boolean = false;
+	private _canvas:      Canvas | null = null;
 
 	private joinPromise: Promise<string>;
 	private joinResolve: ((gameId: string) => void) | null = null;
@@ -21,10 +22,10 @@ export default class Game {
 		gameId: string | null = null,
 		controls: { up: string, down: string } = { up: 'ArrowUp', down: 'ArrowDown' }
 	) {
-		this.mode = mode;
-		this.alias = alias;
-		this.gameId = gameId || null;
-		this.controls = controls;
+		this._mode = mode;
+		this._alias = alias;
+		this._gameId = gameId || null;
+		this._controls = controls;
 		this.joinPromise = new Promise((resolve) => {
 			this.joinResolve = resolve;
 		});
@@ -32,95 +33,96 @@ export default class Game {
 		if (!(canvasElement instanceof HTMLCanvasElement)) {
 			throw new Error('Canvas element with id "game-canvas" invalid or not found in the page.');
 		}
-		this.canvas = new Canvas(canvasElement);
-		console.log(`[${this.gameId}] Game initialized in '${this.mode}' for '${this.alias}' (${JSON.stringify(this.controls)})`); 
+		this._canvas = new Canvas(canvasElement);
+		console.log(`[${this._gameId}] Game initialized in '${this._mode}' for '${this._alias}' (${JSON.stringify(this._controls)})`); 
 	}
+
+	public get gameId():                  string | null { return this._gameId; }
+	public get playerId():             "1" | "2" | null { return this._playerId; }
+	public get mode():   "1v1" | "tournament" | "local" { return this._mode; }
+	public get alias():                          string { return this._alias; }
+	public get canvas():                  Canvas | null { return this._canvas; }
+	public get controls(): { up: string, down: string } { return this._controls; }
 
 	public connect() {
 		const wsUrl = `wss://${window.location.host}/api/game/join`;
-		this.socket = new WebSocket(wsUrl);
+		this._socket = new WebSocket(wsUrl);
 
-		this.socket.onopen = () => {
-			console.log(`[${this.gameId}] WebSocket connection established`);
+		this._socket.onopen = () => {
+			console.log(`[${this._gameId}] WebSocket connection established`);
 			this.sendJoinRequest();
-			//this.canvas?.printError("TESTMESSAGE");
-			this.canvas?.drawLoadingAnimation();
-			this.waitForJoin().then((gameId) => {
-				this.canvas?.stopLoadingAnimation();
-
-				// Send first input to initialize the game
-				this.sendPlayerInput({ up: false, down: false });
+			//this._canvas?.printError("TESTMESSAGE");
+			this._canvas?.drawLoadingAnimation();
+			this.waitForJoin().then(() => {
+				this.startGame();
 
 			}).catch((error) => {
 				console.error('Failed to join game:', error);
-				this.canvas?.stopLoadingAnimation();
-				this.canvas?.printError(error.message);
+				this._canvas?.stopLoadingAnimation();
+				this._canvas?.printError(error.message);
 			});
 		};
-		this.socket.onmessage = (event) => this.handleMessage(event);
-		this.socket.onerror = (err) => console.error(`[${this.gameId}] WebSocket error:`, err);
-		this.socket.onclose = () => console.log(`[${this.gameId}] WebSocket connection closed`);
+		this._socket.onmessage = (event) => this.handleMessage(event);
+		this._socket.onerror = (err) => console.error(`[${this._gameId}] WebSocket error:`, err);
+		this._socket.onclose = () => console.log(`[${this._gameId}] WebSocket connection closed`);
 
 		this.listenForPlayerInput();
-	}
-
-	private sendJoinRequest() {
-		if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-			console.error('[sendJoinRequest] WebSocket is not connected');
-			return;
-		}
-		const message: JoinRequest = {
-			type: "join_request",
-			payload: {
-				alias: this.alias,
-				mode: this.mode,
-				gameId: this.gameId,
-			},
-		};
-		this.socket.send(JSON.stringify(message));
 	}
 
 	private handleMessage(event: MessageEvent) {
 		try {
 			const data = JSON.parse(event.data);
-			if (data.type === 'join_response') {
+			if (data.type === 'join_response')
 				this.handleJoinResponse(data as JoinResponse);
-			} else if (data.type === 'game_state') {
+			else if (data.type === 'game_state')
 				this.handleGameStateMessage(data as GameStateMessage);
-			} else if (data.type === 'game_error') {
+			else if (data.type === 'game_error')
 				console.warn('Game error:', data.message);
-			} else {
+			else
 				console.warn('Received unknown message type:', data);
-			}
+
 		} catch (err) {
 			console.warn('Failed to handle message (JSON expected):', event.data, err);
 		}
 
 	}
 
-	public async waitForJoin(): Promise<string> {
-		return this.joinPromise;
+	private sendJoinRequest() {
+		if (!this._socket || this._socket.readyState !== WebSocket.OPEN) {
+			console.error('[sendJoinRequest] WebSocket is not connected');
+			return;
+		}
+		const message: JoinRequest = {
+			type: "join_request",
+			payload: {
+				alias: this._alias,
+				mode: this._mode,
+				gameId: this._gameId,
+			},
+		};
+		this._socket.send(JSON.stringify(message));
 	}
 
 	private handleJoinResponse(data: JoinResponse) {
-		this.playerId = data.playerId;
-		this.gameStarted = data.status === 'accepted';
+		this._playerId = data.playerId;
+		this._gameStarted = data.status === 'accepted';
 
 		if (data.status === 'rejected') {
 			console.error(`Join rejected: ${data.reason ?? 'No reason provided'}`);
-			//this.socket?.close();
+			alert(i18n.t('game:error.joinRequestFailed') ?? "Failed to join the game. Please try again.");
+			this._socket?.close();
 			//optionally reject the promise 
 		} else {
 			if (data.status === 'accepted') {
-				this.gameStarted = true;
-				console.log(`[${this.gameId}] Joined game as '${data.alias}' (playerId: ${this.playerId})`);
+				this._gameStarted = true;
+				console.log(`[${this._gameId}] Joined game as '${data.alias}' (playerId: ${this._playerId})`);
 			}
 			else
-				console.log(`[${this.gameId}] First player waiting.`);
+				console.log(`[${this._gameId}] First player waiting.`);
 			
-			this.gameId = data.gameId ?? null;
+			this._gameId = data.gameId ?? null;
 			if (data.dimensions) 
-				this.canvas?.setServerDimensions(data.dimensions);
+				this._canvas?.setServerDimensions(data.dimensions);
 			if (this.joinResolve && data.gameId) {
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;
@@ -128,20 +130,31 @@ export default class Game {
 		}
 	}
 
+	public async waitForJoin(): Promise<string> {
+		return this.joinPromise;
+	}
+
+	public startGame() {
+		this._canvas?.stopLoadingAnimation();
+
+		// Send first input to initialize the game
+		this.sendPlayerInput({ up: false, down: false });
+	}
+
 	private handleGameStateMessage(data: GameStateMessage) {
 		// In local mode, only player 1's game updates are processed, since they share the canvas.
-		if (this.mode === 'local' && this.playerId === "2")
+		if (this._mode === 'local' && this._playerId === "2")
 			return;
 
-		if (this.playerId === "2" && this.canvas?.serverDimensions) {
-			data.paddles[0].x = this.canvas.serverDimensions.width - data.paddles[0].x;
-			data.paddles[1].x = this.canvas.serverDimensions.width - data.paddles[1].x;
-			data.ball.x = this.canvas.serverDimensions.width - data.ball.x;
+		if (this._playerId === "2" && this._canvas?.serverDimensions) {
+			data.paddles[0].x = this._canvas.serverDimensions.width - data.paddles[0].x;
+			data.paddles[1].x = this._canvas.serverDimensions.width - data.paddles[1].x;
+			data.ball.x = this._canvas.serverDimensions.width - data.ball.x;
 		}
 
-		console.log(`[${this.gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
+		console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
 
-		this.canvas?.updateGameState(data);
+		this._canvas?.updateGameState(data);
 	}
 
 	private listenForPlayerInput() {
@@ -154,13 +167,13 @@ export default class Game {
 		canvasElement.focus();
 
 		canvasElement.addEventListener('keydown', (event) => {
-			if (!this.gameStarted || !this.alias || !this.playerId || !this.controls) return;
+			if (!this._gameStarted || !this._alias || !this._playerId || !this._controls) return;
 
-			if (event.key === this.controls.up || event.key === this.controls.down) {
+			if (event.key === this._controls.up || event.key === this._controls.down) {
 				event.preventDefault(); // Prevent scrolling or other default actions
 				const input: PlayerInputMessage['input'] = {
-					up: event.key === this.controls.up,
-					down: event.key === this.controls.down
+					up: event.key === this._controls.up,
+					down: event.key === this._controls.down
 				};
 				this.sendPlayerInput(input);
 			}
@@ -168,14 +181,14 @@ export default class Game {
 	}
 
 	private sendPlayerInput(input: PlayerInputMessage['input']) {
-		if (this.socket && this.socket.readyState === WebSocket.OPEN && this.playerId){
+		if (this._socket && this._socket.readyState === WebSocket.OPEN && this._playerId){
 			let message: PlayerInputMessage = {
 				type: "player_input",
-				playerId: this.playerId,
-				gameId: this.gameId || null,
+				playerId: this._playerId,
+				gameId: this._gameId || null,
 				input: input
 			};
-			this.socket.send(JSON.stringify(message));
+			this._socket.send(JSON.stringify(message));
 		}
 	}
 }
