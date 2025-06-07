@@ -18,26 +18,108 @@ class DuplicateAlias extends Error {
 }
 
 export default class GameForm {
-	private dialogOverlay: HTMLDivElement;
-	private dialog: HTMLDivElement;
-	private form: HTMLFormElement;
-	private modeSelection: HTMLDivElement;
-	private canvas: HTMLCanvasElement;
+	private dialogOverlay: HTMLDivElement | null;
+	private dialog: HTMLDivElement | null;
+	private form: HTMLFormElement | null;
+	private modeSelection: HTMLDivElement | null;
+	private canvas: HTMLCanvasElement | null;
+	private headerBackgroundLayer: HTMLElement | null;
 	private selectedMode: Mode = null;
+	private blurObserver: MutationObserver | null = null;
 
 	constructor() {
-		this.dialogOverlay = document.getElementById('game-dialog-overlay') as HTMLDivElement;
-		this.dialog = document.getElementById('game-dialog') as HTMLDivElement;
-		this.form = document.getElementById('game-form') as HTMLFormElement;
-		this.modeSelection = document.getElementById('mode-selection') as HTMLDivElement;
-		this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-		this.handleBackgroundBlur();
+		this.dialogOverlay = document.getElementById('game-dialog-overlay') as HTMLDivElement | null;
+		this.dialog = document.getElementById('game-dialog') as HTMLDivElement | null;
+		this.form = document.getElementById('game-form') as HTMLFormElement | null;
+		this.modeSelection = document.getElementById('mode-selection') as HTMLDivElement | null;
+		this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement | null;
+		this.headerBackgroundLayer = null;
+		this.initialize();
+	}
+
+	private initialize() {
+		const onDomReady = () => {
+			this.dialogOverlay = document.getElementById('game-dialog-overlay') as HTMLDivElement;
+			this.dialog = document.getElementById('game-dialog') as HTMLDivElement;
+			this.form = document.getElementById('game-form') as HTMLFormElement;
+			this.modeSelection = document.getElementById('mode-selection') as HTMLDivElement;
+			this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement | null;
+			this.headerBackgroundLayer = document.getElementById('header-background-layer') as HTMLElement | null;
+
+			if (!this.dialogOverlay) {
+				console.error('GameForm: game-dialog-overlay introuvable. Les effets de flou et de fond ne fonctionneront pas.');
+				return;
+			}
+			this.applyInitialBlurState();
+			this.setupDialogObserver();
+		};
+
+		if (document.readyState === 'loading') {
+			window.addEventListener('DOMContentLoaded', onDomReady);
+		} else {
+			onDomReady();
+		}
+	}
+
+	private applyInitialBlurState() {
+		if (!this.dialogOverlay) return;
+
+		if (getComputedStyle(this.dialogOverlay).display !== 'none') {
+			if (this.canvas) {
+				this.canvas.style.filter = 'blur(4px)';
+			}
+			if (this.headerBackgroundLayer) {
+				this.headerBackgroundLayer.style.filter = 'blur(4px)';
+				this.headerBackgroundLayer.classList.remove('bg-neutral-800');
+				this.headerBackgroundLayer.classList.add('bg-neutral-900'); 
+			}
+			this.dialogOverlay.style.display = 'flex';
+			this.dialogOverlay.style.opacity = '1';
+		}
+	}
+
+	private setupDialogObserver() {
+		if (!this.dialogOverlay) return;
+
+		if (this.blurObserver) {
+			this.blurObserver.disconnect();
+		}
+
+		this.blurObserver = new MutationObserver(() => {
+			if (!this.dialogOverlay) return; 
+
+			if (this.dialogOverlay.style.display === 'none') {
+				if (this.canvas) {
+					this.canvas.style.filter = '';
+				}
+				if (this.headerBackgroundLayer) {
+					this.headerBackgroundLayer.style.filter = '';
+					this.headerBackgroundLayer.classList.remove('bg-neutral-900');
+					this.headerBackgroundLayer.classList.add('bg-neutral-800'); 
+				}
+			} else {
+				if (this.canvas) {
+					this.canvas.style.filter = 'blur(4px)';
+				}
+				if (this.headerBackgroundLayer) {
+					this.headerBackgroundLayer.style.filter = 'blur(4px)';
+					this.headerBackgroundLayer.classList.remove('bg-neutral-800');
+					this.headerBackgroundLayer.classList.add('bg-neutral-900');
+				}
+			}
+		});
+		this.blurObserver.observe(this.dialogOverlay, { attributes: true, attributeFilter: ['style'] });
 	}
 
 	private showForm(mode: Mode) {
-		const localForm = document.getElementById('local-form') as HTMLDivElement;
-		const onlineForm = document.getElementById('online-form') as HTMLDivElement;
-	
+		const localForm = document.getElementById('local-form') as HTMLDivElement | null;
+		const onlineForm = document.getElementById('online-form') as HTMLDivElement | null;
+		
+		if (!this.form || !localForm || !onlineForm) {
+			console.error("GameForm: Éléments de formulaire manquants pour showForm.");
+			return;
+		}
+
 		const onlineAlias = this.form.elements.namedItem('alias') as HTMLInputElement | null;
 		const localAlias1 = this.form.elements.namedItem('alias1') as HTMLInputElement | null;
 		const localAlias2 = this.form.elements.namedItem('alias2') as HTMLInputElement | null;
@@ -109,6 +191,10 @@ export default class GameForm {
 
 
 	private async fillGameForm(): Promise<GameFormType | undefined> {
+		if (!this.form) {
+			console.error("GameForm: Formulaire non initialisé pour fillGameForm.");
+			return;
+		}
 		let data: GameFormType;
 		if (this.selectedMode === 'local') {
 			const alias1 = (this.form.elements.namedItem('alias1') as HTMLInputElement)?.value;
@@ -148,35 +234,31 @@ export default class GameForm {
 		return data;
 	}
 
-	private handleBackgroundBlur() {
-		window.addEventListener('DOMContentLoaded', () => {
-			this.canvas.style.filter = 'blur(6px)';
-			this.dialogOverlay.style.display = 'flex';
-			this.dialogOverlay.style.opacity = '1';
-			const observer = new MutationObserver(() => {
-				if (this.dialogOverlay.style.display === 'none') {
-					this.canvas.style.filter = '';
-				}
-			});
-			observer.observe(this.dialogOverlay, { attributes: true, attributeFilter: ['style'] });
-		});
-	}
-
 	private closeDialog() {
+		if (!this.dialog || !this.dialogOverlay) {
+			console.error("GameForm: Éléments de dialogue manquants pour closeDialog.");
+			return;
+		}
 		this.dialog.classList.remove('animate-fade-in');
 		this.dialog.classList.add('animate-fade-out');
 		this.dialogOverlay.style.opacity = '1';
 		setTimeout(() => {
+			if (!this.dialogOverlay) return;
 			this.dialogOverlay.style.opacity = '0';
 			this.dialogOverlay.style.pointerEvents = 'none';
 		}, 200);
 		setTimeout(() => {
+			if (!this.dialogOverlay) return;
 			this.dialogOverlay.style.display = 'none';
 		}, 500);
 	}
 
 	public getGameForm(): Promise<GameFormType> {
 		return new Promise((resolve) => {
+			if (!this.modeSelection) {
+				console.error("GameForm: modeSelection non initialisé pour getGameForm.");
+				return;
+			}
 			const localBtn = this.modeSelection.querySelector('#local-btn') as HTMLButtonElement;
 			const onlineBtn = this.modeSelection.querySelector('#online-btn') as HTMLButtonElement;
 
@@ -202,6 +284,10 @@ export default class GameForm {
 				this.showForm('online');
 			};
 
+			if (!this.form) {
+				console.error("GameForm: Formulaire non initialisé pour l'événement onsubmit.");
+				return;
+			}
 			this.form.onsubmit = async (e: SubmitEvent) => {
 				e.preventDefault();
 				try {

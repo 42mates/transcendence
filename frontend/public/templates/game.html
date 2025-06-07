@@ -1,5 +1,17 @@
+<header class="fixed top-0 left-0 right-0 h-16 z-50 flex justify-end items-start pt-4 px-4">
+	<div id="header-background-layer" class="absolute inset-0 bg-neutral-800 -z-10"></div>
+	<div class="relative"> 
+		<button id="userActionButton" type="button" class="text-white bg-amber-400 hover:bg-amber-500 focus:outline-none font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center">
+			<svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 hidden">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+			</svg>
+			<svg id="icon-login" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+			</svg>
+		</button>
+	</div>
+</header>
 <div class="flex flex-col items-center justify-center min-h-screen bg-neutral-800 px-2 relative">
-	<!-- Glassmorphism Dialog Overlay -->
 	<div id="game-dialog-overlay" class="fixed inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-100">
 		<div id="game-dialog" class="bg-neutral-800 backdrop-blur-lg rounded-lg shadow-2xl p-8 w-full max-w-md border border-white/30 animate-fade-in">
 			<h2 class="text-2xl text-white mb-4 text-center" data-i18nkey="game:mode.prompt">Choisissez un mode de jeu</h2>
@@ -35,7 +47,6 @@
 		</div>
 	</div>
 
-	<!-- Main Game Content -->
 	<h1 class="text-3xl text-white mb-4" data-i18nkey="game:title">Game</h1>
 	<div id="scoreboard" class="text-white mb-4">
 		<span id="score-player1">0</span> - <span id="score-player2">0</span>
