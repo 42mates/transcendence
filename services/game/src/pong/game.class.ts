@@ -1,12 +1,11 @@
-import { Ball } from "./ball.class";
-import { Paddle } from "./paddle.class";
+import { Ball }       from "./ball.class";
+import { Paddle }     from "./paddle.class";
 import { GameCanvas } from "./gameCanvas.class";
-import { User } from "../join/User";
+import { User }       from "../join/User";
 import {
 	GameStateMessage,
-	PlayerInputMessage,
 	GameStatusUpdateMessage,
-} from "../types/messages";
+}                     from "../types/messages";
 
 export class GameInstance {
 	private _gameCanvas: GameCanvas;
@@ -15,6 +14,7 @@ export class GameInstance {
 	private _player1: Paddle;
 	private _player2: Paddle;
 	private _ball: Ball;
+	public  _inputs: { up: boolean; down: boolean }[];
 	private _status: "pending" | "waiting" | "running" | "ended";
 	private _winner?: User;
 	private _loser?: User;
@@ -50,6 +50,11 @@ export class GameInstance {
 			this._gameCanvas.ballSize,
 			this._gameCanvas.ballSize,
 		);
+
+		this._inputs = [
+			{ up: false, down: false }, // Player 1
+			{ up: false, down: false }, // Player 2
+		];
 
 		this._id = id;
 		this._status = status;
@@ -93,26 +98,18 @@ export class GameInstance {
 		);
 	}
 
-	receivedInputs(playersInput: PlayerInputMessage["input"][]) {
-		this._player1.up = playersInput[0].up;
-		this._player1.down = playersInput[0].down;
-		this._player2.up = playersInput[1].up;
-		this._player2.down = playersInput[1].down;
-
-		{ // Debugging, delete me later
-			if (this._player1.up || this._player1.down)
-				console.log(`Received input from ${this._player1.user.alias}:`, this._player1.up, this._player1.down);
-			else if (this._player2.up || this._player2.down)
-				console.log(`Received input from ${this._player2.user.alias}:`, this._player2.up, this._player2.down);
-			else
-				console.log("Received input EMPTY");
-		}
+	updateInputs() {
+		this._player1.up = this._inputs[0].up;
+		this._player1.down = this._inputs[0].down;
+		this._player2.up = this._inputs[1].up;
+		this._player2.down = this._inputs[1].down;
 	}
 
 	update() {
+		this.updateInputs();
 		this._player1.update(this._gameCanvas);
 		this._player2.update(this._gameCanvas);
-		//this._ball.update(this._player1, this._player2, this._gameCanvas);
+		this._ball.update(this._player1, this._player2, this._gameCanvas);
 		if (this._player1.score >= 11 || this._player2.score >= 11) {
 			this._status = "ended";
 		}

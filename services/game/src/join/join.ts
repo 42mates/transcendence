@@ -4,51 +4,55 @@ import { WebSocket }                               from "ws";
 import { FastifyReply}                             from 'fastify';
 import { games, onlineQueues, connectedUsers }     from "../game/state";
 import { validateAlias,  }                         from "./alias";
-import { createLocalGame, joinLocalGame }          from "./local";
 import { tryMatchmake1v1, tryMatchmakeTournament } from "./matchmaking";
 import { User }                                    from "./User";
 import { GameInstance }                            from "../pong/game.class";
-import { InvalidAlias, WaitingForPlayers }         from "./exceptions";
+import { send, getUniqueGameId }                   from "../utils";
+import { InvalidNumberOfPlayers,
+		 InvalidAlias,
+		 WaitingForPlayers }                       from "./exceptions";
 
-
-function registerUser(message: JoinRequest, connection: WebSocket | FastifyReply): User | null
+function registerUsers(message: JoinRequest, connection: WebSocket | FastifyReply): User[] | null
 {
 	const mode = message.payload.mode;
 	
-	let cleanAlias: string;
-	try {
-		cleanAlias = validateAlias(message);
-	}
-	catch (error: any) {
-		if (connection) {
-			const response: JoinResponse = {
-				type: "join_response",
-				status: "rejected",
-				alias: null,
-				playerId: null,
-				gameId: null,
-				reason: error.message,
-			};
-			connection.send(JSON.stringify(response));
+	const users: User[] = [];
+
+	for (const alias of message.payload.alias) {
+		let cleanAlias: string;
+		try {
+			cleanAlias = validateAlias(alias, mode);
 		}
-		return null;
+		catch (error: any) {
+			throw new InvalidAlias(error, alias);
+		}
+		const user = new User(
+			connection,
+			cleanAlias,
+			mode,
+			users.length === 0 ? "1" : "2",
+			"queued"
+		);
+		users.push(user);
+		console.log(`User registered: ${user.alias} (${mode})`);
 	}
 
-	const user = new User(
-		connection,
-		cleanAlias,
-		mode,
-		"queued"
-	);
+	if ((mode === "local" && users.length !== 2)
+		|| (mode !== "local" && users.length !== 1))
+		throw new InvalidNumberOfPlayers(mode, users.length);
 
 	// Add user to connected users if online
-	if (mode !== "local") connectedUsers.push(user);
-	
-	if (mode === "1v1" || mode === "tournament" 
-		&& !onlineQueues[mode].some(u => u.alias === user.alias))
-		onlineQueues[mode].push(user);
+	if (mode !== "local")
+	{
+		for (const user of users) 
+		{
+			connectedUsers.push(user);
+			if (!onlineQueues[mode].some(u => u.alias === user.alias))
+				onlineQueues[mode].push(user);
+		}
+	}
 
-	return user;
+	return users;
 }
 
 export function joinGame(players: User[], gameId: string, bracket?: JoinResponse["bracket"])
@@ -77,50 +81,47 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 	};
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
+	console.log(`Game started: ${gameId} with players ${players[0].alias} and ${players[1].alias}`);
 }
+
+
 
 export default function join(message: JoinRequest, connection: WebSocket | FastifyReply): void {
 	console.log(
 		`${connection instanceof WebSocket ? "[ws]" : "[http]"} Join message received: ${JSON.stringify(message)}`
 	);
 
-	const user = registerUser(message, connection) 
-	if (!user) return ;
-
 	const mode = message.payload.mode;
+	let users: User[] | null = null;
 	try {
+		users = registerUsers(message, connection)!;
+
 		if (mode === "1v1")
-			tryMatchmake1v1(user);
+			tryMatchmake1v1(users[0]);
 		else if (mode === "tournament")
-			tryMatchmakeTournament(user);
-		else if (mode === "local") {
-			const { gameId } = message.payload;
-			if (!gameId)
-				createLocalGame(user);
-			else
-				joinLocalGame(user, gameId);
-		}
+			tryMatchmakeTournament(users[0]);
+		else if (mode === "local") 
+			joinGame(users, getUniqueGameId());
 	}
 	catch (exception: any) {
-		if (exception instanceof InvalidAlias) {
-			console.log(exception.message);
-			user.send(exception.response);
-		}
-		else if (exception instanceof WaitingForPlayers) {
-			console.log(exception.message);
-			user.send(exception.response);
+		if (exception instanceof InvalidNumberOfPlayers 
+			|| exception instanceof InvalidAlias 
+			|| exception instanceof WaitingForPlayers)
+		{
+			console.error("Invalid Request:", exception.message);
+			send(connection, exception.response);
 		}
 		else {
 			console.error("Error during join process:", exception);
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",
-				alias: user.alias,
-				playerId: null,
+				alias: users ? users[0].alias : null,
+				playerId: "1",
 				gameId: null,
 				reason: "An error occurred while processing your request.",
 			};
-			user.send(response);
+			send(connection, response);
 		}
 	}
 }

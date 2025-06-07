@@ -1,43 +1,25 @@
 
 import Game from '../game/Game';
 import GameForm from '../game/GameForm';
-import { GameFormType } from '../types/GameForm';
-
-async function playOnline(data: Extract<GameFormType, { mode: "online" }>) {
-	let game = new Game(data.onlineType, data.alias);
-	game.connect();
-    await game.waitForJoin();
-	console.log(`[${game.gameId}] Player ${data.alias} connected.`);
-}
-
-async function playLocal(data: Extract<GameFormType, { mode: "local" }>) {
-	try {
-		let game1 = new Game("local", data.alias1, null, { up: "w", down: "s" });
-		game1.connect();
-		let gameId = await game1.waitForJoin();
-		console.log(`[${gameId}] First player ${data.alias1} connected.`);
-		let game2 = new Game("local", data.alias2, gameId);
-		game2.connect();
-		console.log(`[${gameId}] Second player ${data.alias1} connected.`);
-	}
-	catch (error) {
-		console.error('Error starting local game:', error);
-		if (error instanceof Error) {
-			alert(error.message);
-		} else {
-			alert('An unknown error occurred while starting the local game.');
-		}
-	}
-}
 
 export async function initGame() {
 	try {
 		const form = new GameForm();
 		const data = await form.getGameForm();
+
+		let game: Game;
 		if (data.mode === 'online')
-			playOnline(data);
+			game = new Game(data.onlineType, data.alias);
+		else if (data.mode === 'local')
+			game = new Game('local', data.alias, null, [{up: 'w', down: 's'}, {up: 'ArrowUp', down: 'ArrowDown'}]);
 		else
-			playLocal(data);
+			throw new Error("Invalid game mode selected");
+
+		game.connect();
+		await game.waitForJoin();
+
+		if (data.mode === 'online') console.log(`[${game.gameId}] Player ${data.alias} connected.`);
+		if (data.mode === 'local')  console.log(`[${game.gameId}] Local game started for players: '${data.alias.join(' and ')}'`);
 	}
 	catch (error) {
 		console.error('Error:', error);

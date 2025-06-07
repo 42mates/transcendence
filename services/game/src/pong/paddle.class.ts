@@ -14,7 +14,7 @@ export class Paddle extends Template {
 		this.up = false;
 		this.down = false;
 		this.score = 0;
-		this.speed = 3;
+		this.speed = 0.5;
 		this.user = cu;
 	}
 

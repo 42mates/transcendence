@@ -3,14 +3,14 @@ import fs, { stat } from 'fs';
 import * as ws from "ws";
 
 import { JoinRequest, PlayerInputMessage } from "./types/messages";
-import join            from "./join/join";
 import { User }        from "./join/User";
-import input           from "./routes/input";
+import join            from "./join/join";
+import input           from "./game/input";
 
 import aliasCheckRoute from "./routes/check-alias";
 import joinRoute       from "./routes/join";
 import stateRoute      from "./routes/state";
-import { inputRoute } from "./routes/input";
+import inputRoute      from "./routes/input";
 
 
 import { connectedUsers, onlineQueues, games } from "./game/state";

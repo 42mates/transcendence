@@ -3,7 +3,7 @@
 export type JoinRequest = {
 	type: "join_request";
 	payload: {
-		alias: string;
+		alias: string[];
 		mode: "1v1" | "tournament" | "local";
 		gameId: string | null;
 	}
@@ -42,7 +42,7 @@ export type PlayerInputMessage = {
 	input: {
 		up: boolean;
 		down: boolean;
-	};
+	}[];
 };
 
 
@@ -65,9 +65,9 @@ export type GameStatusUpdateMessage = {
 };
 
 
-export type GameError = {
+export type GameErrorType = {
 	type: "game_error";
 	gameId?: string;
-	playerId?: "1" | "2";
+	playerId?: "1" | "2" | null;
 	message: string;
 };

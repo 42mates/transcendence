@@ -13,8 +13,9 @@ export function getUniqueGameId(): string {
 /**
  * Checks if the provided game ID is exactly 8 lowercase alphanumeric characters (a-z, 0-9).
  */
-export function isValidGameId(id: string): boolean {
-	return /^[a-z0-9]{8}$/.test(id);
+export function isValidGameId(id: string | null): boolean {
+	if (id === null) return false;
+	return (/^[a-z0-9]{8}$/.test(id));
 }
 
 

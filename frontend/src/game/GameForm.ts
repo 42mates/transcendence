@@ -1,4 +1,3 @@
-import { GameFormType } from "../types/GameForm";
 import i18n from "../i18n/i18n";
 
 type Mode = 'local' | 'online' | null;
@@ -25,6 +24,12 @@ class InvalidAlias extends Error {
         super(msg);
         this.name = "InvalidAlias";
     }
+}
+
+type GameFormType = {
+	mode: 'local' | 'online';
+	alias: string[];
+	onlineType?: '1v1' | 'tournament';
 }
 
 export default class GameForm {
@@ -126,7 +131,7 @@ export default class GameForm {
 			if (!valid2.valid && valid2.reason !== "Alias already in use")
 				throw new InvalidAlias(alias2);
 
-			data = { mode: 'local', alias1, alias2 };
+			data = { mode: 'local', alias: [alias1, alias2] };
 		}
 		else if (this.selectedMode === 'online')
 		{
@@ -139,7 +144,7 @@ export default class GameForm {
 				throw new DuplicateAlias(alias);
 			if (!valid.valid && valid.reason !== "Alias already in use")
 				throw new InvalidAlias(alias);
-			data = { mode: 'online', alias, onlineType };
+			data = { mode: 'online', alias: [alias], onlineType };
 		}
 		else
 		{

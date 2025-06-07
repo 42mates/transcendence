@@ -11,9 +11,13 @@ export default class Game {
 	private _playerId:    "1" | "2" = "1";
 	private _mode:        "1v1" | "tournament" | "local";
 	private _controls:    { up: string, down: string }[];
-	
+
+	private _gameStarted: boolean = false;
 	private _canvas:      Canvas | null = null;
 	private _input:       { up: boolean, down: boolean }[];
+	private _inputLoopActive = false;
+	private inputLoopRequestId: number | null = null;
+	private lastInputState: string = '';
 
 	private joinPromise: Promise<string>;
 	private joinResolve: ((gameId: string) => void) | null = null;
@@ -133,7 +137,7 @@ export default class Game {
 			if (data.status === 'accepted')
 			{
 				this._playerId = data.playerId!; // Ensure playerId is defined
-				//this._gameStarted = true;
+				this._gameStarted = true;
 				console.log(`[${this._gameId}] Joined game as '${data.alias}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
 			}
 			else
@@ -178,10 +182,6 @@ export default class Game {
 		this._canvas?.updateGameState(data);
 	}
 
-	private inputLoopActive = false;
-	private inputLoopRequestId: number | null = null;
-	private lastInputState: string = '';
-
 	private listenForPlayerInput() {
 		const canvasElement = document.getElementById('game-canvas');
 		if (!(canvasElement instanceof HTMLCanvasElement)) return;
@@ -190,66 +190,69 @@ export default class Game {
 		canvasElement.style.outline = 'none';
 		canvasElement.focus();
 
-		const handleKey = (event: KeyboardEvent, keydown: boolean) => {
-			let changed = false;
+		canvasElement.addEventListener('keydown', (event) => {
+			let inputChanged = false;
 			this._controls.forEach((control, idx) => {
-				if (event.key === control.up && this._input[idx].up !== keydown) {
-					this._input[idx].up = keydown;
-					changed = true;
+				if (event.key === control.up && !this._input[idx].up) {
+					this._input[idx].up = true;
+					inputChanged = true;
 					event.preventDefault();
 				}
-				if (event.key === control.down && this._input[idx].down !== keydown) {
-					this._input[idx].down = keydown;
-					changed = true;
+				else if (event.key === control.down && !this._input[idx].down) {
+					this._input[idx].down = true;
+					inputChanged = true;
 					event.preventDefault();
 				}
 			});
-			if (changed) {
-				if (this.inputLoopActive) return;
-				this.inputLoopActive = true;
+			if (inputChanged && !this._inputLoopActive) {
+				this._inputLoopActive = true;
 				this.inputLoop();
 			}
-		};
+		});
 
-		canvasElement.addEventListener('keydown', (e) => handleKey(e, true));
-		canvasElement.addEventListener('keyup', (e) => handleKey(e, false));
+		canvasElement.addEventListener('keyup', (event) => {
+			let inputChanged = false;
+			this._controls.forEach((control, idx) => {
+				if (event.key === control.up && this._input[idx].up) {
+					this._input[idx].up = false;
+					inputChanged = true;
+					event.preventDefault();
+				}
+				if (event.key === control.down && this._input[idx].down) {
+					this._input[idx].down = false;
+					inputChanged = true;
+					event.preventDefault();
+				}
+			});
+			if (inputChanged && !this._inputLoopActive) {
+				this._inputLoopActive = true;
+				this.inputLoop();
+			}
+		});
 	}
 
-
+	// Appelle sendPlayerInput à chaque changement d'état, puis s'arrête si plus aucune touche n'est pressée
 	private inputLoop = () => {
-		console.log(`[${this._gameId}] Input loop running for player ${this._playerId}: ${JSON.stringify(this._input)}`);
-		const anyKeyPressed = this._input.some(input => input.up || input.down);
 		const inputState = JSON.stringify(this._input);
-
-		if (anyKeyPressed) {
+		if (inputState !== this.lastInputState)
+		{
 			this.sendPlayerInput();
 			this.lastInputState = inputState;
-			this.inputLoopRequestId = window.requestAnimationFrame(this.inputLoop);
-		} else {
-			// Si l'état a changé (donc on vient de relâcher la dernière touche), on envoie une dernière fois
-			if (inputState !== this.lastInputState) {
-				this.sendPlayerInput();
-				this.lastInputState = inputState;
-			}
-			this.inputLoopActive = false;
-			this.inputLoopRequestId = null;
 		}
 
+		const anyKeyPressed = this._input.some(input => input.up || input.down);
+		if (anyKeyPressed) {
+			this.inputLoopRequestId = window.requestAnimationFrame(this.inputLoop);
+		} else {
+			this._inputLoopActive = false;
+			this.inputLoopRequestId = null;
+		}
 	};
-
 
 	private sendPlayerInput() {
 		if (!(this._socket && this._socket.readyState === WebSocket.OPEN)) return;
 
 		//console.log(`[${this._gameId}] Sending player input for player ${this._playerId}: ${JSON.stringify(this._input)}`);
-
-		//// In local mode, swap inputs for player 2 to match the canvas orientation
-		//if (this._mode === "local") 
-		//{
-		//	const swap = this._input[0];
-		//	this._input[0] = this._input[1];
-		//	this._input[1] = swap;
-		//}
 
 		let message: PlayerInputMessage = {
 			type: "player_input",
