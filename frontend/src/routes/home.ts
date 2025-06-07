@@ -51,12 +51,3 @@ export function initHome() {
 
     console.log('Home page loaded');
 }
-
-
-// // Lorsqu'on change de langue
-// function changeLang(lang: string) {
-//   i18next.changeLanguage(lang, () => {
-//     updateContent();
-//     langMenu?.classList.add("hidden"); // ferme après sélection
-//   });
-// }
