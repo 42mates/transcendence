@@ -55,18 +55,12 @@ export class Ball extends Template {
 			this.y + this.height + this.speed >= gameCanvas.height
 		) {
 			this.yVec *= -1;
-		} else if (this.yVec < 1 && this.y - this.speed <= 0) {
+		} else if (
+			this.yVec < 0 &&
+			this.y - this.speed <= 0
+		) {
 			this.yVec *= -1;
 		}
-
-		console.log(
-			"ball y: ",
-			this.y,
-			"; ball yVec; ",
-			this.yVec,
-			"; canvas height: ",
-			gameCanvas.height,
-		);
 
 		this.x += this.speed * this.xVec;
 		this.y += this.speed * this.yVec;

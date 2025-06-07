@@ -59,6 +59,8 @@ function getGame(msg: PlayerInputMessage): GameInstance {
 		throw new GameError(errorResponse, 404);
 	}
 
+	//if (game.players[0]
+
 	return game;
 }
 

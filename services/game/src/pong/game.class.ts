@@ -10,6 +10,7 @@ import {
 export class GameInstance {
 	private _gameCanvas: GameCanvas;
 	private _id: string;
+	private _mode: "1v1" | "tournament" | "local" = "1v1";
 	private _players: User[];
 	private _player1: Paddle;
 	private _player2: Paddle;
@@ -78,15 +79,6 @@ export class GameInstance {
 
 	public run() {
 		this._status = "running";
-		//const msg: GameStatusUpdateMessage = {
-		//	type: "game_status_update",
-		//	gameId: this._id,
-		//	status: this._status,
-		//	winner: this._winner?.alias,
-		//	loser: this._loser?.alias,
-		//};
-		//this._player1.user.send(msg);
-		//this._player2.user.send(msg);
 
 		this.gameLoop();
 
@@ -111,7 +103,10 @@ export class GameInstance {
 		this._player2.update(this._gameCanvas);
 		this._ball.update(this._player1, this._player2, this._gameCanvas);
 		if (this._player1.score >= 11 || this._player2.score >= 11) {
-			this._status = "ended";
+			this.end(
+				this._player1.score >= 11 ? this._player1.user : this._player2.user,
+				this._player1.score >= 11 ? this._player2.user : this._player1.user,
+			);
 		}
 	}
 
