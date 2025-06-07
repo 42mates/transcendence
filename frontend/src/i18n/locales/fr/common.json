@@ -10,6 +10,7 @@
 	"view": "Voir",
 	"search": "Rechercher",
 	"loading": "Chargement...",
+	"site_language": "Langue du site : Français",
 	"error": {
 		"generic": "Une erreur est survenue. Veuillez réessayer plus tard.",
 		"unexpected": "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
