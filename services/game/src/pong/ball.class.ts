@@ -9,7 +9,7 @@ export class Ball extends Template {
 		super(x, y, h, w);
 		this.xVec = 1;
 		this.yVec = -1;
-		this.speed = 1;
+		this.speed = 2;
 	}
 
 	update(player1: Paddle, player2: Paddle, gameCanvas: GameCanvas) {

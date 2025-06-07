@@ -9,7 +9,7 @@ export class GameCanvas {
 		this._width = w;
 		this._height = h;
 		this._paddleWidth = w / 50;
-		this._paddleHeight = h / 5;
+		this._paddleHeight = h / 7;
 		this._ballSize = w / 50;
 	}
 
