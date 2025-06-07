@@ -18,13 +18,16 @@ window.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		if (target.closest('a[data-spa]')) {
+		// Correction du sélecteur et de la récupération de l'attribut
+		const spaButton = target.closest('button[data-spa]');
+		if (spaButton) {
 			e.preventDefault();
-			const link = target.closest('a[data-spa]') as HTMLAnchorElement;
-			const href = link.getAttribute('href');
-			if (href) {
-				history.pushState({}, '', href);
-				loadRoute(href);
+			// Correction du typage et de la récupération de l'attribut
+			const linkElement = spaButton as HTMLButtonElement;
+			const path = linkElement.dataset.link; // Utiliser dataset.link
+			if (path) {
+				history.pushState({}, '', path);
+				loadRoute(path);
 			}
 		}
 	});
