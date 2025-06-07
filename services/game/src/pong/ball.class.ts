@@ -9,7 +9,7 @@ export class Ball extends Template {
 		super(x, y, h, w);
 		this.xVec = 1;
 		this.yVec = -1;
-		this.speed = 2;
+		this.speed = 1;
 	}
 
 	update(player1: Paddle, player2: Paddle, gameCanvas: GameCanvas) {
@@ -19,44 +19,56 @@ export class Ball extends Template {
 				this.y <= player2.y + player2.height
 			) {
 				this.xVec *= -1;
-				// this.speed += 0.05;
 			} else {
 				player1.score += 1;
 				this.x = gameCanvas.width / 2 - this.width / 2;
 				this.y = gameCanvas.height / 2 - this.height / 2;
 				this.xVec = 1;
 				this.yVec = -1;
-				// this.speed = 5;
 			}
-		} else if (
-			this.xVec < 0 &&
-			this.x - this.speed <= player1.x + player1.width
-		) {
-			if (this.y + this.height >= player1.y && this.y <= player1.y) {
+		} else if (this.xVec < 0 && this.x - this.speed <= player1.width) {
+			if (
+				this.y + this.height >= player1.y &&
+				this.y <= player1.y + player2.height
+			) {
 				this.xVec *= -1;
-				// this.speed += 0.05;
-			}
-			if (this.x - this.speed <= player1.width) {
+			} else {
 				player2.score += 1;
 				this.x = gameCanvas.width / 2 - this.width / 2;
 				this.y = gameCanvas.height / 2 - this.height / 2;
 				this.xVec = -1;
 				this.yVec = -1;
-				// this.speed = 5;
 			}
 		}
+
+		console.log(
+			"ball y: ",
+			this.y,
+			"; ball yVec; ",
+			this.yVec,
+			"; canvas height: ",
+			gameCanvas.height,
+		);
+
 		if (
-			this.yVec > 1 &&
+			this.yVec > 0 &&
 			this.y + this.height + this.speed >= gameCanvas.height
 		) {
 			this.yVec *= -1;
-			// this.speed += 0.05;
 		} else if (this.yVec < 1 && this.y - this.speed <= 0) {
 			this.yVec *= -1;
-			// this.speed += 0.05;
 		}
 
-		this.x += this.xVec * this.speed;
-		this.y += this.yVec * this.speed;
+		console.log(
+			"ball y: ",
+			this.y,
+			"; ball yVec; ",
+			this.yVec,
+			"; canvas height: ",
+			gameCanvas.height,
+		);
+
+		this.x += this.speed * this.xVec;
+		this.y += this.speed * this.yVec;
 	}
 }
