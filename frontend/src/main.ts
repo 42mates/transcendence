@@ -18,13 +18,11 @@ window.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		// Correction du sélecteur et de la récupération de l'attribut
 		const spaButton = target.closest('button[data-spa]');
 		if (spaButton) {
 			e.preventDefault();
-			// Correction du typage et de la récupération de l'attribut
 			const linkElement = spaButton as HTMLButtonElement;
-			const path = linkElement.dataset.link; // Utiliser dataset.link
+			const path = linkElement.dataset.link;
 			if (path) {
 				history.pushState({}, '', path);
 				loadRoute(path);

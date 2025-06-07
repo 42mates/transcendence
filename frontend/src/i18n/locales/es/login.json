@@ -4,7 +4,7 @@
 	"password": "Contraseña",
 	"rememberMe": "Recuérdame",
 	"forgotPassword": "¿Olvidaste tu contraseña?",
-	"loginButton": "Iniciar sesión con Google",
+	"loginButton": "Jugar con Google",
 	"guest": "Jugar como invitado.a",
 	"loginSuccess": "¡Hola, {{user}}! Has iniciado sesión correctamente.",
 	"logoutButton": "Cerrar sesión",

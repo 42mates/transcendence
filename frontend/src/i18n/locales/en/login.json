@@ -4,7 +4,7 @@
 	"password": "Password",
 	"rememberMe": "Remember me",
 	"forgotPassword": "Forgot password?",
-	"loginButton": "Log in with Google",
+	"loginButton": "Play with Google",
 	"guest": "Play as guest",
 	"loginSuccess": "Hello, {{user}}! You have successfully logged in.",
 	"logoutButton": "Log out",

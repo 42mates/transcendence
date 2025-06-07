@@ -3,7 +3,6 @@ import { initDemo } from './routes/demo';
 import { initHome } from './routes/home';
 import { initGame } from './routes/game';
 
-// 
 import { translateDOM } from './i18n/i18n';
 import {initGoogleAuth, loadGoogleSignInScript, setupLogoutButton} from './googleAuth/initAuth';
 
@@ -21,7 +20,6 @@ export async function loadRoute(path: string) {
 
 		translateDOM();
 
-		// Appel des fonctions spécifiques à la page
 		if (routePath === '/login') initLogin();
 		else if (routePath === '/demo') initDemo();
 		else if (routePath === '/home') initHome();
