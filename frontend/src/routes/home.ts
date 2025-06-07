@@ -6,13 +6,11 @@ export function initHome() {
     const langMenu = document.getElementById("langMenu");
     
     if (langButton && langMenu) {
-        // Gestion du clic sur le bouton
         langButton.addEventListener("click", (e: Event) => {
             e.stopPropagation();
             langMenu.classList.toggle("hidden");
         });
 
-        // Gestion des clics sur les boutons de langue
         const langButtons = document.querySelectorAll('[id^="changeLangButton-"]');
         langButtons.forEach(function (button) {
             button.addEventListener("click", function (this: HTMLElement, e: Event) {
@@ -37,7 +35,6 @@ export function initHome() {
             }
         });
 
-        // Fermeture du menu en cliquant ailleurs
         document.addEventListener("click", (e: Event) => {
             const target = e.target as HTMLElement;
             if (!langMenu.contains(target) && !langButton.contains(target)) {
