@@ -1,6 +1,6 @@
-import './style.css';
+import './styles/style.css';
 import './logger/logger';
-import i18n from './i18n/i18n';
+import i18n, { translateDOM } from './i18n/i18n';
 import { loadRoute } from './router';
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -18,13 +18,14 @@ window.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		if (target.closest('a[data-spa]')) {
+		const spaButton = target.closest('button[data-spa]');
+		if (spaButton) {
 			e.preventDefault();
-			const link = target.closest('a[data-spa]') as HTMLAnchorElement;
-			const href = link.getAttribute('href');
-			if (href) {
-				history.pushState({}, '', href);
-				loadRoute(href);
+			const linkElement = spaButton as HTMLButtonElement;
+			const path = linkElement.dataset.link;
+			if (path) {
+				history.pushState({}, '', path);
+				loadRoute(path);
 			}
 		}
 	});
@@ -34,13 +35,3 @@ window.addEventListener('DOMContentLoaded', () => {
 	});
 });
 
-function translateDOM() {
-	// Select all elements containing `data-i18nkey`
-	document.querySelectorAll<HTMLElement>('[data-i18nkey]').forEach((el) => {
-		const key = el.getAttribute('data-i18nkey');
-		if (key) {
-			// Insert the translation
-			el.textContent = i18n.t(key);
-		}
-	});
-}
