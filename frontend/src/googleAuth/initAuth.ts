@@ -69,28 +69,28 @@ export function initGoogleAuth() {
         // Ajoutez un callback pour surveiller l'état du One Tap
         google.accounts.id.prompt((notification: any) => {
             // Affiche le bouton si One Tap n'est pas affiché OU ignoré
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                const reason = notification.isNotDisplayed()
-                    ? notification.getNotDisplayedReason()
-                    : notification.getSkippedReason();
-                console.log("Affichage du bouton central (motif) :", reason);
+            // if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            //     const reason = notification.isNotDisplayed()
+            //         ? notification.getNotDisplayedReason()
+            //         : notification.getSkippedReason();
+            //     console.log("Affichage du bouton central (motif) :", reason);
 
-                let popup = document.getElementById("loginPopup");
-                if (!popup) {
-                    popup = document.createElement("div");
-                    popup.setAttribute("id", "loginPopup");
-                    popup.setAttribute("data-size", "medium");
-                    document.body.appendChild(popup);
-                    popup.style.position = "absolute";
-                    popup.style.top = "50%";
-                    popup.style.left = "50%";
-                    popup.style.transform = "translateX(-50%)";
-                }
-                google.accounts.id.renderButton(
-                    popup,
-                    { theme: "filled_black", size: "large" }
-                );
-            }
+            //     let popup = document.getElementById("loginPopup");
+            //     if (!popup) {
+            //         popup = document.createElement("div");
+            //         popup.setAttribute("id", "loginPopup");
+            //         popup.setAttribute("data-size", "medium");
+            //         document.body.appendChild(popup);
+            //         popup.style.position = "absolute";
+            //         popup.style.top = "50%";
+            //         popup.style.left = "50%";
+            //         popup.style.transform = "translateX(-50%)";
+            //     }
+            //     google.accounts.id.renderButton(
+            //         popup,
+            //         { theme: "filled_black", size: "large" }
+            //     );
+            // }
 
             if (notification.isNotDisplayed()) {
                 console.log("One Tap non affiché :", notification.getNotDisplayedReason());
