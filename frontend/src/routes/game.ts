@@ -2,6 +2,7 @@ import Game from '../game/Game';
 import GameForm from '../game/GameForm';
 import { loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
 import { googleSignIn } from '../router';
+import { getDefaultKeyBindings } from '../utils/gameInfos';
 
 function setupHeaderIcons() {
 	const iconLogout = document.getElementById('icon-logout') as SVGElement | null;
@@ -93,9 +94,9 @@ export async function initGame() {
 
 		let game: Game;
 		if (data.mode === 'online')
-			game = new Game(data.onlineType, data.alias);
+			game = new Game(data.onlineType, data.alias, [{up: 'ArrowUp', down: 'ArrowDown'}]);
 		else if (data.mode === 'local')
-			game = new Game('local', data.alias, null, [{up: 'w', down: 's'}, {up: 'ArrowUp', down: 'ArrowDown'}]);
+			game = new Game('local', data.alias, [getDefaultKeyBindings(), {up: 'ArrowUp', down: 'ArrowDown'}]);
 		else
 			throw new Error("Invalid game mode selected");
 

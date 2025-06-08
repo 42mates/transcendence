@@ -41,14 +41,14 @@ export class Ball extends Template {
 			}
 		}
 
-		console.log(
-			"ball y: ",
-			this.y,
-			"; ball yVec; ",
-			this.yVec,
-			"; canvas height: ",
-			gameCanvas.height,
-		);
+		//console.log(
+		//	"ball y: ",
+		//	this.y,
+		//	"; ball yVec; ",
+		//	this.yVec,
+		//	"; canvas height: ",
+		//	gameCanvas.height,
+		//);
 
 		if (
 			this.yVec > 0 &&

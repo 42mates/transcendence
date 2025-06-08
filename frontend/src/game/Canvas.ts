@@ -195,6 +195,7 @@ export default class Canvas {
 
 
 	public drawLoadingAnimation(): void {
+		console.log("Starting loading animation");
 		this._isLoading = true;
 		if (!this._ctx) return;
 
