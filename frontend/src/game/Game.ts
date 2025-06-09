@@ -138,13 +138,18 @@ export default class Game {
 		{			
 			if (data.status === 'accepted')
 			{
-				this._playerId = data.playerId!; // Ensure playerId is defined
+				if (!data.aliases || data.aliases.length < 2)
+				{
+					console.error(`[${this._gameId}] Join response missing aliases for both players.`);
+					return;
+				}
 
-				updatePlayerInfo(1, { alias: this._alias[0] });
-				updatePlayerInfo(2, { alias: this._alias[1] });
+				this._playerId = data.playerId!; // Ensure playerId is defined
+				updatePlayerInfo(1, { alias: data.aliases[this._playerId === "1" ? 0 : 1] });
+				updatePlayerInfo(2, { alias: data.aliases[this._playerId === "1" ? 1 : 0] });
 
 				//this._gameStarted = true;
-				console.log(`[${this._gameId}] Joined game as '${data.alias}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
+				console.log(`[${this._gameId}] Joined game as '${this.playerId === "1" ? data.aliases[0] : data.aliases[1]}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
 			}
 			else
 				console.log(`[${this._gameId}] First player waiting.`);
@@ -164,13 +169,15 @@ export default class Game {
 		return this.joinPromise;
 	}
 
-	public startGame() {
+	public async startGame() {
 		this._canvas?.stopLoadingAnimation();
 
-		this._gameStarted = true;
+		if (this._canvas) {
+			await this._canvas.drawCountdown();
+		}
 
-		// Send first input to initialize the game
-		this.sendPlayerInput();
+		this._gameStarted = true;
+		this.sendPlayerInput(); // Send first input to initialize the game
 	}
 
 	private handleGameStateMessage(data: GameStateMessage) {
@@ -183,12 +190,11 @@ export default class Game {
 			const swap = data.paddles[0].x; 
 			data.paddles[0].x = data.paddles[1].x;
 			data.paddles[1].x = swap;
-			data.ball.x = this._canvas.serverDimensions.width - data.ball.x;
+			data.ball.x = this._canvas.serverDimensions.width - data.ball.x - this._canvas.serverDimensions.paddleWidth;
 		}
 
 		updatePlayerInfo(1, { score: data.score[0] });
-		if (this._mode === "local")
-			updatePlayerInfo(2, { score: data.score[1] });
+		updatePlayerInfo(2, { score: data.score[1] });
 
 		//console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
 

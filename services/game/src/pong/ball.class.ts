@@ -4,6 +4,7 @@ import { GameCanvas } from "./gameCanvas.class";
 
 export class Ball extends Template {
 	private speed: number;
+    private pauseUntil: number | null = null; // timestamp en ms
 
 	constructor(x: number, y: number, h: number, w: number) {
 		super(x, y, h, w);
@@ -13,6 +14,11 @@ export class Ball extends Template {
 	}
 
 	update(player1: Paddle, player2: Paddle, gameCanvas: GameCanvas) {
+		if (this.pauseUntil !== null && Date.now() < this.pauseUntil) {
+			return; // Pause the ball movement
+		}
+		this.pauseUntil = null; // Reset pause
+
 		if (this.xVec > 0 && this.x + this.width + this.speed >= player2.x) {
 			if (
 				this.y + this.height >= player2.y &&
@@ -25,6 +31,8 @@ export class Ball extends Template {
 				this.y = gameCanvas.height / 2 - this.height / 2;
 				this.xVec = 1;
 				this.yVec = -1;
+				this.pauseUntil = Date.now() + 500; // pause 0.5s
+				return;
 			}
 		} else if (this.xVec < 0 && this.x - this.speed <= player1.width) {
 			if (
@@ -38,6 +46,8 @@ export class Ball extends Template {
 				this.y = gameCanvas.height / 2 - this.height / 2;
 				this.xVec = -1;
 				this.yVec = -1;
+				this.pauseUntil = Date.now() + 500; // pause 0.5s
+				return;
 			}
 		}
 

@@ -171,24 +171,24 @@ export default class Canvas {
 	private draw(prev_data?: GameStateMessage): void {
 		if (!this._ctx || !this._data) return;
 
-		if (prev_data) 
-		{
-			for (let i = 0; i < 2; i++) {
-				if (this._data.paddles[i].x !== prev_data.paddles[i].x || this._data.paddles[i].y !== prev_data.paddles[i].y) {
-					this.clearPaddle(i);
-					this.drawPaddle(i);
-				}
-			}
-			this.clearBall();
-			this.drawBall();
-		}
-		else
-		{
+		//if (prev_data) 
+		//{
+		//	for (let i = 0; i < 2; i++) {
+		//		if (this._data.paddles[i].x !== prev_data.paddles[i].x || this._data.paddles[i].y !== prev_data.paddles[i].y) {
+		//			this.clearPaddle(i);
+		//			this.drawPaddle(i);
+		//		}
+		//	}
+		//	this.clearBall();
+		//	this.drawBall();
+		//}
+		//else
+		//{
 			this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 			this.drawPaddle(0);
 			this.drawPaddle(1);
 			this.drawBall();
-		}
+		//}
 
 		//this.drawGrid();
 	}
@@ -251,8 +251,8 @@ export default class Canvas {
 		}
 	}
 
-	private drawCountdown(): void {
-		if (!this._ctx) return;
+	public drawCountdown(): Promise<void> {
+		if (!this._ctx) return Promise.resolve();
 
 		const cx = this._canvas.width / 2;
 		const cy = this._canvas.height / 2;
@@ -263,29 +263,30 @@ export default class Canvas {
 		const start = Date.now();
 		let frame = 0;
 
-		const drawFrame = () => {
-			if (!this._ctx) return;
-			const now = Date.now();
-			const elapsed = now - start;
-			frame = Math.floor(elapsed / delay);
+		return new Promise<void>((resolve) => {
+			const drawFrame = () => {
+				if (!this._ctx) return resolve();
+				const now = Date.now();
+				const elapsed = now - start;
+				frame = Math.floor(elapsed / delay);
 
-			if (frame < countdownNumbers.length) {
-				this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-				this._ctx.save();
-				this._ctx.font = `bold ${fontSize}px sans-serif`;
-				this._ctx.fillStyle = "#fff";
-				this._ctx.textAlign = "center";
-				this._ctx.textBaseline = "middle";
-				this._ctx.fillText(countdownNumbers[frame], cx, cy);
-				this._ctx.restore();
-				requestAnimationFrame(drawFrame);
-			} else {
-				// After countdown, redraw the full game frame
-				this.draw();
-			}
-		};
-
-		drawFrame();
+				if (frame < countdownNumbers.length) {
+					this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+					this._ctx.save();
+					this._ctx.font = `bold ${fontSize}px sans-serif`;
+					this._ctx.fillStyle = "#fff";
+					this._ctx.textAlign = "center";
+					this._ctx.textBaseline = "middle";
+					this._ctx.fillText(countdownNumbers[frame], cx, cy);
+					this._ctx.restore();
+					requestAnimationFrame(drawFrame);
+				} else {
+					this.draw();
+					resolve();
+				}
+			};
+			drawFrame();
+		});
 	}
 
 
@@ -318,13 +319,11 @@ export default class Canvas {
 
 		this._raw_data = msg; // Store the raw data for debugging or other purposes
 		
-		const previousData = this._data;
+		//const previousData = this._data;
 		this.translateGameState(msg);
 
+		
 		this.draw();
-
-		//if (this._data && this._data.status === "started") 
-		//	this.drawCountdown();
 	}
 
 

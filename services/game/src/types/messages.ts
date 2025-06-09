@@ -13,7 +13,7 @@ export type JoinRequest = {
 export type JoinResponse = {
 	type: "join_response";
 	status: "accepted" | "waiting" | "rejected";
-	alias: string | null;
+	aliases: string[] | null;
 	playerId: "1" | "2" | null;
 	gameId: string | null;
 	reason: string | null;

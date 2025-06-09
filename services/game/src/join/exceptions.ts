@@ -12,7 +12,7 @@ export class InvalidNumberOfPlayers extends Error {
 		this.response = {
 			type: "join_response",
 			status: "rejected",
-			alias: null,
+			aliases: null,
 			playerId: null,
 			gameId: null,
 			reason: message,
@@ -29,7 +29,7 @@ export class WaitingForPlayers extends Error {
 		this.response = {
 			type: "join_response",
 			status: "waiting",
-			alias: user.alias,
+			aliases: [user.alias],
 			playerId: null,
 			gameId: gameId ?? null,
 			reason: message,
@@ -45,7 +45,7 @@ export class InvalidAlias extends Error {
 		this.response = {
 			type: "join_response",
 			status: "rejected",
-			alias: alias,
+			aliases: [alias],
 			playerId: null,
 			gameId: null,
 			reason: message,
