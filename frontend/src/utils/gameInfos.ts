@@ -25,6 +25,11 @@ export function updatePlayerInfo(player: 1 | 2, { alias, score, photoUrl }: Upda
 	}
 }
 
+export function getPlayerPhoto(): string {
+	const photo = localStorage.getItem("picture");
+	return photo ? photo : "/assets/default_avatar1.png";
+}
+
 // Enhanced key binding detection based on keyboard layout and user settings
 export function getDefaultKeyBindings(): { up: string, down: string } {
 	const layoutMap: Record<string, { up: string, down: string }> = {

@@ -18,7 +18,12 @@ export function isValidGameId(id: string | null): boolean {
 	return (/^[a-z0-9]{8}$/.test(id));
 }
 
-
+export function isValidAvatar(url: string): boolean {
+	if (!url) return false;
+	if (url.startsWith("/assets/")) return true;
+	if (url.startsWith("http://") || url.startsWith("https://")) return true;
+	return false;
+}
 
 export function send(connection: WebSocket | FastifyReply, msg: any, HTTPstatus: number = 200): void {
 	if (connection instanceof WebSocket)

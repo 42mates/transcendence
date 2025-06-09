@@ -50,7 +50,7 @@
 	<h1 class="text-3xl text-white mb-4" data-i18nkey="game:title">Game</h1>
 	<div id="scoreboard" class="text-white mb-4 flex items-center gap-6">
 		<div class="flex flex-row items-center gap-2">
-			<img id="avatar-player1" src="https://placehold.co/40x40" alt="Player 1 Avatar" class="w-10 h-10 rounded-full bg-gray-700 object-cover" />
+			<img id="avatar-player1" src="/assets/default_avatar1.png" alt="Player 1 Avatar" class="w-10 h-10 rounded-md border-2 border-neutral-500 bg-neutral-700 object-cover" />
 			<span id="alias-player1" class="font-semibold">Player 1</span>
 		</div>
 		<div class="text-2xl font-bold flex items-center gap-1">
@@ -60,16 +60,16 @@
 		</div>
 		<div class="flex flex-row items-center gap-2">
 			<span id="alias-player2" class="font-semibold">Player 2</span>
-			<img id="avatar-player2" src="https://placehold.co/40x40" alt="Player 2 Avatar" class="w-10 h-10 rounded-full bg-gray-700 object-cover" />
+			<img id="avatar-player2" src="/assets/default_avatar2.png" alt="Player 2 Avatar" class="w-10 h-10 rounded-md border-2 border-neutral-500 bg-neutral-700 object-cover" />
 		</div>
 	</div>
-	<div class="w-full max-w-[1080px] p-2 bg-gray-800 rounded-lg shadow-lg flex justify-center">
+	<div class="w-full max-w-[1080px] p-2 bg-neutral-700 rounded-lg shadow-lg flex justify-center">
 		<div class="w-full max-w-[1080px] aspect-[4/3]">
 			<canvas id="game-canvas" class="bg-black rounded-md shadow-md w-full h-full transition-filter duration-300"></canvas>
 		</div>
 	</div>
 	<div class="mt-4">
-		<button id="quitButton" class="px-4 py-2 bg-red-500 text-white rounded" data-i18nkey="game:quitButton">Quit</button>
+		<button id="quitButton" class="px-4 py-2 bg-amber-500 text-white rounded" data-i18nkey="game:quitButton">Quit</button>
 	</div>
 </div>
 

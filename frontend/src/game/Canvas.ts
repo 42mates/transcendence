@@ -110,7 +110,7 @@ export default class Canvas {
 
 		// Draw the main paddle
 		this._ctx.filter = "none";
-		this._ctx.fillStyle = "#00e0ff";
+		this._ctx.fillStyle = "#71717A";
 		this._ctx.fillRect(x, y, paddleWidth, paddleHeight);
 
 		this._ctx.restore();
@@ -151,7 +151,7 @@ export default class Canvas {
 
 		// Draw the main square ball
 		this._ctx.filter = "none";
-		this._ctx.fillStyle = "#ff0000";
+		this._ctx.fillStyle = "#f59e0b";
 		this._ctx.fillRect(x, y, ballSize, ballSize);
 
 		this._ctx.restore();
@@ -274,7 +274,7 @@ export default class Canvas {
 					this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 					this._ctx.save();
 					this._ctx.font = `bold ${fontSize}px sans-serif`;
-					this._ctx.fillStyle = "#fff";
+					this._ctx.fillStyle = "#f59e0b";
 					this._ctx.textAlign = "center";
 					this._ctx.textBaseline = "middle";
 					this._ctx.fillText(countdownNumbers[frame], cx, cy);

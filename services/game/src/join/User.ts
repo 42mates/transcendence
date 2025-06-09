@@ -5,6 +5,7 @@ import type { JoinResponse, GameStateMessage, GameStatusUpdateMessage } from "..
 export class User {
 	private _connection: WebSocket | FastifyReply;
 	private _alias: string;
+	private _avatar: string;
 	private _gameMode: "1v1" | "tournament" | "local";
 	private _playerId: "1" | "2";
 	private _status: "idle" | "queued" | "matched";
@@ -12,12 +13,14 @@ export class User {
 	constructor(
 		connection: WebSocket | FastifyReply,
 		alias: string,
+		avatar: string =  "/assets/default_avatar1.png",
 		gameMode: "1v1" | "tournament" | "local",
 		playerId: "1" | "2",
 		status: "idle" | "queued" | "matched"
 	) {
 		this._connection = connection;
 		this._alias = alias;
+		this._avatar = avatar;
 		this._playerId = playerId;
 		this._gameMode = gameMode;
 		this._status = status;
@@ -29,6 +32,10 @@ export class User {
 	
 	get alias(): string {
 		return this._alias;
+	}
+
+	get avatar(): string {
+		return this._avatar;
 	}
 
 	get gameMode(): "1v1" | "tournament" | "local" {

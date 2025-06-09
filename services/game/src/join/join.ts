@@ -7,7 +7,7 @@ import { validateAlias,  }                         from "./alias";
 import { tryMatchmake1v1, tryMatchmakeTournament } from "./matchmaking";
 import { User }                                    from "./User";
 import { GameInstance }                            from "../pong/game.class";
-import { send, getUniqueGameId }                   from "../utils";
+import { send, getUniqueGameId, isValidAvatar }    from "../utils";
 import { InvalidNumberOfPlayers,
 		 InvalidAlias,
 		 WaitingForPlayers }                       from "./exceptions";
@@ -15,26 +15,26 @@ import { InvalidNumberOfPlayers,
 function registerUsers(message: JoinRequest, connection: WebSocket | FastifyReply): User[] | null
 {
 	const mode = message.payload.mode;
-	
+	const avatars = message.payload.avatar || [];
 	const users: User[] = [];
 
-	for (const alias of message.payload.alias) {
+	for (let i = 0; i < message.payload.alias.length; i++) {
 		let cleanAlias: string;
-		try {
-			cleanAlias = validateAlias(alias, mode);
-		}
-		catch (error: any) {
-			throw new InvalidAlias(error, alias);
-		}
+		try { cleanAlias = validateAlias(message.payload.alias[i], mode); }
+		catch (error: any) { throw new InvalidAlias(error, message.payload.alias[i]); }
+
+		let avatar = avatars[i] || `/assets/default_avatar${(i + 1).toString()}.png`;
+		if (!isValidAvatar(avatar)) avatar = `/assets/default_avatar${(i + 1).toString()}.png`;
 		const user = new User(
 			connection,
 			cleanAlias,
+			avatar,
 			mode,
 			users.length === 0 ? "1" : "2",
 			"queued"
 		);
 		users.push(user);
-		console.log(`User registered: ${user.alias} (${mode})`);
+		console.log(`User registered: ${user.alias} (${mode}) avatar=${avatar}`);
 	}
 
 	if ((mode === "local" && users.length !== 2)
@@ -67,6 +67,7 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		gameId: gameId,
 		reason: null,
 		dimensions: games[gameId].dimensions,
+		avatar: [players[0].avatar, players[1].avatar],
 		bracket: bracket || undefined
 	};
 	const matchInfo2: JoinResponse = {
@@ -77,11 +78,12 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		gameId: gameId,
 		reason: null,
 		dimensions: games[gameId].dimensions,
+		avatar: [players[0].avatar, players[1].avatar],
 		bracket: bracket || undefined
 	};
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
-	console.log(`Game started: ${gameId} with players ${players[0].alias} and ${players[1].alias}`);
+    console.log(`Game started: ${gameId} with players ${players[0].alias} and ${players[1].alias}`);
 }
 
 

@@ -21,8 +21,8 @@ const joinRoute: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 				payload: {
 					alias: [alias ?? "http_player" + i++],
 					mode: (mode === "1v1" || mode === "tournament" || mode === "local") ? mode : "1v1",
-					//gameId: gameId ?? null
-					gameId: null
+					gameId: null,
+					avatar: ["/assets/default_avatar1.png"] // Default avatar
 				}
 			};
 		}

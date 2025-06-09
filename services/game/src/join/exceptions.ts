@@ -33,6 +33,7 @@ export class WaitingForPlayers extends Error {
 			playerId: null,
 			gameId: gameId ?? null,
 			reason: message,
+			avatar: [user.avatar]
 		};
 	}
 }

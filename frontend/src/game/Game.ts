@@ -1,7 +1,7 @@
 import i18n from '../i18n/i18n';
 import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameStatusUpdateMessage, GameErrorType } from '../types/GameMessages';
 import Canvas from './Canvas';
-import { updatePlayerInfo } from '../utils/gameInfos';
+import { updatePlayerInfo, getPlayerPhoto } from '../utils/gameInfos';
 
 export default class Game {
 
@@ -120,6 +120,7 @@ export default class Game {
 				alias: this._alias,
 				mode: this._mode,
 				gameId: this._gameId,
+				avatar: this._mode === "local" ? [getPlayerPhoto(), "/assets/default_avatar2.png"] : [getPlayerPhoto()],
 			},
 		};
 		this._socket.send(JSON.stringify(message));
@@ -145,8 +146,11 @@ export default class Game {
 				}
 
 				this._playerId = data.playerId!; // Ensure playerId is defined
-				updatePlayerInfo(1, { alias: data.aliases[this._playerId === "1" ? 0 : 1] });
-				updatePlayerInfo(2, { alias: data.aliases[this._playerId === "1" ? 1 : 0] });
+				const p1 = this._playerId === "1" ? 0 : 1;
+				const p2 = this._playerId === "1" ? 1 : 0;
+
+				updatePlayerInfo(1, { alias: data.aliases[p1], photoUrl: data.avatar![p1] });
+				updatePlayerInfo(2, { alias: data.aliases[p2], photoUrl: data.avatar![p2] });
 
 				//this._gameStarted = true;
 				console.log(`[${this._gameId}] Joined game as '${this.playerId === "1" ? data.aliases[0] : data.aliases[1]}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);

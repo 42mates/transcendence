@@ -6,9 +6,9 @@ export type JoinRequest = {
 		alias: string[];
 		mode: "1v1" | "tournament" | "local";
 		gameId: string | null;
+		avatar: string[]; // <-- Ajouté
 	}
 };
-
 
 export type JoinResponse = {
 	type: "join_response";
@@ -23,7 +23,8 @@ export type JoinResponse = {
 		paddleWidth: number;
 		paddleHeight: number;
 		ballSize: number;
-	}
+	};
+	avatar?: string[]; // <-- Ajouté
 	bracket?: {
 	    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
 	    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
@@ -31,7 +32,6 @@ export type JoinResponse = {
 	    game4: { id: string, players?: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string }
 	}
 };
-
 
 /*******  GAME MESSAGES  *******/
 
