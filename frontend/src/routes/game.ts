@@ -1,5 +1,6 @@
 import Game from '../game/Game';
 import GameForm from '../game/GameForm';
+import i18n from '../i18n/i18n';
 import { GameFormType } from '../types/GameForm';
 import { loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
 import { googleSignIn } from '../router';
@@ -49,9 +50,11 @@ function setupHeaderIcons() {
 		if (isLoggedIn) {
 			iconLogout?.classList.remove('hidden');
 			iconLogin?.classList.add('hidden');
+			userActionButton!.title = i18n.t('login:logoutTitel');
 		} else {
 			iconLogout?.classList.add('hidden');
 			iconLogin?.classList.remove('hidden');
+			userActionButton!.title = i18n.t('login:loginTitel');
 		}
 	}
 
@@ -95,6 +98,12 @@ function setupHeaderIcons() {
 			handleLoginAttempt();
 		}
 	});
+
+	window.addEventListener('userLoggedIn', () => {
+		console.log('[Auth] Custom login event detected');
+		updateUserIconVisibility();
+	});
+	
 	window.addEventListener('storage', (event) => {
 		console.log('[Auth] Storage event detected:', event.key, event.oldValue, event.newValue);
 		if (event.key === emailKey || (event.key === null && localStorage.getItem(emailKey) === null)) {
@@ -102,6 +111,7 @@ function setupHeaderIcons() {
 			updateUserIconVisibility();
 		}
 	});
+	
 	loadGoogleSignInScript()
 		.then(() => {
 			updateUserIconVisibility();
