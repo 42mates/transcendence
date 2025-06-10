@@ -4,7 +4,7 @@ import { GameCanvas } from "./gameCanvas.class";
 
 export class Ball extends Template {
 	private speed: number;
-    private pauseUntil: number | null = null; // timestamp en ms
+	private pauseUntil: number | null = null; // timestamp en ms
 
 	constructor(x: number, y: number, h: number, w: number) {
 		super(x, y, h, w);
@@ -19,7 +19,10 @@ export class Ball extends Template {
 		}
 		this.pauseUntil = null; // Reset pause
 
-		if (this.xVec > 0 && this.x + this.width + this.speed >= player2.x) {
+		if (
+			this.xVec > 0 &&
+			this.x + this.width + this.speed >= gameCanvas.width
+		) {
 			if (
 				this.y + this.height >= player2.y &&
 				this.y <= player2.y + player2.height
@@ -34,7 +37,7 @@ export class Ball extends Template {
 				this.pauseUntil = Date.now() + 500; // pause 0.5s
 				return;
 			}
-		} else if (this.xVec < 0 && this.x - this.speed <= player1.width) {
+		} else if (this.xVec < 0 && this.x - this.speed <= 0) {
 			if (
 				this.y + this.height >= player1.y &&
 				this.y <= player1.y + player2.height
@@ -51,24 +54,12 @@ export class Ball extends Template {
 			}
 		}
 
-		//console.log(
-		//	"ball y: ",
-		//	this.y,
-		//	"; ball yVec; ",
-		//	this.yVec,
-		//	"; canvas height: ",
-		//	gameCanvas.height,
-		//);
-
 		if (
 			this.yVec > 0 &&
 			this.y + this.height + this.speed >= gameCanvas.height
 		) {
 			this.yVec *= -1;
-		} else if (
-			this.yVec < 0 &&
-			this.y - this.speed <= 0
-		) {
+		} else if (this.yVec < 0 && this.y - this.speed <= 0) {
 			this.yVec *= -1;
 		}
 
