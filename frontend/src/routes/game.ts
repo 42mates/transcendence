@@ -1,34 +1,8 @@
 import Game from '../game/Game';
 import GameForm from '../game/GameForm';
-import { GameFormType } from '../types/GameForm';
 import { loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
 import { googleSignIn } from '../router';
-
-async function playOnline(data: Extract<GameFormType, { mode: "online" }>) {
-	let game = new Game(data.onlineType, data.alias);
-	game.connect();
-	await game.waitForJoin();
-}
-
-async function playLocal(data: Extract<GameFormType, { mode: "local" }>) {
-	try {
-		let game1 = new Game("local", data.alias1, null, { up: "w", down: "s" });
-		game1.connect();
-		let gameId = await game1.waitForJoin();
-		console.log('gameId:', gameId);
-		let game2 = new Game("local", data.alias2, gameId);
-		game2.connect();
-		console.log('Local game started with aliases:', data.alias1, data.alias2);
-	}
-	catch (error) {
-		console.error('Error starting local game:', error);
-		if (error instanceof Error) {
-			alert(error.message);
-		} else {
-			alert('An unknown error occurred while starting the local game.');
-		}
-	}
-}
+import { getDefaultKeyBindings } from '../utils/gameInfos';
 
 function setupHeaderIcons() {
 	const iconLogout = document.getElementById('icon-logout') as SVGElement | null;
@@ -117,10 +91,20 @@ export async function initGame() {
 	try {
 		const form = new GameForm();
 		const data = await form.getGameForm();
-		if (data.mode === 'online') 
-			await playOnline(data);
+
+		let game: Game;
+		if (data.mode === 'online')
+			game = new Game(data.onlineType, data.alias, [{up: 'ArrowUp', down: 'ArrowDown'}]);
+		else if (data.mode === 'local')
+			game = new Game('local', data.alias, [getDefaultKeyBindings(), {up: 'ArrowUp', down: 'ArrowDown'}]);
 		else
-			await playLocal(data);
+			throw new Error("Invalid game mode selected");
+
+		game.connect();
+		await game.waitForJoin();
+
+		if (data.mode === 'online') console.log(`[${game.gameId}] Player ${data.alias} connected.`);
+		if (data.mode === 'local')  console.log(`[${game.gameId}] Local game started for players: '${data.alias.join(' and ')}'`);
 	}
 	catch (error) {
 		console.error('Error initializing game logic:', error);

@@ -1,29 +1,21 @@
 import { User } from "../join/User";
+import { GameInstance } from "../pong/game.class";
 
-export type GameBackend = {
-	id: string;
-	players: User[];
-	status: "pending" | "waiting" | "running" | "finished";
-	winner?: User;
-	loser?: User;
-	// Add more fields as needed (score, etc.)
-};
 
 export type TournamentBracketBackend = {
 	tournamentId: string;
-	game1: GameBackend;
-	game2: GameBackend;
-	game3: GameBackend;
-	game4: GameBackend;
+	game1: GameInstance;
+	game2: GameInstance;
+	game3: GameInstance | null;
+	game4: GameInstance | null;
 };
 
 export const connectedUsers: User[] = [];
 
-export const matchmakingQueues = {
+export const onlineQueues = {
 	"1v1": [] as User[],
 	"tournament": [] as User[],
 };
 
-export const games: { [gameId: string]: GameBackend } = {};
-
+export const games: {[gameId: string]: GameInstance } = {};
 export const tournaments: { [tournamentId: string]: TournamentBracketBackend } = {};

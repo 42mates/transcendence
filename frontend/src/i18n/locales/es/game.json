@@ -32,6 +32,9 @@
 		"newHighScore": "¡Nueva puntuación más alta: {{score}}!"
 	},
 	"error": {
+		"networkError": "Error de red. Por favor, comprueba tu conexión.",
+		"serverError": "Error del servidor. Por favor, inténtalo de nuevo más tarde.",
+		"joinRequestFailed": "No se pudo unir al juego. Por favor, inténtalo de nuevo.",
 		"connectionLost": "Conexión perdida. Inténtalo de nuevo.",
 		"invalidMove": "Movimiento inválido. Inténtalo de nuevo.",
 		"timeout": "¡Tiempo agotado!"

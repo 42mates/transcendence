@@ -8,12 +8,13 @@ const aliasRoute: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 		const { alias } = request.query;
 		const cleanAlias = sanitizeAlias(alias);
 		console.log(`Checking alias: "${alias}" -> "${cleanAlias}"`);
-		console.log(`Connected users: ${connectedUsers.map(u => u.alias).join(', ')}`);
 		if (!cleanAlias) {
+			console.log(`Alias "${alias}" is invalid.`);
 			reply.status(400).send({ valid: false, reason: 'Invalid alias' });
 			return;
 		}
 		if (connectedUsers.some(u => u.alias === cleanAlias)) {
+			console.log(`Alias "${cleanAlias}" is already in use.`);
 			reply.status(409).send({ valid: false, reason: 'Alias already in use' });
 			return;
 		}

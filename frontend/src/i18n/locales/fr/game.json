@@ -32,6 +32,9 @@
 		"newHighScore": "Nouveau meilleur score : {{score}} !"
 	},
 	"error": {
+		"networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+		"serverError": "Erreur du serveur. Veuillez réessayer plus tard.",
+		"joinRequestFailed": "Échec de la demande de rejoindre la partie. Veuillez réessayer.",
 		"connectionLost": "Connexion perdue. Veuillez réessayer.",
 		"invalidMove": "Mouvement invalide. Réessayez.",
 		"timeout": "Temps écoulé !"

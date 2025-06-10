@@ -1,151 +1,205 @@
 import { GameStateMessage } from '../types/GameMessages';
-import { drawRoundedRect } from '../utils/canvas_helpers';
+
+type ServerDimensions = {
+	width: number;
+	height: number;
+	paddleWidth: number;
+	paddleHeight: number;
+	ballSize: number;
+}
 
 export default class Canvas {
-	private canvas: HTMLCanvasElement;
-	private ctx: CanvasRenderingContext2D | null;
-	private waitingAnimationFrame: number | null = null;
-	private angle: number = 0;
-	private raw_data: GameStateMessage | null = null; 
-	private data: GameStateMessage | null = null; 
-	private isLoading: boolean = false; 
+	private _canvas: HTMLCanvasElement;
+	private _ctx: CanvasRenderingContext2D | null;
+	private _serverDimensions: ServerDimensions;
+	private _waitingAnimationFrame: number | null = null;
+	private _raw_data: GameStateMessage | null = null; 
+	private _data: GameStateMessage | null = null; 
+	private _isLoading: boolean = false; 
 
 	constructor(canvas: HTMLCanvasElement) {
-		this.canvas = canvas;
-		this.ctx = this.canvas.getContext('2d');
+		this._canvas = canvas;
+		this._ctx = this._canvas.getContext('2d');
 		this.resize();
 		window.addEventListener('resize', () => {
 			this.resize();
-			if (this.isLoading) {
+			if (this._isLoading) {
 				this.stopLoadingAnimation();
 				this.drawLoadingAnimation();
 			}
-			else if (this.data)
+			else if (this._data)
 				this.draw();
 		});
+		this._serverDimensions = {
+			width: 100,
+			height: 75,
+			paddleWidth: 100 / 20,
+			paddleHeight: 100 / 5,
+			ballSize: 100 / 50,
+		};
+	}
+
+	public get serverDimensions(): ServerDimensions {
+		return this._serverDimensions;
+	}
+
+	public setServerDimensions(dimensions: ServerDimensions) {
+		this._serverDimensions = dimensions;
+		this.resize();
 	}
 
 	private resize(): void {
-		const rect = this.canvas.getBoundingClientRect();
-		this.canvas.width = rect.width;
-		this.canvas.height = rect.height;
-		if (this.raw_data)
-			this.translateGameState(this.raw_data);
+		const rect = this._canvas.getBoundingClientRect();
+		this._canvas.width = rect.width;
+		this._canvas.height = rect.height;
+		if (this._raw_data)
+			this.translateGameState(this._raw_data);
 	}
 
 	private scaleX(x: number): number {
-		return (x / 100) * this.canvas.width;
+		return (x / this._serverDimensions.width) * this._canvas.width;
 	}
 
 	private scaleY(y: number): number {
-		return (y / 100) * this.canvas.height;
+		return (y / this._serverDimensions.height) * this._canvas.height;
 	}
 
 	private drawGrid(): void {
-	    if (!this.ctx) return;
-	    this.ctx.save();
-	    this.ctx.strokeStyle = "#444";
-	    this.ctx.lineWidth = 1;
-	    for (let i = 0; i <= 100; i++) {
-	        const x = this.scaleX(i);
-	        this.ctx.beginPath();
-	        this.ctx.moveTo(x, 0);
-	        this.ctx.lineTo(x, this.canvas.height);
-	        this.ctx.stroke();
-	    }
-	    for (let j = 0; j <= 100; j++) {
-	        const y = this.scaleY(j);
-	        this.ctx.beginPath();
-	        this.ctx.moveTo(0, y);
-	        this.ctx.lineTo(this.canvas.width, y);
-	        this.ctx.stroke();
-	    }
-	    this.ctx.restore();
+		if (!this._ctx) return;
+		this._ctx.save();
+		this._ctx.strokeStyle = "#444";
+		this._ctx.lineWidth = 1;
+		for (let i = 0; i <= this._serverDimensions.width; i++) {
+			const x = this.scaleX(i);
+			this._ctx.beginPath();
+			this._ctx.moveTo(x, 0);
+			this._ctx.lineTo(x, this._canvas.height);
+			this._ctx.stroke();
+		}
+		for (let j = 0; j <= this._serverDimensions.height; j++) {
+			const y = this.scaleY(j);
+			this._ctx.beginPath();
+			this._ctx.moveTo(0, y);
+			this._ctx.lineTo(this._canvas.width, y);
+			this._ctx.stroke();
+		}
+		this._ctx.restore();
 	}
 
 	private drawPaddle(i: number): void {
-		if (!this.ctx || !this.data) return;
+		if (!this._ctx || !this._data) return;
 
-		const paddleWidth = this.scaleY(2.5);
-		const paddleHeight = this.scaleY(14.5);
-		const borderRadius = this.scaleY(1.7);
+		const paddleWidth = this.scaleX(this._serverDimensions.paddleWidth);
+		const paddleHeight = this.scaleY(this._serverDimensions.paddleHeight);
 
-		let x = this.data.paddles[i].x;
-		let y = this.data.paddles[i].y;
+		let x = this._data.paddles[i].x;
+		let y = this._data.paddles[i].y;
 
-		this.ctx.save();
+		this._ctx.save();
 
-		// Draw shadow
-		this.ctx.shadowColor = "#00e0ff";
-		this.ctx.shadowBlur = this.scaleY(3.3);
+		//// Draw blurred glow using a larger, semi-transparent rectangle
+		//const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
+		//this._ctx.fillStyle = "rgba(0,224,255,0.35)";
+		//this._ctx.filter = `blur(${glowSize}px)`;
+		//this._ctx.fillRect(
+		//	x - glowSize / 2,
+		//	y - glowSize / 2,
+		//	paddleWidth + glowSize,
+		//	paddleHeight + glowSize
+		//);
 
-		// Draw rounded rectangle paddle
-		this.ctx.fillStyle = "#00e0ff";
-		drawRoundedRect(
-			this.ctx,
-			x - paddleWidth / 2,
-			y - paddleHeight / 2,
-			paddleWidth,
-			paddleHeight,
-			borderRadius
-		);
-		this.ctx.fill();
+		// Draw the main paddle
+		this._ctx.filter = "none";
+		this._ctx.fillStyle = "#71717A";
+		this._ctx.fillRect(x, y, paddleWidth, paddleHeight);
 
-		// Add a subtle white highlight (top third, rounded)
-		this.ctx.globalAlpha = 0.25;
-		this.ctx.fillStyle = "#fff";
-		drawRoundedRect(
-			this.ctx,
-			x - paddleWidth / 2,
-			y - paddleHeight / 2,
-			paddleWidth,
-			paddleHeight / 3,
-			borderRadius
-		);
-		this.ctx.fill();
+		this._ctx.restore();
+	}
 
-		this.ctx.restore();
+	private clearPaddle(i: number): void {
+		if (!this._ctx || !this._data) return;
+
+		const paddleWidth = this.scaleX(this._serverDimensions.paddleWidth);
+		const paddleHeight = this.scaleY(this._serverDimensions.paddleHeight);
+
+		let x = this._data.paddles[i].x;
+		let y = this._data.paddles[i].y;
+
+		this._ctx.clearRect(x, y, paddleWidth, paddleHeight);
 	}
 
 	private drawBall(): void {
-		if (!this.ctx || !this.data) return;
+		if (!this._ctx || !this._data) return;
 
-		const ballRadius = this.scaleY(1.5);
+		const ballSize = this.scaleY(this.serverDimensions.ballSize);
 
-		let x = this.data.ball.x;
-		let y = this.data.ball.y;
+		let x = this._data.ball.x;
+		let y = this._data.ball.y;
 
-		this.ctx.save();
-		this.ctx.fillStyle = "#ff0000"; // Red color for the ball
-		this.ctx.shadowColor = "#ff0000";
-		this.ctx.shadowBlur = this.scaleY(3.3);
-		this.ctx.beginPath();
+		this._ctx.save();
 
-		this.ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-		this.ctx.closePath();
-		this.ctx.fill();
-		this.ctx.restore();
+		//// Draw a blurred glow behind the square ball
+		//const glowSize = this.scaleY(this._serverDimensions.paddleWidth * 2);
+		//this._ctx.filter = `blur(${glowSize / 2}px)`;
+		//this._ctx.fillStyle = "rgba(255,0,0,0.45)";
+		//this._ctx.fillRect(
+		//	x - (glowSize - ballSize) / 2,
+		//	y - (glowSize - ballSize) / 2,
+		//	ballSize + (glowSize - ballSize),
+		//	ballSize + (glowSize - ballSize)
+		//);
+
+		// Draw the main square ball
+		this._ctx.filter = "none";
+		this._ctx.fillStyle = "#f59e0b";
+		this._ctx.fillRect(x, y, ballSize, ballSize);
+
+		this._ctx.restore();
 	}
 
-	private draw(): void {
-		if (!this.ctx || !this.data) return;
+	private clearBall(): void {
+		if (!this._ctx || !this._data) return;
 
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		const ballSize = this.scaleY(this.serverDimensions.ballSize);
 
-		// Draw paddles and ball
-		this.drawPaddle(0);
-		this.drawPaddle(1);
-		this.drawBall();
+		let x = this._data.ball.x;
+		let y = this._data.ball.y;
+
+		this._ctx.clearRect(x, y, ballSize, ballSize);
+	}
+
+	private draw(prev_data?: GameStateMessage): void {
+		if (!this._ctx || !this._data) return;
+
+		//if (prev_data) 
+		//{
+		//	for (let i = 0; i < 2; i++) {
+		//		if (this._data.paddles[i].x !== prev_data.paddles[i].x || this._data.paddles[i].y !== prev_data.paddles[i].y) {
+		//			this.clearPaddle(i);
+		//			this.drawPaddle(i);
+		//		}
+		//	}
+		//	this.clearBall();
+		//	this.drawBall();
+		//}
+		//else
+		//{
+			this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+			this.drawPaddle(0);
+			this.drawPaddle(1);
+			this.drawBall();
+		//}
 
 		//this.drawGrid();
 	}
 
 
 	public drawLoadingAnimation(): void {
-		this.isLoading = true;
-		if (!this.ctx) return;
+		console.log("Starting loading animation");
+		this._isLoading = true;
+		if (!this._ctx) return;
 
-		const base = Math.min(this.canvas.width, this.canvas.height * 4 / 3);
+		const base = Math.min(this._canvas.width, this._canvas.height * 4 / 3);
 		const text = "Looking for players";
 		const dotFrames = ["", ".", "..", "...", "..", ".", ""];
 		const frameDuration = 300; // ms per frame
@@ -153,141 +207,140 @@ export default class Canvas {
 		let startTime: number | null = null;
 
 		const drawAnim = (timestamp?: number) => {
-			if (!this.ctx) return;
+			if (!this._ctx) return;
 			if (startTime === null && timestamp !== undefined) startTime = timestamp;
 			const elapsed = timestamp !== undefined && startTime !== null ? timestamp - startTime : 0;
 			const frame = Math.floor(elapsed / frameDuration) % dotFrames.length;
 
-			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-			const cx = this.canvas.width / 2;
-			const cy = this.canvas.height / 2;
+			const cx = this._canvas.width / 2;
+			const cy = this._canvas.height / 2;
 			const fontSize = Math.max(24, base * 0.07);
 
-			this.ctx.save();
-			this.ctx.font = `bold ${fontSize}px sans-serif`;
-			this.ctx.fillStyle = "#fff";
-			this.ctx.textAlign = "left"; // Align text to the left
-			this.ctx.textBaseline = "middle";
+			this._ctx.save();
+			this._ctx.font = `bold ${fontSize}px sans-serif`;
+			this._ctx.fillStyle = "#fff";
+			this._ctx.textAlign = "left"; // Align text to the left
+			this._ctx.textBaseline = "middle";
 
 			// Measure the base text width
 			// Find the widest dot frame
 			const widestDot = dotFrames.reduce((a, b) => 
-				this.ctx!.measureText(a).width > this.ctx!.measureText(b).width ? a : b
+				this._ctx!.measureText(a).width > this._ctx!.measureText(b).width ? a : b
 			);
-			const baseTextWidth = this.ctx.measureText(text + widestDot).width;
+			const baseTextWidth = this._ctx.measureText(text + widestDot).width;
 			// Measure the full text width with dots
 			const fullText = text + dotFrames[frame];
 			// Calculate the starting x so that the base text is centered, but text is left-aligned
 			const startX = cx - (baseTextWidth / 2);
 
-			this.ctx.fillText(fullText, startX, cy);
-			this.ctx.restore();
+			this._ctx.fillText(fullText, startX, cy);
+			this._ctx.restore();
 
-			this.waitingAnimationFrame = requestAnimationFrame(drawAnim);
+			this._waitingAnimationFrame = requestAnimationFrame(drawAnim);
 		};
 		drawAnim();
 	}
 
 	public stopLoadingAnimation(): void {
-		this.isLoading = false;
-		if (this.waitingAnimationFrame) {
-			cancelAnimationFrame(this.waitingAnimationFrame);
-			this.waitingAnimationFrame = null;
+		this._isLoading = false;
+		if (this._waitingAnimationFrame) {
+			cancelAnimationFrame(this._waitingAnimationFrame);
+			this._waitingAnimationFrame = null;
 		}
 	}
 
-	private drawCountdown(): void {
-		if (!this.ctx) return;
+	public drawCountdown(): Promise<void> {
+		if (!this._ctx) return Promise.resolve();
 
-		const cx = this.canvas.width / 2;
-		const cy = this.canvas.height / 2;
-		const fontSize = Math.max(48, Math.min(this.canvas.width, this.canvas.height) * 0.15);
+		const cx = this._canvas.width / 2;
+		const cy = this._canvas.height / 2;
+		const fontSize = Math.max(48, Math.min(this._canvas.width, this._canvas.height) * 0.15);
 		const countdownNumbers = ["3", "2", "1"];
 		const delay = 800; // ms
 
 		const start = Date.now();
 		let frame = 0;
 
-		const drawFrame = () => {
-			if (!this.ctx) return;
-			const now = Date.now();
-			const elapsed = now - start;
-			frame = Math.floor(elapsed / delay);
+		return new Promise<void>((resolve) => {
+			const drawFrame = () => {
+				if (!this._ctx) return resolve();
+				const now = Date.now();
+				const elapsed = now - start;
+				frame = Math.floor(elapsed / delay);
 
-			if (frame < countdownNumbers.length) {
-				this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-				this.ctx.save();
-				this.ctx.font = `bold ${fontSize}px sans-serif`;
-				this.ctx.fillStyle = "#fff";
-				this.ctx.textAlign = "center";
-				this.ctx.textBaseline = "middle";
-				this.ctx.fillText(countdownNumbers[frame], cx, cy);
-				this.ctx.restore();
-				requestAnimationFrame(drawFrame);
-			} else {
-				// After countdown, redraw the full game frame
-				this.draw();
-			}
-		};
-
-		drawFrame();
+				if (frame < countdownNumbers.length) {
+					this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+					this._ctx.save();
+					this._ctx.font = `bold ${fontSize}px sans-serif`;
+					this._ctx.fillStyle = "#f59e0b";
+					this._ctx.textAlign = "center";
+					this._ctx.textBaseline = "middle";
+					this._ctx.fillText(countdownNumbers[frame], cx, cy);
+					this._ctx.restore();
+					requestAnimationFrame(drawFrame);
+				} else {
+					this.draw();
+					resolve();
+				}
+			};
+			drawFrame();
+		});
 	}
 
 
 	private translateGameState(msg: GameStateMessage): void {
-		if (!this.ctx) return ;
-		this.data = { ...msg };
+		if (!this._ctx) return ;
+		this._data = { ...msg };
 
-		if (this.data.ball) {
-			this.data.ball = {
-				...this.data.ball,
+		if (this._data.ball) {
+			this._data.ball = {
+				...this._data.ball,
 				x: this.scaleX(msg.ball.x),
 				y: this.scaleY(msg.ball.y),
 			};
 		}
 
-		if (Array.isArray(this.data.paddles)) {
-			this.data.paddles = msg.paddles.map(paddle => ({
+		if (Array.isArray(this._data.paddles)) {
+			this._data.paddles = msg.paddles.map(paddle => ({
 				...paddle,
 				x: this.scaleX(paddle.x),
 				y: this.scaleY(paddle.y),
 			}));
 		}
 
-		this.data.score = msg.score;
-		this.data.status = msg.status;
+		this._data.score = msg.score;
+		this._data.status = msg.status;
 	}
 
 	public updateGameState(msg: GameStateMessage) {
-		if (!this.ctx) return;
+		if (!this._ctx) return;
 
-		this.raw_data = msg; // Store the raw data for debugging or other purposes
+		this._raw_data = msg; // Store the raw data for debugging or other purposes
+		
+		//const previousData = this._data;
 		this.translateGameState(msg);
+
 		
 		this.draw();
-
-		//if (this.data && this.data.status === "started") 
-		//	this.drawCountdown();
-
-
 	}
 
 
 	public printError(message: string) {
-		if (!this.ctx) return;
+		if (!this._ctx) return;
 
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		const cx = this.canvas.width / 2;
-		const cy = this.canvas.height / 2;
-		const fontSize = Math.max(24, Math.min(this.canvas.width, this.canvas.height) * 0.07);
+		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+		const cx = this._canvas.width / 2;
+		const cy = this._canvas.height / 2;
+		const fontSize = Math.max(24, Math.min(this._canvas.width, this._canvas.height) * 0.07);
 
-		this.ctx.save();
-		this.ctx.font = `bold ${fontSize}px sans-serif`;
-		this.ctx.fillStyle = "#ff0000"; // Red color for error
-		this.ctx.textAlign = "center";
-		this.ctx.textBaseline = "middle";
-		this.ctx.fillText(message, cx, cy);
-		this.ctx.restore();
+		this._ctx.save();
+		this._ctx.font = `bold ${fontSize}px sans-serif`;
+		this._ctx.fillStyle = "#ff0000"; // Red color for error
+		this._ctx.textAlign = "center";
+		this._ctx.textBaseline = "middle";
+		this._ctx.fillText(message, cx, cy);
+		this._ctx.restore();
 	}
 }
