@@ -10,10 +10,7 @@ export function sanitizeAlias(alias: string): string | null {
 	return trimmed;
 }
 
-export function validateAlias(
-	message: JoinRequest
-): string {
-	const { alias, mode } = message.payload;
+export function validateAlias(alias: string, mode: "1v1" | "tournament" | "local"): string {
 	const cleanAlias = sanitizeAlias(alias);
 
 	if (!cleanAlias)

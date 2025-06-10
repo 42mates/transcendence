@@ -1,20 +1,35 @@
-import { GameFormType } from "../types/GameForm";
 import i18n from "../i18n/i18n";
 
 type Mode = 'local' | 'online' | null;
 
-class InvalidAlias extends Error {
-	constructor(alias: string) {
-		super(i18n.t('game:alias.error.invalid', { alias: alias }));
-		this.name = "InvalidAlias";
+class EmptyAlias extends Error {
+	constructor() {
+		const msg = i18n.t('game:alias.error.empty') ?? 'Empty alias error';
+		super(msg);
+		this.name = "EmptyAlias";
 	}
 }
 
 class DuplicateAlias extends Error {
-	constructor(alias: string) {
-		super(i18n.t('game:alias.error.duplicate', { alias: alias }));
-		this.name = "DuplicateAlias";
-	}
+    constructor(alias: string) {
+        const msg = i18n.t('game:alias.error.duplicate', { alias: alias }) ?? 'Duplicate alias error';
+        super(msg);
+        this.name = "DuplicateAlias";
+    }
+}
+
+class InvalidAlias extends Error {
+    constructor(alias: string) {
+        const msg = i18n.t('game:alias.error.invalid', { alias: alias }) ?? 'Invalid alias error';
+        super(msg);
+        this.name = "InvalidAlias";
+    }
+}
+
+type GameFormType = {
+	mode: 'local' | 'online';
+	alias: string[];
+	onlineType?: '1v1' | 'tournament';
 }
 
 export default class GameForm {
@@ -169,7 +184,7 @@ export default class GameForm {
 		}
 	}
 
-	private async checkAliasValidity(alias: string): Promise<boolean | string> {
+	private async checkAliasValidity(alias: string): Promise<{ valid: boolean, reason: string }> {
 		try {
 			const response = await fetch(`/api/game/check-alias?alias=${encodeURIComponent(alias)}`, {
 				method: 'GET',
@@ -180,12 +195,12 @@ export default class GameForm {
 			const result = await response.json();
 			if (!response.ok || result.valid !== true) {
 				console.log('Alias check failed:', result.reason);
-				return result.reason || false;
+				return { valid: false, reason: result.reason || 'Invalid alias' };
 			}
-			return true;
+			return { valid: true, reason: '' };
 		} catch (err) {
 			console.log('Alias check error:', err);
-			return 'network_error';
+			return { valid: false, reason: 'Network error' };
 		}
 	}
 
@@ -199,38 +214,40 @@ export default class GameForm {
 		if (this.selectedMode === 'local') {
 			const alias1 = (this.form.elements.namedItem('alias1') as HTMLInputElement)?.value;
 			const alias2 = (this.form.elements.namedItem('alias2') as HTMLInputElement)?.value;
-			if ((!alias1 || !alias2)) {
-				alert(i18n.t('game:alias.error.duplicate'));
-				return;
-			}
-			if (alias1 === alias2) {
+
+			if ((!alias1 || !alias2))
+				throw new EmptyAlias();
+			if (alias1 === alias2)
 				throw new DuplicateAlias(alias1);
-			}
+
 			const valid1 = await this.checkAliasValidity(alias1);
-			const valid2 = await this.checkAliasValidity(alias2);
-			if (!valid1 && valid1 !== "Alias already in use")
+			if (!valid1.valid && valid1.reason !== "Alias already in use")
 				throw new InvalidAlias(alias1);
-			if (!valid2 && valid2 !== "Alias already in use")
+			const valid2 = await this.checkAliasValidity(alias2);
+			if (!valid2.valid && valid2.reason !== "Alias already in use")
 				throw new InvalidAlias(alias2);
-			data = {
-				mode: 'local',
-				alias1,
-				alias2
-			};
-		} else if (this.selectedMode === 'online') {
+
+			data = { mode: 'local', alias: [alias1, alias2] };
+		}
+		else if (this.selectedMode === 'online')
+		{
 			const alias = (this.form.elements.namedItem('alias') as HTMLInputElement)?.value;
 			const onlineType = (this.form.elements.namedItem('onlineType') as HTMLInputElement)?.value as '1v1' | 'tournament';
 			const valid = await this.checkAliasValidity(alias);
-			if (!valid)
+			if (!alias)
+				throw new EmptyAlias();
+			if (!valid.valid && valid.reason === "Alias already in use")
+				throw new DuplicateAlias(alias);
+			if (!valid.valid && valid.reason !== "Alias already in use")
 				throw new InvalidAlias(alias);
-			data = {
-				mode: 'online',
-				alias,
-				onlineType
-			};
-		} else {
+			data = { mode: 'online', alias: [alias], onlineType };
+		}
+		else
+		{
+			console.error('bad mode:', this.selectedMode);
 			return;
 		}
+
 		return data;
 	}
 
@@ -293,7 +310,6 @@ export default class GameForm {
 				try {
 					const data = await this.fillGameForm();
 					if (data) {
-						console.log('Game setup:', data);
 						this.closeDialog();
 						resolve(data);
 					}

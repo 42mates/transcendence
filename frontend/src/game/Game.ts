@@ -1,184 +1,290 @@
-import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage } from '../types/GameMessages';
+import i18n from '../i18n/i18n';
+import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameStatusUpdateMessage, GameErrorType } from '../types/GameMessages';
 import Canvas from './Canvas';
+import { updatePlayerInfo, getPlayerPhoto } from '../utils/gameInfos';
 
 export default class Game {
 
-	private socket: WebSocket | null = null;
-	private alias: string;
-	private gameId: string | null = null;
-	private playerId: "1" | "2" | null = null;
-	private mode: "1v1" | "tournament" | "local";
-	private controls: { up: string, down: string } | null = null;
-	private gameStarted = false;
-	private canvas: Canvas | null = null;
+	private _socket:      WebSocket | null = null;
+
+	private _alias:       string[];
+	private _gameId:      string | null = null;
+	private _playerId:    "1" | "2" = "1";
+	private _mode:        "1v1" | "tournament" | "local";
+	private _controls:    { up: string, down: string }[];
+	
+	private _canvas:      Canvas | null = null;
+	private _gameStarted: boolean = false;
+	private _input:       { up: boolean, down: boolean }[];
 
 	private joinPromise: Promise<string>;
 	private joinResolve: ((gameId: string) => void) | null = null;
 
 	constructor(
 		mode: "1v1" | "tournament" | "local" = '1v1', 
-		alias: string = "default",
-		gameId: string | null = null,
-		controls: { up: string, down: string } = { up: 'ArrowUp', down: 'ArrowDown' }
+		alias: string[] = ["default1", "default2"],
+		controls: { up: string, down: string }[] = [
+			{ up: 'ArrowUp', down: 'ArrowDown' },
+			{ up: 'w', down: 's' }
+		]
 	) {
-		this.mode = mode;
-		this.alias = alias;
-		this.gameId = gameId || null;
-		this.controls = controls;
+		this._mode = mode;
+		this._alias = alias;
+		this._controls = controls;
+
+		if (this._mode == "local" && (this._alias.length != 2 || this._controls.length != 2))
+			throw new Error('Expected 2 players for local mode in Game object creation.');
+		if (this._mode !== "local" && (this._alias.length !== 1 || this._controls.length !== 1))
+			throw new Error('Expected 1 player for online mode in Game object creation..');
+
+		this._input = this._mode === "local" 
+			? [ { up: false, down: false }, { up: false, down: false } ] 
+			: [ { up: false, down: false } ];
+
 		this.joinPromise = new Promise((resolve) => {
 			this.joinResolve = resolve;
 		});
+
 		const canvasElement = document.getElementById('game-canvas');
-		if (!(canvasElement instanceof HTMLCanvasElement)) {
+		if (!(canvasElement instanceof HTMLCanvasElement))
 			throw new Error('Canvas element with id "game-canvas" invalid or not found in the page.');
-		}
-		this.canvas = new Canvas(canvasElement);
-		console.log(`Game initialized with mode '${this.mode}' for alias '${this.alias}', gameId '${this.gameId}', and controls: ${JSON.stringify(this.controls)}`); 
+		this._canvas = new Canvas(canvasElement);
+
+		console.log(`[${this._gameId}] Game initialized in '${this._mode}' for '${this._alias}' (${JSON.stringify(this._controls)})`); 
 	}
+
+	public get gameId():                    string | null { return this._gameId; }
+	public get playerId():                      "1" | "2" { return this._playerId; }
+	public get mode():     "1v1" | "tournament" | "local" { return this._mode; }
+	public get alias():                          string[] { return this._alias; }
+	public get canvas():                    Canvas | null { return this._canvas; }
+	public get controls(): { up: string, down: string }[] { return this._controls; }
 
 	public connect() {
 		const wsUrl = `wss://${window.location.host}/api/game/join`;
-		this.socket = new WebSocket(wsUrl);
+		this._socket = new WebSocket(wsUrl);
 
-		this.socket.onopen = () => {
-			console.log('WebSocket connection established');
+		this._socket.onopen = () => {
+			console.log(`[${this._gameId}] WebSocket connection established`);
+	
+			updatePlayerInfo(1, { alias: this._alias[0] });
+			if (this._mode === "local")
+				updatePlayerInfo(2, { alias: this._alias[1] });
+
 			this.sendJoinRequest();
-			//this.canvas?.printError("TESTMESSAGE");
-			this.canvas?.drawLoadingAnimation();
-			this.waitForJoin().then((gameId) => {
-				this.canvas?.stopLoadingAnimation();
 
-				//this.canvas?.printError("GAME HERE");
+			this._canvas?.drawLoadingAnimation();
 
-				let firstGameState: GameStateMessage = {
-					type: "game_state",
-					ball: { x: 100 / 2, y: 50 },
-					paddles: [
-						{ x: 0,   y: 50 },
-						{ x: 100, y: 50 }
-					],
-					score: [0, 0],
-					status: "started"
-				};
-				this.canvas?.updateGameState(firstGameState);
+			this.waitForJoin().then(() => {
+				this.startGame();
 
 			}).catch((error) => {
 				console.error('Failed to join game:', error);
-				this.canvas?.stopLoadingAnimation();
-				this.canvas?.printError(error.message);
+				this._canvas?.stopLoadingAnimation();
+				this._canvas?.printError(error.message);
 			});
 		};
-		this.socket.onmessage = (event) => this.handleMessage(event);
-		this.socket.onerror = (err) => console.error('WebSocket error:', err);
-		this.socket.onclose = () => console.log('WebSocket connection closed');
+		this._socket.onmessage = (event) => this.handleMessage(event);
+		this._socket.onerror = (err) => console.error(`[${this._gameId}] WebSocket error:`, err);
+		this._socket.onclose = () => console.log(`[${this._gameId}] WebSocket connection closed`);
 
 		this.listenForPlayerInput();
-	}
-
-	public async waitForJoin(): Promise<string> {
-		return this.joinPromise;
-	}
-
-	private sendJoinRequest() {
-		if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-			console.error('[sendJoinRequest] WebSocket is not connected');
-			return;
-		}
-		const message: JoinRequest = {
-			type: "join_request",
-			payload: {
-				alias: this.alias,
-				mode: this.mode,
-				gameId: this.gameId,
-			},
-		};
-		this.socket.send(JSON.stringify(message));
 	}
 
 	private handleMessage(event: MessageEvent) {
 		try {
 			const data = JSON.parse(event.data);
-			if (data.type === 'join_response') {
+			if (data.type === 'join_response')
 				this.handleJoinResponse(data as JoinResponse);
-			} else if (data.type === 'game_state') {
+			else if (data.type === 'game_state')
 				this.handleGameStateMessage(data as GameStateMessage);
-			} else {
+			else if (data.type === 'game_error')
+				console.warn('Game error:', data.message);
+			else
 				console.warn('Received unknown message type:', data);
-			}
+
 		} catch (err) {
 			console.warn('Failed to handle message (JSON expected):', event.data, err);
 		}
 
 	}
 
-	private handleJoinResponse(data: JoinResponse) {
-		this.playerId = data.playerId;
-		this.gameStarted = data.status === 'accepted';
+	private sendJoinRequest() {
+		if (!this._socket || this._socket.readyState !== WebSocket.OPEN) {
+			console.error('[sendJoinRequest] WebSocket is not connected');
+			return;
+		}
+		const message: JoinRequest = {
+			type: "join_request",
+			payload: {
+				alias: this._alias,
+				mode: this._mode,
+				gameId: this._gameId,
+				avatar: this._mode === "local" ? [getPlayerPhoto(), "/assets/default_avatar2.png"] : [getPlayerPhoto()],
+			},
+		};
+		this._socket.send(JSON.stringify(message));
+	}
 
-		if (data.status === 'rejected') {
+	private handleJoinResponse(data: JoinResponse) {
+
+		if (data.status === 'rejected')
+		{
 			console.error(`Join rejected: ${data.reason ?? 'No reason provided'}`);
-			this.socket?.close();
-			//// Optionally reject the promise below
-			//if (this.joinResolve) {
-			//	this.joinResolve = null;
-			//	this.joinPromise = Promise.reject(new Error(`Join rejected: ${data.reason ?? 'No reason provided'}`));
-			//}
-		} else {
-			this.gameStarted = true;
-			this.gameId = data.gameId ?? null;
-			console.log(`Joined game ${data.gameId} as player ${data.alias} (ID: ${this.playerId})`);
-			if (this.joinResolve && data.gameId) {
+			alert(i18n.t('game:error.joinRequestFailed') ?? "Failed to join the game. Please try again.");
+			this._socket?.close();
+			//optionally reject the promise 
+		} 
+		else
+		{			
+			if (data.status === 'accepted')
+			{
+				if (!data.aliases || data.aliases.length < 2)
+				{
+					console.error(`[${this._gameId}] Join response missing aliases for both players.`);
+					return;
+				}
+
+				this._playerId = data.playerId!; // Ensure playerId is defined
+				const p1 = this._playerId === "1" ? 0 : 1;
+				const p2 = this._playerId === "1" ? 1 : 0;
+
+				updatePlayerInfo(1, { alias: data.aliases[p1], photoUrl: data.avatar![p1] });
+				updatePlayerInfo(2, { alias: data.aliases[p2], photoUrl: data.avatar![p2] });
+
+				//this._gameStarted = true;
+				console.log(`[${this._gameId}] Joined game as '${this.playerId === "1" ? data.aliases[0] : data.aliases[1]}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
+			}
+			else
+				console.log(`[${this._gameId}] First player waiting.`);
+
+			this._gameId = data.gameId ?? null;
+			if (data.dimensions) 
+				this._canvas?.setServerDimensions(data.dimensions);
+			if (this.joinResolve && data.gameId)
+			{
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;
 			}
 		}
 	}
 
-	private parseGameState(data: GameStateMessage): GameStateMessage {
-		if (this.playerId === "2") 
-		{
-			data.paddles[0].x = 100 - data.paddles[0].x;
-			data.paddles[1].x = 100 - data.paddles[1].x;
-			data.ball.x = 100 - data.ball.x;
+	public async waitForJoin(): Promise<string> {
+		return this.joinPromise;
+	}
+
+	public async startGame() {
+		this._canvas?.stopLoadingAnimation();
+
+		if (this._canvas) {
+			await this._canvas.drawCountdown();
 		}
-		return data;
+
+		this._gameStarted = true;
+		this.sendPlayerInput(); // Send first input to initialize the game
 	}
 
 	private handleGameStateMessage(data: GameStateMessage) {
-		this.canvas?.updateGameState(this.parseGameState(data));
+		//// In local mode, only player 1's game updates are processed, since they share the canvas.
+		//if (this._mode === 'local' && this._playerId === "2")
+		//	return;
+
+		// Mirror the game state for player 2 in online mode
+		if (this._playerId === "2" && this._canvas?.serverDimensions) {
+			const swap = data.paddles[0].x; 
+			data.paddles[0].x = data.paddles[1].x;
+			data.paddles[1].x = swap;
+			data.ball.x = this._canvas.serverDimensions.width - data.ball.x - this._canvas.serverDimensions.paddleWidth;
+		}
+
+		updatePlayerInfo(1, { score: data.score[0] });
+		updatePlayerInfo(2, { score: data.score[1] });
+
+		//console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
+
+		this._canvas?.updateGameState(data);
 	}
+
+	private inputLoopActive = false;
+	private inputLoopRequestId: number | null = null;
+	private lastInputState: string = '';
+
 	private listenForPlayerInput() {
 		const canvasElement = document.getElementById('game-canvas');
-		if (!canvasElement) return;
+		if (!(canvasElement instanceof HTMLCanvasElement)) return;
 
-		canvasElement.tabIndex = 0; // Make canvas focusable
-		// Focus canvas by default without showing the default focus outline
+		canvasElement.tabIndex = 0;
 		canvasElement.style.outline = 'none';
 		canvasElement.focus();
 
-		canvasElement.addEventListener('keydown', (event) => {
-			if (!this.gameStarted || !this.alias || !this.playerId || !this.controls) return;
-
-			if (event.key === this.controls.up || event.key === this.controls.down) {
-				event.preventDefault(); // Prevent scrolling or other default actions
-				const input: PlayerInputMessage['input'] = {
-					up: event.key === this.controls.up,
-					down: event.key === this.controls.down
-				};
-				this.sendPlayerInput(input);
+		const handleKey = (event: KeyboardEvent, keydown: boolean) => {
+			let changed = false;
+			this._controls.forEach((control, idx) => {
+				if (event.key === control.up && this._input[idx].up !== keydown) {
+					this._input[idx].up = keydown;
+					changed = true;
+					event.preventDefault();
+				}
+				if (event.key === control.down && this._input[idx].down !== keydown) {
+					this._input[idx].down = keydown;
+					changed = true;
+					event.preventDefault();
+				}
+			});
+			if (changed) {
+				if (this.inputLoopActive) return;
+				this.inputLoopActive = true;
+				this.inputLoop();
 			}
-		});
+		};
+
+		canvasElement.addEventListener('keydown', (e) => handleKey(e, true));
+		canvasElement.addEventListener('keyup', (e) => handleKey(e, false));
 	}
 
-	private sendPlayerInput(input: PlayerInputMessage['input']) {
-		if (this.socket && this.socket.readyState === WebSocket.OPEN && this.playerId){
-			let message: PlayerInputMessage = {
-				type: "player_input",
-				playerId: this.playerId,
-				gameId: this.gameId || null,
-				input: input
-			};
-			this.socket.send(JSON.stringify(message));
+
+	private inputLoop = () => {
+		//console.log(`[${this._gameId}] Input loop running for player ${this._playerId}: ${JSON.stringify(this._input)}`);
+		const anyKeyPressed = this._input.some(input => input.up || input.down);
+		const inputState = JSON.stringify(this._input);
+
+		if (anyKeyPressed) {
+			this.sendPlayerInput();
+			this.lastInputState = inputState;
+			this.inputLoopRequestId = window.requestAnimationFrame(this.inputLoop);
+		} else {
+			// Si l'état a changé (donc on vient de relâcher la dernière touche), on envoie une dernière fois
+			if (inputState !== this.lastInputState) {
+				this.sendPlayerInput();
+				this.lastInputState = inputState;
+			}
+			this.inputLoopActive = false;
+			this.inputLoopRequestId = null;
 		}
+
+	};
+
+
+	private sendPlayerInput() {
+		if (!this._gameStarted || !(this._socket && this._socket.readyState === WebSocket.OPEN)) return;
+
+		//console.log(`[${this._gameId}] Sending player input for player ${this._playerId}: ${JSON.stringify(this._input)}`);
+
+		//// In local mode, swap inputs for player 2 to match the canvas orientation
+		//if (this._mode === "local") 
+		//{
+		//	const swap = this._input[0];
+		//	this._input[0] = this._input[1];
+		//	this._input[1] = swap;
+		//}
+
+		let message: PlayerInputMessage = {
+			type: "player_input",
+			playerId: this._playerId,
+			gameId: this._gameId || null,
+			input: this._input
+		};
+		//console.log(`[${this._gameId}] Sending player input: ${JSON.stringify(message)}`);
+		this._socket.send(JSON.stringify(message));
 	}
 }

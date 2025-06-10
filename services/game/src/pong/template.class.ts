@@ -6,7 +6,7 @@ export class Template {
 	xVec: number;
 	yVec: number;
 
-	constructor(x: number, y: number, h: number, w: number) {
+	constructor(x: number, y: number, w: number, h: number) {
 		this.x = x;
 		this.y = y;
 		this.height = h;
