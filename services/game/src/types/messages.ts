@@ -73,3 +73,22 @@ export type GameErrorType = {
 	playerId?: "1" | "2" | null;
 	message: string;
 };
+
+
+/*******  QUIT MESSAGES  *******/
+
+export type QuitRequest = {
+	type: "quit_request";
+	playerId: "1" | "2" | null;
+	gameId: string;
+	reason?: string;
+};
+
+export type QuitResponse = {
+	type: "quit_response";
+	playerId: "1" | "2" | null;
+	gameId: string;
+	reason?: string;
+	status: "success" | "failure";
+	message?: string;
+};

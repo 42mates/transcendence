@@ -28,11 +28,16 @@
 		"running": "게임 진행 중",
 		"ended": "게임이 종료되었습니다."
 	},
-	"win": "{{player}} 승리!",
+	"win": "{{winner}} 승리!",
 	"playButton": "플레이",
 	"quitButton": "종료",
 	"highScore": "최고 점수",
 	"gameOver": "게임 오버",
+	"quitPrompt": "정말로 게임을 종료하시겠습니까?",
+	"exited": {
+		"success": "게임에서 성공적으로 나갔습니다. 홈으로 돌아가시겠습니까?",
+		"error": "게임 종료에 실패했습니다. 다시 시도해주세요."
+	},
 	"tryAgain": "다시 시도",
 	"success": {
 		"levelComplete": "{{level}} 레벨 완료!",

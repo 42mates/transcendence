@@ -94,8 +94,6 @@ export class GameInstance {
 		this._status = "running";
 
 		this.gameLoop();
-
-		console.log(`${this._mode} game[${this._id}] started with players ${this._players[0].alias} and ${this._players[1].alias}`);
 	}
 
 	updateInputs() {
@@ -109,19 +107,13 @@ export class GameInstance {
 		this.updateInputs();
 		this._player1.update(this._gameCanvas);
 		this._player2.update(this._gameCanvas);
-		this._ball.update(this._player1, this._player2, this._gameCanvas);
-		if (this._player1.score >= 1 || this._player2.score >= 1) {
+		//this._ball.update(this._player1, this._player2, this._gameCanvas);
+		if (this._player1.score >= 11 || this._player2.score >= 11) {
 			this.end(
-				this._player1.score >= 1 ? this._player1.user : this._player2.user,
-				this._player1.score >= 1 ? this._player2.user : this._player1.user,
+				this._player1.score >= 11 ? this._player1.user : this._player2.user,
+				this._player1.score >= 11 ? this._player2.user : this._player1.user,
 			);
 		}
-		//if (this._player1.score >= 11 || this._player2.score >= 11) {
-		//	this.end(
-		//		this._player1.score >= 11 ? this._player1.user : this._player2.user,
-		//		this._player1.score >= 11 ? this._player2.user : this._player1.user,
-		//	);
-		//}
 	}
 
 	public getState(): GameStateMessage {
@@ -152,7 +144,7 @@ export class GameInstance {
 		}
 	}
 
-	end(winner: User, loser: User) {
+	public end(winner: User, loser: User) {
 		this._status = "ended";
 		this._winner = winner;
 		this._loser = loser;

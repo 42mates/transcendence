@@ -59,6 +59,8 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 export function sendJoinResponse(gameId: string, tournament?: JoinResponse["tournament"])
 {
 	const players = games[gameId].players;
+	if (players[0].playerId !== "1" && players[0].playerId !== "2")
+		throw new Error("Invalid playerId for one of the players");
 
 	const matchInfo1: JoinResponse = {
 		type: "join_response",
@@ -85,7 +87,6 @@ export function sendJoinResponse(gameId: string, tournament?: JoinResponse["tour
 
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
-    console.log(`${games[gameId].mode} game[${gameId}] joined with players ${players[0].alias} and ${players[1].alias}`);
 }
 
 export default function join(message: JoinRequest, connection: WebSocket | FastifyReply): void {

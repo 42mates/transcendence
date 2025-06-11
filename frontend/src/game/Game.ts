@@ -1,5 +1,8 @@
 import i18n from '../i18n/i18n';
-import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameStatusUpdateMessage, GameErrorType } from '../types/GameMessages';
+import type { JoinRequest, JoinResponse, 
+			  PlayerInputMessage, GameStateMessage,
+			  GameStatusUpdateMessage, 
+			  QuitRequest, QuitResponse } from '../types/GameMessages';
 import Canvas from './Canvas';
 import { updatePlayerInfo, getPlayerPhoto } from '../utils/gameInfos';
 
@@ -95,21 +98,28 @@ export default class Game {
 	private handleMessage(event: MessageEvent) {
 		try {
 			const data = JSON.parse(event.data);
-			if (data.type === 'join_response')
-				this.handleJoinResponse(data as JoinResponse);
-			else if (data.type === 'game_state')
-				this.handleGameStateMessage(data as GameStateMessage);
-			else if (data.type === 'game_status_update')
-				this.handleGameStatusUpdateMessage(data as GameStatusUpdateMessage);
-			else if (data.type === 'game_error')
-				console.warn('Game error:', data.message);
-			else
-				console.warn('Received unknown message type:', data);
-
+			switch (data.type) {
+				case 'join_response':
+					this.handleJoinResponse(data as JoinResponse);
+					break;
+				case 'game_state':
+					this.handleGameStateMessage(data as GameStateMessage);
+					break;
+				case 'game_status_update':
+					this.handleGameStatusUpdateMessage(data as GameStatusUpdateMessage);
+					break;
+				case 'quit_response':
+					this.handleQuitResponse(data as QuitResponse);
+					break;
+				case 'game_error':
+					console.warn('Game error:', data.message);
+					break;
+				default:
+					console.warn('Received unknown message type:', data);
+			}
 		} catch (err) {
 			console.warn('Failed to handle message (JSON expected):', event.data, err);
 		}
-
 	}
 
 	private sendJoinRequest() {
@@ -216,7 +226,6 @@ export default class Game {
 
 		if (data.status === "ended")
 		{
-			console.log(`[${this._gameId}] Game ended. Winner: ${data.winner}`);
 			this._canvas?.printGameEnd(data.winner!, data.score);
 		} else {
 			console.log(`[${this._gameId}] Game status updated to '${data.status}'`);
@@ -226,6 +235,29 @@ export default class Game {
 		}
 	}
 
+    public sendQuitRequest(reason?: string) {
+        if (!this._socket || !this._gameId || !this._playerId) return;
+        const quitRequest: QuitRequest = {
+            type: "quit_request",
+            gameId: this._gameId,
+            playerId: this._playerId,
+            reason,
+        };
+        this._socket.send(JSON.stringify(quitRequest));
+    }
+
+    private handleQuitResponse(data: QuitResponse) {
+        if (data.status === "success")
+		{
+			if (confirm(i18n.t('game:exited.success') ?? "Game ended. Return to home?"))
+				window.location.href = '/';
+        }
+		else
+            alert(i18n.t('game:exited.error') ?? "Failed to quit the game.");
+    }
+
+
+	
 	private inputLoopActive = false;
 	private inputLoopRequestId: number | null = null;
 	private lastInputState: string = '';
@@ -275,7 +307,6 @@ export default class Game {
 			this.lastInputState = inputState;
 			this.inputLoopRequestId = window.requestAnimationFrame(this.inputLoop);
 		} else {
-			// Si l'état a changé (donc on vient de relâcher la dernière touche), on envoie une dernière fois
 			if (inputState !== this.lastInputState) {
 				this.sendPlayerInput();
 				this.lastInputState = inputState;
@@ -292,14 +323,6 @@ export default class Game {
 			return;
 
 		//console.log(`[${this._gameId}] Sending player input for player ${this._playerId}: ${JSON.stringify(this._input)}`);
-
-		//// In local mode, swap inputs for player 2 to match the canvas orientation
-		//if (this._mode === "local") 
-		//{
-		//	const swap = this._input[0];
-		//	this._input[0] = this._input[1];
-		//	this._input[1] = swap;
-		//}
 
 		let message: PlayerInputMessage = {
 			type: "player_input",

@@ -2,10 +2,13 @@ import Fastify, { type FastifyRequest } from "fastify";
 import fs, { stat } from 'fs';
 import * as ws from "ws";
 
-import { JoinRequest, PlayerInputMessage } from "./types/messages";
+import { JoinRequest,
+		 PlayerInputMessage,
+		 QuitRequest } from "./types/messages";
 import { User }        from "./join/User";
 import join            from "./join/join";
 import input           from "./game/input";
+import quit            from "./game/quit";
 
 import aliasCheckRoute from "./routes/check-alias";
 import joinRoute       from "./routes/join";
@@ -33,6 +36,9 @@ function handleWSS(wsSocket: ws.WebSocket) {
 			case "player_input":
 				input(msg as PlayerInputMessage, wsSocket);
 				break;
+			case "quit_request":
+				quit(msg as QuitRequest, wsSocket);
+				break;
 			default:
 				wsSocket.send(JSON.stringify({ type: "error", payload: "Unknown type" }));
 		}
@@ -59,16 +65,15 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 			if (qIdx !== -1) queue.splice(qIdx, 1);
 		}
 		// Remove from connected users
-		connectedUsers.splice(idx, 1);
 		for (const [gameId, game] of Object.entries(games)) {
 			const idx = game.players.findIndex((u: User) => u.alias === user.alias); // ✅ compare by alias property
-			if (idx !== -1) {
-				game.players.splice(idx, 1);
-				if (game.players.length === 0) {
-					delete games[gameId];
-				}
+			if (idx !== -1 && user.gameMode !== "local") {
+				const loser = user;
+				const winner = loser.playerId === "1" ? game.players[1] : game.players[0];
+				game.end(winner, loser);
 			}
 		}
+		connectedUsers.splice(idx, 1);
 	}
 }
 

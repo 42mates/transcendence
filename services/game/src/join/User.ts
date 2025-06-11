@@ -46,6 +46,12 @@ export class User {
 		return this._playerId;
 	}
 
+	set playerId(value: "1" | "2") {
+		if (value !== "1" && value !== "2")
+			throw new Error("Invalid playerId. Must be '1' or '2'.");
+		this._playerId = value;
+	}
+
 	get status(): "idle" | "queued" | "matched" {
 		return this._status;
 	}

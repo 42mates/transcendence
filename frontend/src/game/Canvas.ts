@@ -16,7 +16,9 @@ export default class Canvas {
 	private _waitingAnimationFrame: number | null = null;
 	private _raw_data: GameStateMessage | null = null; 
 	private _data: GameStateMessage | null = null; 
-	private _isLoading: boolean = false; 
+	private _isLoading: boolean = false;
+	private _isGameEnd: boolean = false;
+	private _gameEndParams: { winner: string; score: [number, number] } | null = null;
 
 	constructor(canvas: HTMLCanvasElement) {
 		this._canvas = canvas;
@@ -28,6 +30,8 @@ export default class Canvas {
 				this.stopLoadingAnimation();
 				this.drawLoadingAnimation();
 			}
+			else if (this._isGameEnd)
+				this.printGameEnd(this._gameEndParams!.winner, this._gameEndParams!.score);
 			else if (this._data)
 				this.draw();
 		});
@@ -340,8 +344,11 @@ export default class Canvas {
 		this._ctx.fillText(message, cx, cy);
 		this._ctx.restore();
 	}
+
 	public printGameEnd(winner: string, score: [number, number]) {
 		if (!this._ctx) return;
+		this._isGameEnd = true;
+		this._gameEndParams = { winner, score };
 
 		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 		const cx = this._canvas.width / 2;

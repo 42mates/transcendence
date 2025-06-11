@@ -13,6 +13,8 @@ export function tryMatchmakeLocal(players: User[]) {
 
 	const gameId = getUniqueGameId();
 	games[gameId] = new GameInstance(players, gameId, "local", "pending");
+	players[0].playerId = "1";
+	players[1].playerId = "2";
 
 	sendJoinResponse(gameId);
 }
@@ -26,6 +28,8 @@ export function tryMatchmake1v1(user: User) {
 	const gameId = getUniqueGameId();
 
 	games[gameId] = new GameInstance([player1, player2], gameId, "1v1", "pending");
+	player1.playerId = "1";
+	player2.playerId = "2";
 
 	sendJoinResponse(gameId);
 }
@@ -37,6 +41,10 @@ export function tryMatchmakeTournament(user: User) {
 
 	const players = onlineQueues["tournament"].splice(0, 4);
 	const [p1, p2, p3, p4] = players;
+	p1.playerId = "1";
+	p2.playerId = "2";
+	p3.playerId = "1";
+	p4.playerId = "2";
 	const gameId1 = getUniqueGameId();
 	const gameId2 = getUniqueGameId();
 	const gameId3 = getUniqueGameId();
