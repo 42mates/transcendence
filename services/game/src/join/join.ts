@@ -4,10 +4,11 @@ import { WebSocket }                               from "ws";
 import { FastifyReply}                             from 'fastify';
 import { games, onlineQueues, connectedUsers }     from "../game/state";
 import { validateAlias,  }                         from "./alias";
-import { tryMatchmake1v1, tryMatchmakeTournament } from "./matchmaking";
 import { User }                                    from "./User";
-import { GameInstance }                            from "../pong/game.class";
-import { send, getUniqueGameId, isValidAvatar }    from "../utils";
+import { send, isValidAvatar }                     from "../utils";
+import { tryMatchmakeLocal,
+		 tryMatchmake1v1, 
+		 tryMatchmakeTournament }                  from "./matchmaking";
 import { InvalidNumberOfPlayers,
 		 InvalidAlias,
 		 WaitingForPlayers }                       from "./exceptions";
@@ -55,9 +56,9 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 	return users;
 }
 
-export function joinGame(players: User[], gameId: string, bracket?: JoinResponse["bracket"])
+export function sendJoinResponse(gameId: string, tournament?: JoinResponse["tournament"])
 {
-	games[gameId] = new GameInstance([players[0], players[1]], gameId, "pending");
+	const players = games[gameId].players;
 
 	const matchInfo1: JoinResponse = {
 		type: "join_response",
@@ -68,7 +69,7 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		reason: null,
 		dimensions: games[gameId].dimensions,
 		avatar: [players[0].avatar, players[1].avatar],
-		bracket: bracket || undefined
+		tournament: tournament || undefined
 	};
 	const matchInfo2: JoinResponse = {
 		type: "join_response",
@@ -79,31 +80,28 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		reason: null,
 		dimensions: games[gameId].dimensions,
 		avatar: [players[0].avatar, players[1].avatar],
-		bracket: bracket || undefined
+		tournament: tournament || undefined
 	};
+
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
-    console.log(`Game started: ${gameId} with players ${players[0].alias} and ${players[1].alias}`);
+    console.log(`${games[gameId].mode} game[${gameId}] joined with players ${players[0].alias} and ${players[1].alias}`);
 }
 
-
-
 export default function join(message: JoinRequest, connection: WebSocket | FastifyReply): void {
-	console.log(
-		`${connection instanceof WebSocket ? "[ws]" : "[http]"} Join message received: ${JSON.stringify(message)}`
-	);
+	console.log(`${connection instanceof WebSocket ? "[ws]" : "[http]"} Join message received: ${JSON.stringify(message)}`);
 
 	const mode = message.payload.mode;
 	let users: User[] | null = null;
 	try {
 		users = registerUsers(message, connection)!;
 
-		if (mode === "1v1")
+		if (mode === "local") 
+			tryMatchmakeLocal(users);
+		else if (mode === "1v1")
 			tryMatchmake1v1(users[0]);
 		else if (mode === "tournament")
 			tryMatchmakeTournament(users[0]);
-		else if (mode === "local") 
-			joinGame(users, getUniqueGameId());
 	}
 	catch (exception: any) {
 		if (exception instanceof InvalidNumberOfPlayers 

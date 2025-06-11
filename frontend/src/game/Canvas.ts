@@ -1,3 +1,4 @@
+import i18n                 from '../i18n/i18n';
 import { GameStateMessage } from '../types/GameMessages';
 
 type ServerDimensions = {
@@ -200,7 +201,7 @@ export default class Canvas {
 		if (!this._ctx) return;
 
 		const base = Math.min(this._canvas.width, this._canvas.height * 4 / 3);
-		const text = "Looking for players";
+		const text = i18n ? i18n.t("game:status.waiting") : "Looking for players";
 		const dotFrames = ["", ".", "..", "...", "..", ".", ""];
 		const frameDuration = 300; // ms per frame
 
@@ -219,20 +220,16 @@ export default class Canvas {
 			const fontSize = Math.max(24, base * 0.07);
 
 			this._ctx.save();
-			this._ctx.font = `bold ${fontSize}px sans-serif`;
+			this._ctx.font = `bold ${fontSize}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
 			this._ctx.fillStyle = "#fff";
-			this._ctx.textAlign = "left"; // Align text to the left
+			this._ctx.textAlign = "left";
 			this._ctx.textBaseline = "middle";
 
-			// Measure the base text width
-			// Find the widest dot frame
-			const widestDot = dotFrames.reduce((a, b) => 
+			const widestDot = dotFrames.reduce((a, b) =>
 				this._ctx!.measureText(a).width > this._ctx!.measureText(b).width ? a : b
 			);
 			const baseTextWidth = this._ctx.measureText(text + widestDot).width;
-			// Measure the full text width with dots
 			const fullText = text + dotFrames[frame];
-			// Calculate the starting x so that the base text is centered, but text is left-aligned
 			const startX = cx - (baseTextWidth / 2);
 
 			this._ctx.fillText(fullText, startX, cy);
@@ -327,7 +324,7 @@ export default class Canvas {
 	}
 
 
-	public printError(message: string) {
+	public printMessage(message: string) {
 		if (!this._ctx) return;
 
 		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
@@ -336,11 +333,40 @@ export default class Canvas {
 		const fontSize = Math.max(24, Math.min(this._canvas.width, this._canvas.height) * 0.07);
 
 		this._ctx.save();
-		this._ctx.font = `bold ${fontSize}px sans-serif`;
+		this._ctx.font = `bold ${fontSize}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
 		this._ctx.fillStyle = "#ff0000"; // Red color for error
 		this._ctx.textAlign = "center";
 		this._ctx.textBaseline = "middle";
 		this._ctx.fillText(message, cx, cy);
+		this._ctx.restore();
+	}
+	public printGameEnd(winner: string, score: [number, number]) {
+		if (!this._ctx) return;
+
+		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+		const cx = this._canvas.width / 2;
+		const cy = this._canvas.height / 2;
+		const fontSize = Math.max(24, Math.min(this._canvas.width, this._canvas.height) * 0.07);
+
+		const title = i18n ? i18n.t("game:status.ended") : "Game ended";
+		const winText = i18n ? i18n.t("game:win", { winner: winner }) : `${winner} wins!`;
+		const scoreText = `Scores: ${score[0]} - ${score[1]}`;
+
+		this._ctx.save();
+		this._ctx.font = `bold ${fontSize * 1.1}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#fff";
+		this._ctx.textAlign = "center";
+		this._ctx.textBaseline = "middle";
+		this._ctx.fillText(title, cx, cy - fontSize * 1.2);
+
+		this._ctx.font = `bold ${fontSize}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#f59e0b";
+		this._ctx.fillText(winText, cx, cy);
+
+		this._ctx.font = `bold ${fontSize * 0.9}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#aaa";
+		this._ctx.fillText(scoreText, cx, cy + fontSize * 1.2);
+
 		this._ctx.restore();
 	}
 }

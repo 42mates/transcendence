@@ -11,10 +11,11 @@ export default class Game {
 	private _gameId:      string | null = null;
 	private _playerId:    "1" | "2" = "1";
 	private _mode:        "1v1" | "tournament" | "local";
+	private _tournamentId?: string;
+	private _status:	  "pending" | "waiting" | "running" | "ended" = "pending";
 	private _controls:    { up: string, down: string }[];
 	
 	private _canvas:      Canvas | null = null;
-	private _gameStarted: boolean = false;
 	private _input:       { up: boolean, down: boolean }[];
 
 	private joinPromise: Promise<string>;
@@ -81,7 +82,7 @@ export default class Game {
 			}).catch((error) => {
 				console.error('Failed to join game:', error);
 				this._canvas?.stopLoadingAnimation();
-				this._canvas?.printError(error.message);
+				this._canvas?.printMessage(error.message);
 			});
 		};
 		this._socket.onmessage = (event) => this.handleMessage(event);
@@ -98,6 +99,8 @@ export default class Game {
 				this.handleJoinResponse(data as JoinResponse);
 			else if (data.type === 'game_state')
 				this.handleGameStateMessage(data as GameStateMessage);
+			else if (data.type === 'game_status_update')
+				this.handleGameStatusUpdateMessage(data as GameStatusUpdateMessage);
 			else if (data.type === 'game_error')
 				console.warn('Game error:', data.message);
 			else
@@ -136,7 +139,7 @@ export default class Game {
 			//optionally reject the promise 
 		} 
 		else
-		{			
+		{
 			if (data.status === 'accepted')
 			{
 				if (!data.aliases || data.aliases.length < 2)
@@ -148,11 +151,11 @@ export default class Game {
 				this._playerId = data.playerId!; // Ensure playerId is defined
 				const p1 = this._playerId === "1" ? 0 : 1;
 				const p2 = this._playerId === "1" ? 1 : 0;
-
 				updatePlayerInfo(1, { alias: data.aliases[p1], photoUrl: data.avatar![p1] });
 				updatePlayerInfo(2, { alias: data.aliases[p2], photoUrl: data.avatar![p2] });
 
-				//this._gameStarted = true;
+				this._tournamentId = data.tournament?.id;
+
 				console.log(`[${this._gameId}] Joined game as '${this.playerId === "1" ? data.aliases[0] : data.aliases[1]}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
 			}
 			else
@@ -176,25 +179,27 @@ export default class Game {
 	public async startGame() {
 		this._canvas?.stopLoadingAnimation();
 
-		if (this._canvas) {
-			await this._canvas.drawCountdown();
-		}
+		//if (this._canvas) {
+		//	await this._canvas.drawCountdown();
+		//}
 
-		this._gameStarted = true;
+		this._status = "running";
 		this.sendPlayerInput(); // Send first input to initialize the game
 	}
 
 	private handleGameStateMessage(data: GameStateMessage) {
-		//// In local mode, only player 1's game updates are processed, since they share the canvas.
-		//if (this._mode === 'local' && this._playerId === "2")
-		//	return;
+		this._status = data.status;
 
 		// Mirror the game state for player 2 in online mode
 		if (this._playerId === "2" && this._canvas?.serverDimensions) {
-			const swap = data.paddles[0].x; 
+			const p_swap = data.paddles[0].x; 
 			data.paddles[0].x = data.paddles[1].x;
-			data.paddles[1].x = swap;
+			data.paddles[1].x = p_swap;
 			data.ball.x = this._canvas.serverDimensions.width - data.ball.x - this._canvas.serverDimensions.paddleWidth;
+
+			const s_swap = data.score[0];
+			data.score[0] = data.score[1];
+			data.score[1] = s_swap;
 		}
 
 		updatePlayerInfo(1, { score: data.score[0] });
@@ -202,7 +207,23 @@ export default class Game {
 
 		//console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
 
-		this._canvas?.updateGameState(data);
+		if (this._status !== "ended")
+			this._canvas?.updateGameState(data);
+	}
+
+	private handleGameStatusUpdateMessage(data: GameStatusUpdateMessage){
+		this._status = data.status;
+
+		if (data.status === "ended")
+		{
+			console.log(`[${this._gameId}] Game ended. Winner: ${data.winner}`);
+			this._canvas?.printGameEnd(data.winner!, data.score);
+		} else {
+			console.log(`[${this._gameId}] Game status updated to '${data.status}'`);
+		}
+		if (data.tournamentId) {
+			console.log("here, handletournament"); 
+		}
 	}
 
 	private inputLoopActive = false;
@@ -244,6 +265,7 @@ export default class Game {
 
 
 	private inputLoop = () => {
+
 		//console.log(`[${this._gameId}] Input loop running for player ${this._playerId}: ${JSON.stringify(this._input)}`);
 		const anyKeyPressed = this._input.some(input => input.up || input.down);
 		const inputState = JSON.stringify(this._input);
@@ -266,7 +288,8 @@ export default class Game {
 
 
 	private sendPlayerInput() {
-		if (!this._gameStarted || !(this._socket && this._socket.readyState === WebSocket.OPEN)) return;
+		if (this._status !== "running" || !(this._socket && this._socket.readyState === WebSocket.OPEN)) 
+			return;
 
 		//console.log(`[${this._gameId}] Sending player input for player ${this._playerId}: ${JSON.stringify(this._input)}`);
 

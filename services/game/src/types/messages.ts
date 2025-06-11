@@ -25,7 +25,8 @@ export type JoinResponse = {
 		ballSize: number;
 	};
 	avatar?: string[]; // <-- Ajouté
-	bracket?: {
+	tournament?: {
+		id: string;
 	    game1: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
 	    game2: { id: string, players: [string, string], status: "pending" | "finished", winner?: string, loser?: string },
 	    game3: { id: string, players?: [string, string], status: "pending" | "waiting" | "finished", winner?: string, loser?: string },
@@ -51,7 +52,7 @@ export type GameStateMessage = {
 	ball: { x: number; y: number };
 	paddles: { x: number; y: number }[];
 	score: [number, number];
-	status: "running" | "ended" | string;
+	status: "pending" | "waiting" | "running" | "ended";
 };
 
 
@@ -59,6 +60,7 @@ export type GameStatusUpdateMessage = {
     type: "game_status_update";
     gameId: string;
     status: "pending" | "waiting" | "running" | "ended";
+	score: [number, number];
     winner?: string;
     loser?: string;
     tournamentId?: string;

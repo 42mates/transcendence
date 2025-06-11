@@ -1,10 +1,21 @@
 import { tournaments, TournamentBracketBackend, onlineQueues} from "../game/state";
-import { getUniqueGameId }                                         from "../utils";
-import { WaitingForPlayers }                                       from "./exceptions";
-import { GameInstance }                                            from "../pong/game.class";
-import { joinGame }                                                from "./join";
-import { User }                                                    from "../join/User";
+import { getUniqueGameId }                                    from "../utils";
+import { InvalidNumberOfPlayers, WaitingForPlayers }          from "./exceptions";
+import { GameInstance }                                       from "../pong/game.class";
+import { sendJoinResponse }                                   from "./join";
+import { User }                                               from "../join/User";
+import { games }                                              from "../game/state";
 
+
+export function tryMatchmakeLocal(players: User[]) {
+	if (players.length !== 2)
+		throw new InvalidNumberOfPlayers("local", players.length);
+
+	const gameId = getUniqueGameId();
+	games[gameId] = new GameInstance(players, gameId, "local", "pending");
+
+	sendJoinResponse(gameId);
+}
 
 // 1v1 matchmaking
 export function tryMatchmake1v1(user: User) {
@@ -14,7 +25,9 @@ export function tryMatchmake1v1(user: User) {
 	const [player1, player2] = onlineQueues["1v1"].splice(0, 2);
 	const gameId = getUniqueGameId();
 
-	joinGame([player1, player2], gameId);
+	games[gameId] = new GameInstance([player1, player2], gameId, "1v1", "pending");
+
+	sendJoinResponse(gameId);
 }
 
 // Tournament matchmaking
@@ -32,12 +45,13 @@ export function tryMatchmakeTournament(user: User) {
 	const tournamentId = getUniqueGameId();
 	const backendBracket: TournamentBracketBackend = {
 		tournamentId,
-		game1: new GameInstance([p1, p2], gameId1, "pending"),
-		game2: new GameInstance([p3, p4], gameId2, "pending"),
+		game1: new GameInstance([p1, p2], gameId1, "tournament", "pending", tournamentId),
+		game2: new GameInstance([p3, p4], gameId2, "tournament", "pending", tournamentId),
 		game3: null,
 		game4: null,
 	};
 	const frontendBracket = {
+		id: tournamentId,
 		game1: {
 			id: gameId1,
 			players: [p1.alias, p2.alias] as [string, string],
@@ -59,6 +73,6 @@ export function tryMatchmakeTournament(user: User) {
 	};
 	tournaments[tournamentId] = backendBracket;
 
-	joinGame([p1, p2], gameId1, frontendBracket);
-	joinGame([p3, p4], gameId2, frontendBracket);
+	sendJoinResponse(gameId1, frontendBracket);
+	sendJoinResponse(gameId2, frontendBracket);
 }
