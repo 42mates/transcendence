@@ -4,6 +4,7 @@ import { GameInstance } from "../pong/game.class";
 
 export type TournamentBracketBackend = {
 	tournamentId: string;
+	status: "waiting" | "running" | "ended";
 	game1: GameInstance;
 	game2: GameInstance;
 	game3: GameInstance | null;

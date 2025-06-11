@@ -53,3 +53,21 @@ export class InvalidAlias extends Error {
 		};
 	}
 }
+
+export class TournamentNotFound extends Error {
+	response: JoinResponse;
+	constructor(user: User, tournamentId: string) {
+		const message = `Tournament not found: ${tournamentId}`;
+		super(message);
+		this.name = "TournamentNotFound";
+		this.response = {
+			type: "join_response",
+			status: "rejected",
+			aliases: [user.alias],
+			playerId: null,
+			gameId: null,
+			reason: message,
+			avatar: [user.avatar]
+		};
+	}
+}

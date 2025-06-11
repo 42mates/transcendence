@@ -11,7 +11,8 @@ import { tryMatchmakeLocal,
 		 tryMatchmakeTournament }                  from "./matchmaking";
 import { InvalidNumberOfPlayers,
 		 InvalidAlias,
-		 WaitingForPlayers }                       from "./exceptions";
+		 WaitingForPlayers, 
+		 TournamentNotFound}                       from "./exceptions";
 
 function registerUsers(message: JoinRequest, connection: WebSocket | FastifyReply): User[] | null
 {
@@ -107,7 +108,8 @@ export default function join(message: JoinRequest, connection: WebSocket | Fasti
 	catch (exception: any) {
 		if (exception instanceof InvalidNumberOfPlayers 
 			|| exception instanceof InvalidAlias 
-			|| exception instanceof WaitingForPlayers)
+			|| exception instanceof WaitingForPlayers
+			|| exception instanceof TournamentNotFound)
 		{
 			console.error("Invalid Request:", exception.message);
 			send(connection, exception.response);

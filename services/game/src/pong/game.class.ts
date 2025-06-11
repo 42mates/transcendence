@@ -90,6 +90,19 @@ export class GameInstance {
 		return this._gameCanvas.dimensions;
 	}
 
+	public get winner(): User | undefined {
+		return this._winner;
+	}
+	public get loser(): User | undefined {
+		return this._loser;
+	}
+	//public set winner(user: User) {
+	//	this._winner = user;
+	//}
+	//public set loser(user: User) {
+	//	this._loser = user;
+	//}
+
 	public run() {
 		this._status = "running";
 
