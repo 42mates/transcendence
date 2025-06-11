@@ -12,6 +12,7 @@ import joinRoute       from "./routes/join";
 import stateRoute      from "./routes/state";
 import inputRoute      from "./routes/input";
 
+import { removeConnectedUserFromDB } from "./db/connectedUsers";
 
 import { connectedUsers, onlineQueues, games } from "./game/state";
 
@@ -60,6 +61,7 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 		}
 		// Remove from connected users
 		connectedUsers.splice(idx, 1);
+		removeConnectedUserFromDB(user.alias);
 		for (const [gameId, game] of Object.entries(games)) {
 			const idx = game.players.findIndex((u: User) => u.alias === user.alias); // ✅ compare by alias property
 			if (idx !== -1) {
