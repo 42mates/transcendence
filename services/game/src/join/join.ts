@@ -14,6 +14,26 @@ import { InvalidNumberOfPlayers,
 		 WaitingForPlayers, 
 		 TournamentNotFound}                       from "./exceptions";
 
+function findExistingPlayer(message: JoinRequest): User[] | null
+{
+	if (!message.payload)
+		throw new Error("Missing payload in join request");
+
+	if (message.payload.mode === "local")
+		return null;
+
+	const alias = message.payload.alias;
+
+	if (!alias || !Array.isArray(alias) || alias.length === 0)
+		throw new InvalidAlias(Error("no_alias"), "Missing or invalid alias");
+
+	const user = connectedUsers.find(user => user.alias === alias[0]);
+	if (!user)
+		return null;
+
+	return [user];
+}
+
 function registerUsers(message: JoinRequest, connection: WebSocket | FastifyReply): User[] | null
 {
 	const mode = message.payload.mode;
@@ -59,6 +79,9 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 
 export function sendJoinResponse(gameId: string, tournament?: JoinResponse["tournament"])
 {
+	if (!games[gameId])
+		throw new Error(`Game with ID ${gameId} not found`);
+	
 	const players = games[gameId].players;
 	if (players[0].playerId !== "1" && players[0].playerId !== "2")
 		throw new Error("Invalid playerId for one of the players");
@@ -86,6 +109,7 @@ export function sendJoinResponse(gameId: string, tournament?: JoinResponse["tour
 		tournament: tournament || undefined
 	};
 
+	console.log(`Sending join response for game ${gameId} to players: ${players[0].alias}, ${players[1].alias}`);
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
 }
@@ -96,14 +120,16 @@ export default function join(message: JoinRequest, connection: WebSocket | Fasti
 	const mode = message.payload.mode;
 	let users: User[] | null = null;
 	try {
-		users = registerUsers(message, connection)!;
+		users = findExistingPlayer(message);
+		if (!users)
+			users = registerUsers(message, connection)!;
 
 		if (mode === "local") 
 			tryMatchmakeLocal(users);
 		else if (mode === "1v1")
 			tryMatchmake1v1(users[0]);
 		else if (mode === "tournament")
-			tryMatchmakeTournament(users[0]);
+			tryMatchmakeTournament(users[0], message.payload.tournamentId);
 	}
 	catch (exception: any) {
 		if (exception instanceof InvalidNumberOfPlayers 
@@ -119,7 +145,7 @@ export default function join(message: JoinRequest, connection: WebSocket | Fasti
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",
-				aliases: users ? [users[0].alias, users[1].alias] : null,
+        		aliases: users ? [users[0].alias, users[1]?.alias].filter(Boolean) : null,
 				playerId: "1",
 				gameId: null,
 				reason: "An error occurred while processing your request.",

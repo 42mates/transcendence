@@ -18,5 +18,8 @@ export const onlineQueues = {
 	"tournament": [] as User[],
 };
 
+export const tournamentWinnersQueue: { [tournamentId: string]: User[] } = {};
+export const tournamentLosersQueue:  { [tournamentId: string]: User[] } = {};
+
 export const games: {[gameId: string]: GameInstance } = {};
 export const tournaments: { [tournamentId: string]: TournamentBracketBackend } = {};

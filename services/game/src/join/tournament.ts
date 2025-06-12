@@ -55,6 +55,8 @@ export function getFrontendBracket(tournamentId: string): JoinResponse["tourname
 }
 
 export function createTournament(user: User) {
+	console.log("createTournament", user.alias);
+
 	if (onlineQueues["tournament"].length < 4) 
 		throw new WaitingForPlayers(user);	
 
@@ -78,6 +80,9 @@ export function createTournament(user: User) {
 	};
 
 	tournaments[tournamentId] = backendBracket;
+
+    games[gameId1] = backendBracket.game1;
+    games[gameId2] = backendBracket.game2;
 	
 	const frontendBracket = getFrontendBracket(tournamentId);
 	sendJoinResponse(gameId1, frontendBracket);

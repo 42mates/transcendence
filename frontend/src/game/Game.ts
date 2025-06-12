@@ -5,6 +5,7 @@ import type { JoinRequest, JoinResponse,
 			  QuitRequest, QuitResponse } from '../types/GameMessages';
 import Canvas from './Canvas';
 import { updatePlayerInfo, getPlayerPhoto } from '../utils/gameInfos';
+import { waitForEnterKey } from '../utils/keybindings';
 
 export default class Game {
 
@@ -57,11 +58,11 @@ export default class Game {
 		console.log(`[${this._gameId}] Game initialized in '${this._mode}' for '${this._alias}' (${JSON.stringify(this._controls)})`); 
 	}
 
-	public get gameId():                    string | null { return this._gameId; }
-	public get playerId():                      "1" | "2" { return this._playerId; }
+	public get gameId():			        string | null { return this._gameId; }
+	public get playerId():			          "1" | "2" { return this._playerId; }
 	public get mode():     "1v1" | "tournament" | "local" { return this._mode; }
-	public get alias():                          string[] { return this._alias; }
-	public get canvas():                    Canvas | null { return this._canvas; }
+	public get alias():						  string[] { return this._alias; }
+	public get canvas():			        Canvas | null { return this._canvas; }
 	public get controls(): { up: string, down: string }[] { return this._controls; }
 
 	public connect() {
@@ -76,8 +77,6 @@ export default class Game {
 				updatePlayerInfo(2, { alias: this._alias[1] });
 
 			this.sendJoinRequest();
-
-			this._canvas?.drawLoadingAnimation();
 
 			this.waitForJoin().then(() => {
 				this.startGame();
@@ -134,6 +133,7 @@ export default class Game {
 				mode: this._mode,
 				gameId: this._gameId,
 				avatar: this._mode === "local" ? [getPlayerPhoto(), "/assets/default_avatar2.png"] : [getPlayerPhoto()],
+				tournamentId: this._tournamentId,
 			},
 		};
 		this._socket.send(JSON.stringify(message));
@@ -165,20 +165,22 @@ export default class Game {
 				updatePlayerInfo(2, { alias: data.aliases[p2], photoUrl: data.avatar![p2] });
 
 				this._tournamentId = data.tournament?.id;
-
+				this._gameId = data.gameId ?? null;
+				if (data.dimensions) 
+					this._canvas?.setServerDimensions(data.dimensions);
+				if (this.joinResolve && data.gameId)
+				{
+					this.joinResolve(data.gameId);
+					this.joinResolve = null;
+				}
 				console.log(`[${this._gameId}] Joined game as '${this.playerId === "1" ? data.aliases[0] : data.aliases[1]}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
 			}
-			else
-				console.log(`[${this._gameId}] First player waiting.`);
-
-			this._gameId = data.gameId ?? null;
-			if (data.dimensions) 
-				this._canvas?.setServerDimensions(data.dimensions);
-			if (this.joinResolve && data.gameId)
+			else if (data.status === 'waiting')
 			{
-				this.joinResolve(data.gameId);
-				this.joinResolve = null;
+				this.canvas?.drawLoadingAnimation();	
+				console.log(`[${this._gameId}] First player waiting.`);
 			}
+
 		}
 	}
 
@@ -221,7 +223,7 @@ export default class Game {
 			this._canvas?.updateGameState(data);
 	}
 
-	private handleGameStatusUpdateMessage(data: GameStatusUpdateMessage){
+	private async handleGameStatusUpdateMessage(data: GameStatusUpdateMessage){
 		this._status = data.status;
 
 		if (data.status === "ended")
@@ -230,18 +232,29 @@ export default class Game {
 		} else {
 			console.log(`[${this._gameId}] Game status updated to '${data.status}'`);
 		}
-		if (data.tournamentId) {
-			console.log("here, handletournament"); 
+		if (data.tournamentId && data.tournamentStatus) {
+			if (data.tournamentStatus !== "ended") {
+				await waitForEnterKey();
+				console.log(`[${this._gameId}] Tournament game 1 ended. Sending join request for next game...`);
+				this.sendJoinRequest();
+				await this.waitForJoin();
+				console.log(`[${this._gameId}] Tournament game 1 joined.`);
+				this.startGame();
+				//console.log(`[${this._gameId}] Tournament game 2 started.`);
+			}
+			//else
+				// print results
+
 		}
 	}
 
     public sendQuitRequest(reason?: string) {
         if (!this._socket || !this._gameId || !this._playerId) return;
         const quitRequest: QuitRequest = {
-            type: "quit_request",
-            gameId: this._gameId,
-            playerId: this._playerId,
-            reason,
+			type: "quit_request",
+			gameId: this._gameId,
+			playerId: this._playerId,
+			reason,
         };
         this._socket.send(JSON.stringify(quitRequest));
     }
@@ -253,7 +266,7 @@ export default class Game {
 				window.location.href = '/';
         }
 		else
-            alert(i18n.t('game:exited.error') ?? "Failed to quit the game.");
+			alert(i18n.t('game:exited.error') ?? "Failed to quit the game.");
     }
 
 

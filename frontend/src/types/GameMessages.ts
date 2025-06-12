@@ -7,6 +7,7 @@ export type JoinRequest = {
 		mode: "1v1" | "tournament" | "local";
 		gameId: string | null;
 		avatar: string[];
+		tournamentId?: string;
 	}
 };
 
@@ -65,6 +66,7 @@ export type GameStatusUpdateMessage = {
     winner?: string;
     loser?: string;
     tournamentId?: string;
+	tournamentStatus?: "waiting" | "running" | "ended";
 };
 
 

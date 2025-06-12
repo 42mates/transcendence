@@ -6,6 +6,8 @@ import {
 	GameStateMessage,
 	GameStatusUpdateMessage,
 }                     from "../types/messages";
+import { handleTournamentProgression } from "../join/tournament";
+import { tournaments } from "../game/state";
 
 export class GameInstance {
 	private _gameCanvas: GameCanvas;
@@ -120,11 +122,17 @@ export class GameInstance {
 		this.updateInputs();
 		this._player1.update(this._gameCanvas);
 		this._player2.update(this._gameCanvas);
-		//this._ball.update(this._player1, this._player2, this._gameCanvas);
-		if (this._player1.score >= 11 || this._player2.score >= 11) {
+		this._ball.update(this._player1, this._player2, this._gameCanvas);
+		//if (this._player1.score >= 11 || this._player2.score >= 11) {
+		//	this.end(
+		//		this._player1.score >= 11 ? this._player1.user : this._player2.user,
+		//		this._player1.score >= 11 ? this._player2.user : this._player1.user,
+		//	);
+		//}
+		if (this._player1.score >= 1 || this._player2.score >= 1) {
 			this.end(
-				this._player1.score >= 11 ? this._player1.user : this._player2.user,
-				this._player1.score >= 11 ? this._player2.user : this._player1.user,
+				this._player1.score >= 1 ? this._player1.user : this._player2.user,
+				this._player1.score >= 1 ? this._player2.user : this._player1.user,
 			);
 		}
 	}
@@ -162,6 +170,13 @@ export class GameInstance {
 		this._winner = winner;
 		this._loser = loser;
 
+		if (this._tournamentId)
+			handleTournamentProgression(this._tournamentId);
+
+		let tournamentStatus = (this._tournamentId && tournaments[this._tournamentId]) 
+			? tournaments[this._tournamentId].status
+			: undefined;
+
 		const msg: GameStatusUpdateMessage = {
 			type: "game_status_update",
 			gameId: this._id,
@@ -170,6 +185,7 @@ export class GameInstance {
 			winner: this._winner.alias,
 			loser: this._loser.alias,
 			tournamentId: this._tournamentId,
+			tournamentStatus: tournamentStatus
 		};
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);
