@@ -15,6 +15,7 @@ import joinRoute       from "./routes/join";
 import stateRoute      from "./routes/state";
 import inputRoute      from "./routes/input";
 
+import { removeConnectedUserFromDB } from "./db/connectedUsers";
 
 import { connectedUsers, onlineQueues, games } from "./game/state";
 
@@ -74,6 +75,7 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 			}
 		}
 		connectedUsers.splice(idx, 1);
+		removeConnectedUserFromDB(user.alias);
 	}
 }
 

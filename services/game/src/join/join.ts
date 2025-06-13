@@ -3,7 +3,7 @@ import type { JoinRequest, JoinResponse} from "../types/messages";
 import { WebSocket }                               from "ws";
 import { FastifyReply}                             from 'fastify';
 import { games, onlineQueues, connectedUsers }     from "../game/state";
-import { validateAlias,  }                         from "./alias";
+import { validateAlias, sanitizeAlias }                         from "./alias";
 import { User }                                    from "./User";
 import { send, isValidAvatar }                     from "../utils";
 import { tryMatchmakeLocal,
@@ -13,6 +13,8 @@ import { InvalidNumberOfPlayers,
 		 InvalidAlias,
 		 WaitingForPlayers, 
 		 TournamentNotFound}                       from "./exceptions";
+import { addConnectedUserToDB }                    from "../db/connectedUsers";
+
 
 function findExistingPlayer(message: JoinRequest): User[] | null
 {
@@ -69,6 +71,7 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 		for (const user of users) 
 		{
 			connectedUsers.push(user);
+			addConnectedUserToDB(user);
 			if (!onlineQueues[mode].some(u => u.alias === user.alias))
 				onlineQueues[mode].push(user);
 		}
