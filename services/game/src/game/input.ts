@@ -36,7 +36,7 @@ function checkInput(msg: PlayerInputMessage): void {
 function getGame(msg: PlayerInputMessage): GameInstance {
 	let gameId = msg.gameId;
 	const playerId = msg.playerId;
-	if (!isValidGameId(gameId)) {
+	if (!gameId || !isValidGameId(gameId)) {
 		const errorResponse: GameErrorType = {
 			type: "game_error",
 			gameId: gameId ?? undefined,

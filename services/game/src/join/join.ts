@@ -3,14 +3,38 @@ import type { JoinRequest, JoinResponse} from "../types/messages";
 import { WebSocket }                               from "ws";
 import { FastifyReply}                             from 'fastify';
 import { games, onlineQueues, connectedUsers }     from "../game/state";
-import { validateAlias,  }                         from "./alias";
-import { tryMatchmake1v1, tryMatchmakeTournament } from "./matchmaking";
+import { validateAlias, sanitizeAlias }                         from "./alias";
 import { User }                                    from "./User";
-import { GameInstance }                            from "../pong/game.class";
-import { send, getUniqueGameId, isValidAvatar }    from "../utils";
+import { send, isValidAvatar }                     from "../utils";
+import { tryMatchmakeLocal,
+		 tryMatchmake1v1, 
+		 tryMatchmakeTournament }                  from "./matchmaking";
 import { InvalidNumberOfPlayers,
 		 InvalidAlias,
-		 WaitingForPlayers }                       from "./exceptions";
+		 WaitingForPlayers, 
+		 TournamentNotFound}                       from "./exceptions";
+import { addConnectedUserToDB }                    from "../db/connectedUsers";
+
+
+function findExistingPlayer(message: JoinRequest): User[] | null
+{
+	if (!message.payload)
+		throw new Error("Missing payload in join request");
+
+	if (message.payload.mode === "local")
+		return null;
+
+	const alias = message.payload.alias;
+
+	if (!alias || !Array.isArray(alias) || alias.length === 0)
+		throw new InvalidAlias(Error("no_alias"), "Missing or invalid alias");
+
+	const user = connectedUsers.find(user => user.alias === alias[0]);
+	if (!user)
+		return null;
+
+	return [user];
+}
 
 function registerUsers(message: JoinRequest, connection: WebSocket | FastifyReply): User[] | null
 {
@@ -47,6 +71,7 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 		for (const user of users) 
 		{
 			connectedUsers.push(user);
+			addConnectedUserToDB(user);
 			if (!onlineQueues[mode].some(u => u.alias === user.alias))
 				onlineQueues[mode].push(user);
 		}
@@ -55,9 +80,14 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 	return users;
 }
 
-export function joinGame(players: User[], gameId: string, bracket?: JoinResponse["bracket"])
+export function sendJoinResponse(gameId: string, tournament?: JoinResponse["tournament"])
 {
-	games[gameId] = new GameInstance([players[0], players[1]], gameId, "pending");
+	if (!games[gameId])
+		throw new Error(`Game with ID ${gameId} not found`);
+	
+	const players = games[gameId].players;
+	if (players[0].playerId !== "1" && players[0].playerId !== "2")
+		throw new Error("Invalid playerId for one of the players");
 
 	const matchInfo1: JoinResponse = {
 		type: "join_response",
@@ -68,7 +98,7 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		reason: null,
 		dimensions: games[gameId].dimensions,
 		avatar: [players[0].avatar, players[1].avatar],
-		bracket: bracket || undefined
+		tournament: tournament || undefined
 	};
 	const matchInfo2: JoinResponse = {
 		type: "join_response",
@@ -79,36 +109,36 @@ export function joinGame(players: User[], gameId: string, bracket?: JoinResponse
 		reason: null,
 		dimensions: games[gameId].dimensions,
 		avatar: [players[0].avatar, players[1].avatar],
-		bracket: bracket || undefined
+		tournament: tournament || undefined
 	};
+
+	console.log(`Sending join response for game ${gameId} to players: ${players[0].alias}, ${players[1].alias}`);
 	players[0].send(matchInfo1);
 	players[1].send(matchInfo2);
-    console.log(`Game started: ${gameId} with players ${players[0].alias} and ${players[1].alias}`);
 }
 
-
-
 export default function join(message: JoinRequest, connection: WebSocket | FastifyReply): void {
-	console.log(
-		`${connection instanceof WebSocket ? "[ws]" : "[http]"} Join message received: ${JSON.stringify(message)}`
-	);
+	console.log(`${connection instanceof WebSocket ? "[ws]" : "[http]"} Join message received: ${JSON.stringify(message)}`);
 
 	const mode = message.payload.mode;
 	let users: User[] | null = null;
 	try {
-		users = registerUsers(message, connection)!;
+		users = findExistingPlayer(message);
+		if (!users)
+			users = registerUsers(message, connection)!;
 
-		if (mode === "1v1")
+		if (mode === "local") 
+			tryMatchmakeLocal(users);
+		else if (mode === "1v1")
 			tryMatchmake1v1(users[0]);
 		else if (mode === "tournament")
-			tryMatchmakeTournament(users[0]);
-		else if (mode === "local") 
-			joinGame(users, getUniqueGameId());
+			tryMatchmakeTournament(users[0], message.payload.tournamentId);
 	}
 	catch (exception: any) {
 		if (exception instanceof InvalidNumberOfPlayers 
 			|| exception instanceof InvalidAlias 
-			|| exception instanceof WaitingForPlayers)
+			|| exception instanceof WaitingForPlayers
+			|| exception instanceof TournamentNotFound)
 		{
 			console.error("Invalid Request:", exception.message);
 			send(connection, exception.response);
@@ -118,7 +148,7 @@ export default function join(message: JoinRequest, connection: WebSocket | Fasti
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",
-				aliases: users ? [users[0].alias, users[1].alias] : null,
+        		aliases: users ? [users[0].alias, users[1]?.alias].filter(Boolean) : null,
 				playerId: "1",
 				gameId: null,
 				reason: "An error occurred while processing your request.",

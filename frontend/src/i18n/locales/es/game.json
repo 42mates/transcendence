@@ -22,10 +22,22 @@
 		"1v1": "1v1",
 		"tournament": "Torneo"
 	},
+	"status": {
+		"pending": "Pendiente",
+		"waiting": "Esperando a los jugadores",
+		"running": "Juego en progreso",
+		"ended": "Juego terminado"
+	},
+	"win": "¡{{winner}} gana!",
 	"playButton": "Jugar",
 	"quitButton": "Salir",
 	"highScore": "Puntuación más alta",
 	"gameOver": "Fin del juego",
+	"quitPrompt": "¿Estás seguro de que deseas salir del juego?",
+	"exited": {
+		"success": "Has salido del juego correctamente. ¿Volver al inicio?",
+		"error": "No se pudo salir del juego. Por favor, inténtalo de nuevo."
+	},
 	"tryAgain": "Intentar de nuevo",
 	"success": {
 		"levelComplete": "¡Nivel {{level}} completado!",

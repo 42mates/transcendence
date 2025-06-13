@@ -73,6 +73,15 @@
 	</div>
 </div>
 
+<div id="quit-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+  <div class="bg-neutral-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
+    <p class="text-white mb-4" data-i18nkey="game:quitPrompt">Quitter game ?</p>
+    <div class="flex gap-4">
+      <button id="quit-modal-yes" class="px-4 py-2 bg-amber-500 text-white rounded" data-i18nkey="common:yes">Yes</button>
+      <button id="quit-modal-no" class="px-4 py-2 bg-gray-500 text-white rounded" data-i18nkey="common:no">No</button>
+    </div>
+  </div>
+</div>
 <style>
 @keyframes fade-in {
 	from { opacity: 0; transform: scale(0.95);}

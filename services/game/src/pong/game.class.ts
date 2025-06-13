@@ -6,24 +6,29 @@ import {
 	GameStateMessage,
 	GameStatusUpdateMessage,
 }                     from "../types/messages";
+import { handleTournamentProgression } from "../join/tournament";
+import { tournaments } from "../game/state";
 
 export class GameInstance {
 	private _gameCanvas: GameCanvas;
 	private _id: string;
 	private _mode: "1v1" | "tournament" | "local" = "1v1";
+	private _status: "pending" | "waiting" | "running" | "ended";
+	private _tournamentId?: string = undefined;
 	private _players: User[];
 	private _player1: Paddle;
 	private _player2: Paddle;
 	private _ball: Ball;
 	public  _inputs: { up: boolean; down: boolean }[];
-	private _status: "pending" | "waiting" | "running" | "ended";
 	private _winner?: User;
 	private _loser?: User;
 
 	constructor(
 		players: User[],
 		id: string,
+		mode: "1v1" | "tournament" | "local" = "1v1",
 		status: "pending" | "waiting" = "pending",
+		tournamentId?: string
 	) {
 		this._gameCanvas = new GameCanvas(100, 75);
 
@@ -58,36 +63,52 @@ export class GameInstance {
 		];
 
 		this._id = id;
+		this._mode = mode;
 		this._status = status;
+		this._tournamentId = tournamentId;
 	}
 
 	public get players() {
 		return this._players;
 	}
 
-	public get gameId() {
+	public get id() {
 		return this._id;
+	}
+
+	public get mode() {
+		return this._mode;
 	}
 
 	public get status() {
 		return this._status;
 	}
 
+	public get tournamentId() {
+		return this._tournamentId;
+	}
+
 	public get dimensions() {
 		return this._gameCanvas.dimensions;
 	}
+
+	public get winner(): User | undefined {
+		return this._winner;
+	}
+	public get loser(): User | undefined {
+		return this._loser;
+	}
+	//public set winner(user: User) {
+	//	this._winner = user;
+	//}
+	//public set loser(user: User) {
+	//	this._loser = user;
+	//}
 
 	public run() {
 		this._status = "running";
 
 		this.gameLoop();
-
-		console.log(
-			"Game started with players:",
-			this._player1.user.alias,
-			"and",
-			this._player2.user.alias,
-		);
 	}
 
 	updateInputs() {
@@ -108,6 +129,12 @@ export class GameInstance {
 				this._player1.score >= 11 ? this._player2.user : this._player1.user,
 			);
 		}
+		//if (this._player1.score >= 1 || this._player2.score >= 1) {
+		//	this.end(
+		//		this._player1.score >= 1 ? this._player1.user : this._player2.user,
+		//		this._player1.score >= 1 ? this._player2.user : this._player1.user,
+		//	);
+		//}
 	}
 
 	public getState(): GameStateMessage {
@@ -138,17 +165,27 @@ export class GameInstance {
 		}
 	}
 
-	end(winner: User, loser: User) {
+	public end(winner: User, loser: User) {
 		this._status = "ended";
 		this._winner = winner;
 		this._loser = loser;
+
+		if (this._tournamentId)
+			handleTournamentProgression(this._tournamentId);
+
+		let tournamentStatus = (this._tournamentId && tournaments[this._tournamentId]) 
+			? tournaments[this._tournamentId].status
+			: undefined;
 
 		const msg: GameStatusUpdateMessage = {
 			type: "game_status_update",
 			gameId: this._id,
 			status: this._status,
+			score: [this._player1.score, this._player2.score],
 			winner: this._winner.alias,
 			loser: this._loser.alias,
+			tournamentId: this._tournamentId,
+			tournamentStatus: tournamentStatus
 		};
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);

@@ -1,20 +1,26 @@
 import i18n from '../i18n/i18n';
-import type { JoinRequest, JoinResponse, PlayerInputMessage, GameStateMessage, GameStatusUpdateMessage, GameErrorType } from '../types/GameMessages';
+import type { JoinRequest, JoinResponse, 
+			  PlayerInputMessage, GameStateMessage,
+			  GameStatusUpdateMessage, 
+			  QuitRequest, QuitResponse } from '../types/GameMessages';
 import Canvas from './Canvas';
 import { updatePlayerInfo, getPlayerPhoto } from '../utils/gameInfos';
+import { waitForEnterKey } from '../utils/keybindings';
+import { loadRoute } from '../router';
 
 export default class Game {
 
 	private _socket:      WebSocket | null = null;
 
 	private _alias:       string[];
-	private _gameId:      string | null = null;
+	private _gameId?:      string = undefined;
 	private _playerId:    "1" | "2" = "1";
 	private _mode:        "1v1" | "tournament" | "local";
+	private _tournamentId?: string;
+	private _status:	  "pending" | "waiting" | "running" | "ended" = "pending";
 	private _controls:    { up: string, down: string }[];
 	
 	private _canvas:      Canvas | null = null;
-	private _gameStarted: boolean = false;
 	private _input:       { up: boolean, down: boolean }[];
 
 	private joinPromise: Promise<string>;
@@ -53,7 +59,7 @@ export default class Game {
 		console.log(`[${this._gameId}] Game initialized in '${this._mode}' for '${this._alias}' (${JSON.stringify(this._controls)})`); 
 	}
 
-	public get gameId():                    string | null { return this._gameId; }
+	public get gameId():                    string | undefined { return this._gameId; }
 	public get playerId():                      "1" | "2" { return this._playerId; }
 	public get mode():     "1v1" | "tournament" | "local" { return this._mode; }
 	public get alias():                          string[] { return this._alias; }
@@ -73,20 +79,21 @@ export default class Game {
 
 			this.sendJoinRequest();
 
-			this._canvas?.drawLoadingAnimation();
-
 			this.waitForJoin().then(() => {
 				this.startGame();
 
 			}).catch((error) => {
 				console.error('Failed to join game:', error);
 				this._canvas?.stopLoadingAnimation();
-				this._canvas?.printError(error.message);
+				this._canvas?.printMessage(error.message);
 			});
 		};
 		this._socket.onmessage = (event) => this.handleMessage(event);
 		this._socket.onerror = (err) => console.error(`[${this._gameId}] WebSocket error:`, err);
-		this._socket.onclose = () => console.log(`[${this._gameId}] WebSocket connection closed`);
+		this._socket.onclose = () => {
+			console.log(`[${this._gameId}] WebSocket connection closed`);
+			loadRoute('/game');
+		};
 
 		this.listenForPlayerInput();
 	}
@@ -94,19 +101,28 @@ export default class Game {
 	private handleMessage(event: MessageEvent) {
 		try {
 			const data = JSON.parse(event.data);
-			if (data.type === 'join_response')
-				this.handleJoinResponse(data as JoinResponse);
-			else if (data.type === 'game_state')
-				this.handleGameStateMessage(data as GameStateMessage);
-			else if (data.type === 'game_error')
-				console.warn('Game error:', data.message);
-			else
-				console.warn('Received unknown message type:', data);
-
+			switch (data.type) {
+				case 'join_response':
+					this.handleJoinResponse(data as JoinResponse);
+					break;
+				case 'game_state':
+					this.handleGameStateMessage(data as GameStateMessage);
+					break;
+				case 'game_status_update':
+					this.handleGameStatusUpdateMessage(data as GameStatusUpdateMessage);
+					break;
+				case 'quit_response':
+					this.handleQuitResponse(data as QuitResponse);
+					break;
+				case 'game_error':
+					console.warn('Game error:', data.message);
+					break;
+				default:
+					console.warn('Received unknown message type:', data);
+			}
 		} catch (err) {
 			console.warn('Failed to handle message (JSON expected):', event.data, err);
 		}
-
 	}
 
 	private sendJoinRequest() {
@@ -119,8 +135,9 @@ export default class Game {
 			payload: {
 				alias: this._alias,
 				mode: this._mode,
-				gameId: this._gameId,
+				gameId: this._gameId || null,
 				avatar: this._mode === "local" ? [getPlayerPhoto(), "/assets/default_avatar2.png"] : [getPlayerPhoto()],
+				tournamentId: this._tournamentId,
 			},
 		};
 		this._socket.send(JSON.stringify(message));
@@ -136,7 +153,7 @@ export default class Game {
 			//optionally reject the promise 
 		} 
 		else
-		{			
+		{
 			if (data.status === 'accepted')
 			{
 				if (!data.aliases || data.aliases.length < 2)
@@ -148,24 +165,26 @@ export default class Game {
 				this._playerId = data.playerId!; // Ensure playerId is defined
 				const p1 = this._playerId === "1" ? 0 : 1;
 				const p2 = this._playerId === "1" ? 1 : 0;
-
 				updatePlayerInfo(1, { alias: data.aliases[p1], photoUrl: data.avatar![p1] });
 				updatePlayerInfo(2, { alias: data.aliases[p2], photoUrl: data.avatar![p2] });
 
-				//this._gameStarted = true;
+				this._tournamentId = data.tournament?.id;
+				this._gameId = data.gameId || undefined;
+				if (data.dimensions) 
+					this._canvas?.setServerDimensions(data.dimensions);
+				if (this.joinResolve && data.gameId)
+				{
+					this.joinResolve(data.gameId);
+					this.joinResolve = null;
+				}
 				console.log(`[${this._gameId}] Joined game as '${this.playerId === "1" ? data.aliases[0] : data.aliases[1]}' (playerId: ${this._playerId ? data.playerId : '[local]'})`);
 			}
-			else
-				console.log(`[${this._gameId}] First player waiting.`);
-
-			this._gameId = data.gameId ?? null;
-			if (data.dimensions) 
-				this._canvas?.setServerDimensions(data.dimensions);
-			if (this.joinResolve && data.gameId)
+			else if (data.status === 'waiting')
 			{
-				this.joinResolve(data.gameId);
-				this.joinResolve = null;
+				this.canvas?.drawLoadingAnimation();	
+				console.log(`[${this._gameId}] First player waiting.`);
 			}
+
 		}
 	}
 
@@ -176,25 +195,27 @@ export default class Game {
 	public async startGame() {
 		this._canvas?.stopLoadingAnimation();
 
-		if (this._canvas) {
-			await this._canvas.drawCountdown();
-		}
+		//if (this._canvas) {
+		//	await this._canvas.drawCountdown();
+		//}
 
-		this._gameStarted = true;
+		this._status = "running";
 		this.sendPlayerInput(); // Send first input to initialize the game
 	}
 
 	private handleGameStateMessage(data: GameStateMessage) {
-		//// In local mode, only player 1's game updates are processed, since they share the canvas.
-		//if (this._mode === 'local' && this._playerId === "2")
-		//	return;
+		this._status = data.status;
 
 		// Mirror the game state for player 2 in online mode
 		if (this._playerId === "2" && this._canvas?.serverDimensions) {
-			const swap = data.paddles[0].x; 
+			const p_swap = data.paddles[0].x; 
 			data.paddles[0].x = data.paddles[1].x;
-			data.paddles[1].x = swap;
+			data.paddles[1].x = p_swap;
 			data.ball.x = this._canvas.serverDimensions.width - data.ball.x - this._canvas.serverDimensions.paddleWidth;
+
+			const s_swap = data.score[0];
+			data.score[0] = data.score[1];
+			data.score[1] = s_swap;
 		}
 
 		updatePlayerInfo(1, { score: data.score[0] });
@@ -202,9 +223,60 @@ export default class Game {
 
 		//console.log(`[${this._gameId}] ball: (${data.ball.x}, ${data.ball.y}), paddles: [(${data.paddles[0].x}, ${data.paddles[0].y}), (${data.paddles[1].x}, ${data.paddles[1].y})], score: ${data.score}, status: ${data.status}`);
 
-		this._canvas?.updateGameState(data);
+		if (this._status !== "ended")
+			this._canvas?.updateGameState(data);
 	}
 
+	private async handleGameStatusUpdateMessage(data: GameStatusUpdateMessage){
+		this._status = data.status;
+
+		if (data.status === "ended")
+		{
+			this._canvas?.printGameEnd(data.winner!, data.score);
+		} else {
+			console.log(`[${this._gameId}] Game status updated to '${data.status}'`);
+		}
+		if (data.tournamentId && data.tournamentStatus) {
+			if (data.tournamentStatus !== "ended") {
+				await waitForEnterKey();
+				console.log(`[${this._gameId}] Tournament game 1 ended. Sending join request for next game...`);
+				this.sendJoinRequest();
+				await this.waitForJoin();
+				console.log(`[${this._gameId}] Tournament game 1 joined.`);
+				this.startGame();
+				//console.log(`[${this._gameId}] Tournament game 2 started.`);
+			}
+			//else
+				// print results
+
+		}
+	}
+
+    public sendQuitRequest(reason?: string) {
+        if (!this._socket) return;
+        const quitRequest: QuitRequest = {
+			type: "quit_request",
+			alias: this._alias[0], // Assuming player 1 is the one quitting
+			gameId: this._gameId,
+			playerId: this._playerId,
+			reason,
+        };
+        this._socket.send(JSON.stringify(quitRequest));
+    }
+
+	private handleQuitResponse(data: QuitResponse) {
+		if (data.status === "success") {
+			if (this._socket) {
+				this._socket.close();
+				this._socket = null;
+			}
+			loadRoute('/game');
+		} else {
+			alert(i18n.t('game:exited.error') ?? "Failed to quit the game.");
+		}
+	}
+
+	
 	private inputLoopActive = false;
 	private inputLoopRequestId: number | null = null;
 	private lastInputState: string = '';
@@ -244,6 +316,7 @@ export default class Game {
 
 
 	private inputLoop = () => {
+
 		//console.log(`[${this._gameId}] Input loop running for player ${this._playerId}: ${JSON.stringify(this._input)}`);
 		const anyKeyPressed = this._input.some(input => input.up || input.down);
 		const inputState = JSON.stringify(this._input);
@@ -253,7 +326,6 @@ export default class Game {
 			this.lastInputState = inputState;
 			this.inputLoopRequestId = window.requestAnimationFrame(this.inputLoop);
 		} else {
-			// Si l'état a changé (donc on vient de relâcher la dernière touche), on envoie une dernière fois
 			if (inputState !== this.lastInputState) {
 				this.sendPlayerInput();
 				this.lastInputState = inputState;
@@ -266,17 +338,10 @@ export default class Game {
 
 
 	private sendPlayerInput() {
-		if (!this._gameStarted || !(this._socket && this._socket.readyState === WebSocket.OPEN)) return;
+		if (this._status !== "running" || !(this._socket && this._socket.readyState === WebSocket.OPEN)) 
+			return;
 
 		//console.log(`[${this._gameId}] Sending player input for player ${this._playerId}: ${JSON.stringify(this._input)}`);
-
-		//// In local mode, swap inputs for player 2 to match the canvas orientation
-		//if (this._mode === "local") 
-		//{
-		//	const swap = this._input[0];
-		//	this._input[0] = this._input[1];
-		//	this._input[1] = swap;
-		//}
 
 		let message: PlayerInputMessage = {
 			type: "player_input",

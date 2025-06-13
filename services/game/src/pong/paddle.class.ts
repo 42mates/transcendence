@@ -30,8 +30,6 @@ export class Paddle extends Template {
 			this.yVec = 0;
 		}
 
-		if (this.yVec) console.log("updating paddle", this.up ? "up" : "down");
-
 		this.up = false;
 		this.down = false;
 

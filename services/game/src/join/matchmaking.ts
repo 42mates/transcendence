@@ -1,10 +1,28 @@
-import { tournaments, TournamentBracketBackend, onlineQueues} from "../game/state";
-import { getUniqueGameId }                                         from "../utils";
-import { WaitingForPlayers }                                       from "./exceptions";
-import { GameInstance }                                            from "../pong/game.class";
-import { joinGame }                                                from "./join";
-import { User }                                                    from "../join/User";
+import { tournaments, onlineQueues,
+		 tournamentWinnersQueue,
+		 tournamentLosersQueue }                from "../game/state";
+import { getUniqueGameId, send }                      from "../utils";
+import { InvalidNumberOfPlayers,
+		 WaitingForPlayers,
+		TournamentNotFound }                    from "./exceptions";
+import { GameInstance }                         from "../pong/game.class";
+import { sendJoinResponse }                     from "./join";
+import { User }                                 from "../join/User";
+import { games }                                from "../game/state";
+import { createTournament, getFrontendBracket } from "./tournament";
 
+
+export function tryMatchmakeLocal(players: User[]) {
+	if (players.length !== 2)
+		throw new InvalidNumberOfPlayers("local", players.length);
+
+	const gameId = getUniqueGameId();
+	games[gameId] = new GameInstance(players, gameId, "local", "pending");
+	players[0].playerId = "1";
+	players[1].playerId = "2";
+
+	sendJoinResponse(gameId);
+}
 
 // 1v1 matchmaking
 export function tryMatchmake1v1(user: User) {
@@ -14,51 +32,61 @@ export function tryMatchmake1v1(user: User) {
 	const [player1, player2] = onlineQueues["1v1"].splice(0, 2);
 	const gameId = getUniqueGameId();
 
-	joinGame([player1, player2], gameId);
+	games[gameId] = new GameInstance([player1, player2], gameId, "1v1", "pending");
+	player1.playerId = "1";
+	player2.playerId = "2";
+
+	sendJoinResponse(gameId);
 }
 
-// Tournament matchmaking
-export function tryMatchmakeTournament(user: User) {
-	if (onlineQueues["tournament"].length < 4) 
-		throw new WaitingForPlayers(user);	
 
-	const players = onlineQueues["tournament"].splice(0, 4);
-	const [p1, p2, p3, p4] = players;
-	const gameId1 = getUniqueGameId();
-	const gameId2 = getUniqueGameId();
-	const gameId3 = getUniqueGameId();
-	const gameId4 = getUniqueGameId();
+export function tryMatchmakeTournament(user: User, tournamentId?: string) {
 
-	const tournamentId = getUniqueGameId();
-	const backendBracket: TournamentBracketBackend = {
-		tournamentId,
-		game1: new GameInstance([p1, p2], gameId1, "pending"),
-		game2: new GameInstance([p3, p4], gameId2, "pending"),
-		game3: null,
-		game4: null,
-	};
-	const frontendBracket = {
-		game1: {
-			id: gameId1,
-			players: [p1.alias, p2.alias] as [string, string],
-			status: "pending" as const,
-		},
-		game2: {
-			id: gameId2,
-			players: [p3.alias, p4.alias] as [string, string],
-			status: "pending" as const,
-		},
-		game3: {
-			id: gameId3,
-			status: "waiting" as const,
-		},
-		game4: {
-			id: gameId4,
-			status: "waiting" as const,
-		},
-	};
-	tournaments[tournamentId] = backendBracket;
+	if (!tournamentId)
+	{
+		createTournament(user);
+		return;
+	}
 
-	joinGame([p1, p2], gameId1, frontendBracket);
-	joinGame([p3, p4], gameId2, frontendBracket);
+	const t = tournaments[tournamentId];
+	if (!t)
+		throw new TournamentNotFound(user, tournamentId);
+
+	if (t.game1.status !== "ended" || t.game2.status !== "ended")
+	{
+		t.status = "waiting";
+		throw new WaitingForPlayers(user);
+	}
+	if (!t.game3 || !t.game4)
+		throw new Error("Invalid tournament state: game3 or game4 is missing");
+
+
+	if (user.alias === t.game1.winner?.alias 
+		|| user.alias === t.game2.winner?.alias)
+	{
+
+		if ((tournamentWinnersQueue[tournamentId]?.length ?? 0) == 0)
+		{
+			tournamentWinnersQueue[tournamentId] = [user];
+			throw new WaitingForPlayers(user);
+		}
+		tournamentWinnersQueue[tournamentId] = [];
+		sendJoinResponse(t.game3.id, getFrontendBracket(tournamentId));
+	}
+	else if (user.alias === t.game1.loser?.alias 
+		|| user.alias === t.game2.loser?.alias)
+	{
+
+		if ((tournamentLosersQueue[tournamentId]?.length ?? 0) == 0)
+		{
+			tournamentLosersQueue[tournamentId] = [user];
+			throw new WaitingForPlayers(user);
+		}
+		tournamentLosersQueue[tournamentId] = [];
+		sendJoinResponse(t.game4.id, getFrontendBracket(tournamentId));
+	}	
+	else
+		throw new Error("User is not a participant of the tournament");
+
 }
+

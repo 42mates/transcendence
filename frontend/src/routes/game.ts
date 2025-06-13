@@ -95,6 +95,26 @@ function setupHeaderIcons() {
 		});
 }
 
+function listenForQuit(game: Game){
+	const quitBtn = document.getElementById('quitButton');
+	const modal = document.getElementById('quit-modal');
+	const yesBtn = document.getElementById('quit-modal-yes');
+	const noBtn = document.getElementById('quit-modal-no');
+
+	if (quitBtn && modal && yesBtn && noBtn) {
+		quitBtn.addEventListener('click', () => {
+			modal.classList.remove('hidden');
+		});
+		yesBtn.addEventListener('click', () => {
+			modal.classList.add('hidden');
+			game.sendQuitRequest("User clicked quit");
+		});
+		noBtn.addEventListener('click', () => {
+			modal.classList.add('hidden');
+		});
+	}
+}
+
 export async function initGame() {
 	console.log('Game page loaded');
 	setupHeaderIcons();
@@ -111,7 +131,9 @@ export async function initGame() {
 			throw new Error("Invalid game mode selected");
 
 		game.connect();
+		listenForQuit(game);
 		await game.waitForJoin();
+
 
 		if (data.mode === 'online') console.log(`[${game.gameId}] Player ${data.alias} connected.`);
 		if (data.mode === 'local')  console.log(`[${game.gameId}] Local game started for players: '${data.alias.join(' and ')}'`);

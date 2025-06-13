@@ -22,10 +22,22 @@
 		"1v1": "1v1",
 		"tournament": "Tournament"
 	},
+	"status": {
+		"pending": "Pending",
+		"waiting": "Waiting for players",
+		"running": "Game in progress",
+		"ended": "Game ended"
+	},
+	"win": "{{winner}} wins!",
 	"playButton": "Play",
 	"quitButton": "Quit",
 	"highScore": "High Score",
 	"gameOver": "Game Over",
+	"quitPrompt": "Are you sure you want to quit the game?",
+	"exited": {
+		"success": "You have exited the game successfully. Return to home ?",
+		"error": "Failed to exit the game. Please try again."
+	},
 	"tryAgain": "Try Again",
 	"success": {
 		"levelComplete": "Level {{level}} Complete!",
