@@ -1,6 +1,6 @@
 import { tournaments, onlineQueues,
-		 tournamentWinnersQueue,
-		 tournamentLosersQueue }                from "../game/state";
+		 tnWinnersQueue,
+		 tnLosersQueue }                from "../game/state";
 import { getUniqueGameId, send }                      from "../utils";
 import { InvalidNumberOfPlayers,
 		 WaitingForPlayers,
@@ -39,7 +39,6 @@ export function tryMatchmake1v1(user: User) {
 	sendJoinResponse(gameId);
 }
 
-
 export function tryMatchmakeTournament(user: User, tournamentId?: string) {
 
 	if (!tournamentId)
@@ -61,32 +60,27 @@ export function tryMatchmakeTournament(user: User, tournamentId?: string) {
 		throw new Error("Invalid tournament state: game3 or game4 is missing");
 
 
-	if (user.alias === t.game1.winner?.alias 
-		|| user.alias === t.game2.winner?.alias)
-	{
-
-		if ((tournamentWinnersQueue[tournamentId]?.length ?? 0) == 0)
-		{
-			tournamentWinnersQueue[tournamentId] = [user];
-			throw new WaitingForPlayers(user);
-		}
-		tournamentWinnersQueue[tournamentId] = [];
-		sendJoinResponse(t.game3.id, getFrontendBracket(tournamentId));
+	const wQueue = tnWinnersQueue[tournamentId];
+	const lQueue = tnLosersQueue[tournamentId];
+	switch (user.alias) {
+		case t.game1.winner?.alias:
+			wQueue.w1_ready = true;
+			break;
+		case t.game2.winner?.alias:
+			wQueue.w2_ready = true;
+			break;
+		case t.game1.loser?.alias:
+			lQueue.l1_ready = true;
+			break;
+		case t.game2.loser?.alias:
+			lQueue.l2_ready = true;
+			break;
+		default:
+			throw new Error("User is not a participant of the tournament");
 	}
-	else if (user.alias === t.game1.loser?.alias 
-		|| user.alias === t.game2.loser?.alias)
-	{
 
-		if ((tournamentLosersQueue[tournamentId]?.length ?? 0) == 0)
-		{
-			tournamentLosersQueue[tournamentId] = [user];
-			throw new WaitingForPlayers(user);
-		}
-		tournamentLosersQueue[tournamentId] = [];
+	if (wQueue.w1_ready && wQueue.w2_ready)
+		sendJoinResponse(t.game3.id, getFrontendBracket(tournamentId));
+	if (lQueue.l1_ready && lQueue.l2_ready)
 		sendJoinResponse(t.game4.id, getFrontendBracket(tournamentId));
-	}	
-	else
-		throw new Error("User is not a participant of the tournament");
-
 }
-

@@ -67,6 +67,7 @@ export type GameStatusUpdateMessage = {
     loser?: string;
     tournamentId?: string;
 	tournamentStatus?: "waiting" | "running" | "ended";
+	leaderboard?: {first: string, second: string, third: string};
 };
 
 
