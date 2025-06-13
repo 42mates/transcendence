@@ -1,6 +1,9 @@
-import { games }        from "./game/state";
-import { WebSocket }    from "ws";
-import { FastifyReply } from 'fastify';
+import { games }          from "./game/state";
+import { WebSocket }      from "ws";
+import { FastifyReply }   from 'fastify';
+import { User }           from "./join/User";
+import { sanitizeAlias }  from "./join/alias";
+import { connectedUsers } from "./game/state";
 
 export function getUniqueGameId(): string {
 	let gameId: string;
@@ -30,4 +33,10 @@ export function send(connection: WebSocket | FastifyReply, msg: any, HTTPstatus:
 		connection.send(JSON.stringify(msg));
 	else
 		connection.status(HTTPstatus).send(JSON.stringify(msg));
+}
+
+export function getUser(alias: string): User | undefined {
+	if (!sanitizeAlias(alias))
+		return undefined;
+	return Object.values(connectedUsers).find(user => user.alias === alias);
 }

@@ -82,16 +82,17 @@ export type GameErrorType = {
 
 export type QuitRequest = {
 	type: "quit_request";
-	playerId: "1" | "2" | null;
-	gameId: string;
+	alias: string;
+	playerId?: "1" | "2";
+	gameId?: string;
 	reason?: string;
 };
 
 export type QuitResponse = {
 	type: "quit_response";
-	playerId: "1" | "2" | null;
-	gameId: string;
-	reason?: string;
+	alias: string;
+	playerId?: "1" | "2";
+	gameId?: string;
 	status: "success" | "failure";
 	message?: string;
 };

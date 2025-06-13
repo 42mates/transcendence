@@ -6,13 +6,14 @@ import type { JoinRequest, JoinResponse,
 import Canvas from './Canvas';
 import { updatePlayerInfo, getPlayerPhoto } from '../utils/gameInfos';
 import { waitForEnterKey } from '../utils/keybindings';
+import { loadRoute } from '../router';
 
 export default class Game {
 
 	private _socket:      WebSocket | null = null;
 
 	private _alias:       string[];
-	private _gameId:      string | null = null;
+	private _gameId?:      string = undefined;
 	private _playerId:    "1" | "2" = "1";
 	private _mode:        "1v1" | "tournament" | "local";
 	private _tournamentId?: string;
@@ -58,11 +59,11 @@ export default class Game {
 		console.log(`[${this._gameId}] Game initialized in '${this._mode}' for '${this._alias}' (${JSON.stringify(this._controls)})`); 
 	}
 
-	public get gameId():			        string | null { return this._gameId; }
-	public get playerId():			          "1" | "2" { return this._playerId; }
+	public get gameId():                    string | undefined { return this._gameId; }
+	public get playerId():                      "1" | "2" { return this._playerId; }
 	public get mode():     "1v1" | "tournament" | "local" { return this._mode; }
-	public get alias():						  string[] { return this._alias; }
-	public get canvas():			        Canvas | null { return this._canvas; }
+	public get alias():                          string[] { return this._alias; }
+	public get canvas():                    Canvas | null { return this._canvas; }
 	public get controls(): { up: string, down: string }[] { return this._controls; }
 
 	public connect() {
@@ -89,7 +90,10 @@ export default class Game {
 		};
 		this._socket.onmessage = (event) => this.handleMessage(event);
 		this._socket.onerror = (err) => console.error(`[${this._gameId}] WebSocket error:`, err);
-		this._socket.onclose = () => console.log(`[${this._gameId}] WebSocket connection closed`);
+		this._socket.onclose = () => {
+			console.log(`[${this._gameId}] WebSocket connection closed`);
+			loadRoute('/game');
+		};
 
 		this.listenForPlayerInput();
 	}
@@ -131,7 +135,7 @@ export default class Game {
 			payload: {
 				alias: this._alias,
 				mode: this._mode,
-				gameId: this._gameId,
+				gameId: this._gameId || null,
 				avatar: this._mode === "local" ? [getPlayerPhoto(), "/assets/default_avatar2.png"] : [getPlayerPhoto()],
 				tournamentId: this._tournamentId,
 			},
@@ -165,7 +169,7 @@ export default class Game {
 				updatePlayerInfo(2, { alias: data.aliases[p2], photoUrl: data.avatar![p2] });
 
 				this._tournamentId = data.tournament?.id;
-				this._gameId = data.gameId ?? null;
+				this._gameId = data.gameId || undefined;
 				if (data.dimensions) 
 					this._canvas?.setServerDimensions(data.dimensions);
 				if (this.joinResolve && data.gameId)
@@ -249,9 +253,10 @@ export default class Game {
 	}
 
     public sendQuitRequest(reason?: string) {
-        if (!this._socket || !this._gameId || !this._playerId) return;
+        if (!this._socket) return;
         const quitRequest: QuitRequest = {
 			type: "quit_request",
+			alias: this._alias[0], // Assuming player 1 is the one quitting
 			gameId: this._gameId,
 			playerId: this._playerId,
 			reason,
@@ -259,16 +264,17 @@ export default class Game {
         this._socket.send(JSON.stringify(quitRequest));
     }
 
-    private handleQuitResponse(data: QuitResponse) {
-        if (data.status === "success")
-		{
-			if (confirm(i18n.t('game:exited.success') ?? "Game ended. Return to home?"))
-				window.location.href = '/';
-        }
-		else
+	private handleQuitResponse(data: QuitResponse) {
+		if (data.status === "success") {
+			if (this._socket) {
+				this._socket.close();
+				this._socket = null;
+			}
+			loadRoute('/game');
+		} else {
 			alert(i18n.t('game:exited.error') ?? "Failed to quit the game.");
-    }
-
+		}
+	}
 
 	
 	private inputLoopActive = false;
