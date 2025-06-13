@@ -6,7 +6,7 @@ import { games, connectedUsers, onlineQueues } from "./state";
 import { send, isValidGameId, getUser }        from "../utils";
 import { GameInstance }                        from "../pong/game.class";
 import { User }                                from "../join/User";
-import { removeConnectedUserFromDB } from "./db/connectedUsers";
+import { removeConnectedUserFromDB } from "../db/connectedUsers";
 
 
 export class GameError extends Error {
