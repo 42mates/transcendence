@@ -1,66 +1,37 @@
-import './style.css';
-import i18n from './i18n/i18n';
+import './styles/style.css';
+import './logger/logger';
+import i18n, { translateDOM } from './i18n/i18n';
+import { loadRoute } from './router';
 
-async function initApp() {
-	const app = document.getElementById('app')!;
+window.addEventListener('DOMContentLoaded', () => {
 
-	try {
-		const response = await fetch('/demo.html');
-		const html = await response.text();
+	loadRoute(window.location.pathname);
 
-		// Inject the HTML content into the app element
-		app.innerHTML = html;
+	document.body.addEventListener('click', (e) => {
+		const target = e.target as HTMLElement;
+		if (target.matches('[id^="changeLangButton-"]')) {
+			const newLang = target.getAttribute('data-lang');
+			if (newLang) {
+				i18n.changeLanguage(newLang).then(() => {
+					translateDOM();
+				});
+			}
+		}
 
-		// Translate the document
-		translateDOM();
-
-		// Handle language change buttons
-		document.querySelectorAll('[id^="changeLangButton-"]').forEach((button) => {
-			button.addEventListener('click', (event) => {
-				const target = event.target as HTMLElement;
-				const newLang = target.getAttribute('data-lang');
-				if (newLang) {
-					i18n.changeLanguage(newLang).then(() => initApp());
-				}
-			});
-		});
-
-		document.getElementById('loginButton')!.addEventListener('click', () => handlePostRequest('/api/auth/login', ''));
-		document.getElementById('gameButton')!.addEventListener('click', () => handlePostRequest('/api/game/join', ''));
-		document.getElementById('checkUsernameButton')!.addEventListener('click', () => {
-			const username = (document.getElementById('usernameInput') as HTMLInputElement).value;
-			handlePostRequest('/api/auth/doesuserexist', username);
-		});
-	} catch (error) {
-		console.error('Failed to load demo.html:', error);
-	}
-}
-
-function translateDOM() {
-	// Select all elements containing `data-i18nkey`
-	document.querySelectorAll<HTMLElement>('[data-i18nkey]').forEach((el) => {
-		const key = el.getAttribute('data-i18nkey');
-		if (key) {
-			// Insert the translation
-			el.textContent = i18n.t(key);
+		const spaButton = target.closest('button[data-spa]');
+		if (spaButton) {
+			e.preventDefault();
+			const linkElement = spaButton as HTMLButtonElement;
+			const path = linkElement.dataset.link;
+			if (path) {
+				history.pushState({}, '', path);
+				loadRoute(path);
+			}
 		}
 	});
-}
 
-async function handlePostRequest(endpoint: string, username: string) {
-	try {
-		const response = await fetch(endpoint, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ username }),
-		});
-		const data = await response.json();
-		alert('POST ' + endpoint + ': ' + data.message);
-	} catch (error) {
-		alert('An error occurred: ' + error);
-	}
-}
+	window.addEventListener('popstate', () => {
+		loadRoute(window.location.pathname);
+	});
+});
 
-initApp();

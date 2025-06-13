@@ -6,29 +6,30 @@
 #    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/04/15 15:34:53 by mbecker          ###   ########.fr        #
+#    Updated: 2025/06/03 18:28:18 by mbecker          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME =	transcendence
 
 COMPOSE =	docker compose
+COMPOSE_LIGHT =	docker compose -f docker-compose.light.yml
 
 MODULES =	frontend \
 			services/auth \
 			services/game
 
-DATABASE =	data
+DATA =		data
 
-all: $(NAME)
-
-$(NAME): $(DATABASE) env
+all: env ssl
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME)$(YELLOW)...$(RESET)"
-	@export COMPOSE_BAKE=true; $(COMPOSE) up --build
-#	@$(COMPOSE) up --build
+	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
+	@echo "$(BGREEN)$(NAME)$(GREEN) is now running and available at $(BGREEN)https://localhost:$$(grep '^HTTPS_PORT=' .env | cut -d'=' -f2)$(RESET)"
 
-$(DATABASE):
-	@mkdir -p $(DATABASE)
+light:
+	@echo "$(YELLOW)Building $(BYELLOW)$(NAME) [LIGHT VERSION]$(YELLOW)...$(RESET)"
+	@export COMPOSE_BAKE=true; $(COMPOSE_LIGHT) up --build -d
+	@echo "$(BGREEN)$(NAME) [LIGHT VERSION]$(GREEN) is now running and available at $(BGREEN)https://localhost:$$(grep '^HTTPS_PORT=' .env | cut -d'=' -f2)$(RESET)"
 
 env:
 	@if [ ! -f .env ]; then \
@@ -41,6 +42,11 @@ env:
 			exit 1; \
 		fi \
 	fi
+
+ssl:
+	@echo "$(YELLOW)Generating SSL certificates...$(RESET)"
+	@chmod +x ./scripts/ssl/generate_ssl.sh && \
+	./scripts/ssl/generate_ssl.sh
 
 up: env
 	$(COMPOSE) up
@@ -75,14 +81,22 @@ fclean: clean nodeclean
 		echo "$(RED)Removing $(BRED)project volumes$(RED)...$(RESET)"; \
 		docker volume rm $$(docker volume ls -q); \
 	fi
+	@echo "$(RED)Removing $(BRED)$(DATA)$(RED)...$(RESET)"
+	@rm -rf $(DATA)
 
 re: fclean all
 
+node:
+	@for module in $(MODULES); do \
+		echo "$(CYAN)Installing npm dependencies in $(BCYAN)$$module$(CYAN)...$(RESET)"; \
+		cd $$module && npm install; \
+		cd -; \
+	done
+	
+
 deepclean:
-	@echo "$(BYELLOW)Warning: This will remove the database, the .env file and all Docker containers, images, volumes, and networks!$(RESET)"
+	@echo "$(BYELLOW)Warning: This will remove all Docker containers, images, volumes, and networks!$(RESET)"
 	@read -p "Are you sure you want to proceed? (y/N): " confirm && [ "$$confirm" = "y" ] && \
-	rm -rf $(DATABASE) && \
-	rm -rf .env && \
 	docker system prune -a --volumes -f || \
 	echo "$(RED)Aborted.$(RESET)"
 

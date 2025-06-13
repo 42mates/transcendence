@@ -1,0 +1,42 @@
+<div class="flex flex-col items-center justify-center flex-1 bg-gray-800 space-y-4">
+	<div class="text-center text-white">
+		<h1 class="text-2xl font-bold text-blue-400">🌐 Welcome to Demo Page</h1>
+		<button data-link="/" data-spa class="text-blue-400 underline">Back to Home</button>
+		<button data-link="/demo" data-spa class="underline text-teal-300">Demo</button>
+		<button data-link="/login" data-spa class="text-blue-400 underline">Go to Login</button>
+	</div>
+	<h1 class="text-4xl font-bold text-blue-400" data-i18nkey="common:welcome">Welcome</h1>
+	<div>
+		<button id="changeLangButton-en" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" data-lang="en">EN</button>
+		<button id="changeLangButton-fr" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" data-lang="fr">FR</button>
+		<button id="changeLangButton-es" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600" data-lang="es">ES</button>
+		<button id="changeLangButton-kr" class="px-4 py-2 bg-white text-black rounded hover:bg-gray-300" data-lang="kr">KR</button>
+	</div>
+	<button id="gameButton" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" data-i18nkey="game:title">
+		Game
+	</button>
+	<div class="flex flex-col items-center space-y-2">
+		<input
+		type="text"
+		placeholder="Check if username exists"
+		class="px-4 py-2 border rounded w-64"
+		id="usernameInput"
+		/>
+		<button
+		id="checkUsernameButton"
+		class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+		data-i18nkey="login:username"
+		>
+		Check Username
+	</button>
+	</div>
+	<div>
+				<button id="langButton" type="button" class="text-white bg-amber-400 hover:bg-amber-500 focus:outline-none font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center">
+			<svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+				<path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25M8.547 4.505a8.25 8.25 0 1 0 11.672 8.214l-.46-.46a2.3 2.3 0 0 1-.422-.586l-1.08-2.16a.414.414 0 0 0-.663-.107.83.83 0 0 1-.812.21l-1.273-.363a.89.89 0 0 0-.738 1.595l.587.39c.59.395.674 1.23.172 1.732l-.2.2c-.211.212-.33.498-.33.796v.41c0 .409-.11.809-.32 1.158l-1.315 2.191a2.11 2.11 0 0 1-1.81 1.025 1.055 1.055 0 0 1-1.055-1.055v-1.172c0-.92-.56-1.747-1.414-2.089l-.654-.261a2.25 2.25 0 0 1-1.384-2.46l.007-.042a2.3 2.3 0 0 1 .29-.787l.09-.15a2.25 2.25 0 0 1 2.37-1.048l1.178.236a1.125 1.125 0 0 0 1.302-.795l.208-.73a1.125 1.125 0 0 0-.578-1.315l-.665-.332-.091.091a2.25 2.25 0 0 1-1.591.659h-.18a.94.94 0 0 0-.662.274.931.931 0 0 1-1.458-1.137z" clip-rule="evenodd"/>
+			</svg>
+			<span class="sr-only">Icf3fefwefefef</span>
+		</button>
+	</div>
+</div>
+

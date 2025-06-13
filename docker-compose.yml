@@ -1,55 +1,165 @@
+#! ANCHORUS
+x-logging:
+  &elk
+  driver: syslog
+  options:
+    syslog-address: "tcp://127.0.0.1:5044"
+    syslog-format: rfc5424
+    tag: "{{.Name}}"
+    env: json
+
 services:
+  #! INIT SCRIPTS
+  db-init:
+    image: db-init
+    container_name: db-init
+    build: ./scripts/db-init
+    networks:
+      - transcendence_net
+    volumes:
+      - sqlite-data:/data
+  elk-init:
+    image: curlimages/curl:7.88.1
+    container_name: elk-init
+    build: ./scripts/elk-init
+    networks:
+      - transcendence_net
+    depends_on:
+      - logstash
+
   frontend:
     image: frontend
+    container_name: frontend
     build: ./frontend
-    depends_on:
-      - auth
-      - game
     restart: on-failure
-    #! frontend dev mode
     volumes:
+      - ./certs/frontend:/etc/ssl/certs:ro
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - transcendence_net
+    depends_on:
+      elk-init:
+        condition: service_completed_successfully
     expose:
-      - 5173
+      - 443
     command: npm run dev
+    environment:
+      - VITE_GOOGLE_AUTH_CLIENT_ID=${VITE_GOOGLE_AUTH_CLIENT_ID}
+    logging: *elk
 
   nginx:
     image: nginx
-    build: ./nginx
-    ports:
-      - "8443:443"
-    depends_on:
-      - frontend
-      - auth
-      - game
+    container_name: nginx
+    build:
+      context: ./nginx
+      args:
+        ELK_USER: ${ELK_USER}
+        ELK_PASSWORD: ${ELK_PASSWORD}
     restart: on-failure
-
-  db-init:
-    image: db-init
-    build: ./scripts/db-init
     volumes:
-      - sqlite-data:/data
+      - ./certs/nginx:/etc/ssl/certs:ro
+    networks:
+      - transcendence_net
+    ports:
+      - "${HTTPS_PORT}:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+    depends_on:
+      elk-init:
+        condition: service_completed_successfully
+      frontend:
+        condition: service_started
+      auth:
+        condition: service_started
+      game:
+        condition: service_started
+    logging: *elk
+
   auth:
     image: auth
+    container_name: auth
     build: ./services/auth
+    restart: on-failure
     volumes:
+      - ./certs/auth:/etc/ssl/certs:ro
       - ./services/auth:/app
       - /app/node_modules
       - sqlite-data:/data
+    networks:
+      - transcendence_net
     depends_on:
-      - db-init
-    restart: on-failure
+      elk-init:
+        condition: service_completed_successfully
+      db-init:
+        condition: service_completed_successfully
+    logging: *elk
+
   game:
     image: game
+    container_name: game
     build: ./services/game
+    restart: on-failure
     volumes:
+      - ./certs/game:/etc/ssl/certs:ro
       - ./services/game:/app
       - /app/node_modules
       - sqlite-data:/data
+    networks:
+      - transcendence_net
     depends_on:
-      - db-init
-    restart: on-failure
+      elk-init:
+        condition: service_completed_successfully
+      db-init:
+        condition: service_completed_successfully
+    logging: *elk
+
+  #! ELK STACK
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    container_name: elasticsearch
+    #volumes:
+    #  - ./certs/elasticsearch:/usr/share/elasticsearch/config/certs:ro
+    networks:
+      - transcendence_net
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - logger.level=error # Reduce verbosity
+    expose:
+      - 9200
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200"]
+      interval: 5s
+      retries: 10
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.10.2
+    container_name: logstash
+    volumes:
+      - ./certs/logstash:/etc/ssl/certs:ro
+      - ./elk/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - transcendence_net
+    ports:
+      - "5044:5044"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - log.level=error # Reduce verbosity
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.10.2
+    container_name: kibana
+    volumes:
+      - ./certs/kibana:/etc/ssl/certs:ro
+      - ./elk/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - transcendence_net
+    expose:
+      - 5601
+    depends_on:
+      elk-init:
+        condition: service_completed_successfully
 
 networks:
   transcendence_net:
@@ -57,8 +167,3 @@ networks:
 
 volumes:
   sqlite-data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./data
-      o: bind

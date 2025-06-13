@@ -1,17 +1,52 @@
 {
 	"title": "Juego",
+	"alias": {
+		"prompt": "Por favor, introduce tu alias:",
+		"promptPlayer1": "Por favor, introduce el alias del Jugador 1:",
+		"promptPlayer2": "Por favor, introduce el alias del Jugador 2:",
+		"placeholder1": "Titiritero420",
+		"placeholder2": "SeñorDelJuego69",
+		"error": {
+			"empty": "El alias no puede estar vacío.",
+			"invalid": "El alias '{{alias}}' no es válido. Por favor, inténtalo de nuevo.",
+			"duplicate": "El alias '{{alias}}' ya está en uso. Por favor, elige otro.",
+			"length": "El alias debe tener entre 3 y 20 caracteres.",
+			"characters": "El alias solo puede contener letras, números y guiones bajos."
+		},
+		"prerequisites": "El alias debe tener entre 3 y 20 caracteres y solo puede contener letras, números y guiones bajos."
+	},
+	"mode": {
+		"prompt": "Selecciona el modo de juego:",
+		"local": "Local",
+		"online": "En línea",
+		"1v1": "1v1",
+		"tournament": "Torneo"
+	},
+	"status": {
+		"pending": "Pendiente",
+		"waiting": "Esperando a los jugadores",
+		"running": "Juego en progreso",
+		"ended": "Juego terminado"
+	},
+	"win": "¡{{winner}} gana!",
 	"playButton": "Jugar",
-	"pauseButton": "Pausa",
-	"resumeButton": "Reanudar",
 	"quitButton": "Salir",
 	"highScore": "Puntuación más alta",
 	"gameOver": "Fin del juego",
+	"quitPrompt": "¿Estás seguro de que deseas salir del juego?",
+	"exited": {
+		"success": "Has salido del juego correctamente. ¿Volver al inicio?",
+		"error": "No se pudo salir del juego. Por favor, inténtalo de nuevo."
+	},
 	"tryAgain": "Intentar de nuevo",
 	"success": {
 		"levelComplete": "¡Nivel {{level}} completado!",
 		"newHighScore": "¡Nueva puntuación más alta: {{score}}!"
 	},
 	"error": {
+		"networkError": "Error de red. Por favor, comprueba tu conexión.",
+		"serverError": "Error del servidor. Por favor, inténtalo de nuevo más tarde.",
+		"joinRequestFailed": "No se pudo unir al juego. Por favor, inténtalo de nuevo.",
 		"connectionLost": "Conexión perdida. Inténtalo de nuevo.",
 		"invalidMove": "Movimiento inválido. Inténtalo de nuevo.",
 		"timeout": "¡Tiempo agotado!"

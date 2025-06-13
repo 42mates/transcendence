@@ -10,7 +10,10 @@
 	"view": "View",
 	"search": "Search",
 	"loading": "Loading...",
+	"site_language": "Site language: English",
 	"error": {
+		"generic": "An error occurred. Please try again later.",
+		"unexpected": "An unexpected error occurred. Please try again later.",
 		"network": "Network error. Please try again.",
 		"server": "Server error. Please contact support.",
 		"notFound": "Resource not found."

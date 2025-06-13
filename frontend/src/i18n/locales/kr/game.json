@@ -1,17 +1,52 @@
 {
 	"title": "게임",
+	"alias": {
+		"prompt": "별명을 입력하세요:",
+		"promptPlayer1": "플레이어 1의 별명을 입력하세요:",
+		"promptPlayer2": "플레이어 2의 별명을 입력하세요:",
+		"placeholder1": "퍼펫마스터420",
+		"placeholder2": "게임로드69",
+		"error": {
+			"empty": "별명을 입력해주세요.",
+			"invalid": "잘못된 별명 '{{alias}}'. 다시 시도해주세요.",
+			"duplicate": "별명 '{{alias}}'은(는) 이미 사용 중입니다. 다른 별명을 선택해주세요.",
+			"length": "별명은 3자에서 20자 사이여야 합니다.",
+			"characters": "별명은 영문, 숫자, 밑줄(_)만 사용할 수 있습니다."
+		},
+		"prerequisites": "별명은 3자에서 20자 사이여야 하며, 영문, 숫자, 밑줄만 사용할 수 있습니다."
+	},
+	"mode": {
+		"prompt": "게임 모드를 선택하세요:",
+		"local": "로컬",
+		"online": "온라인",
+		"1v1": "1대1",
+		"tournament": "토너먼트"
+	},
+	"status": {
+		"pending": "대기 중",
+		"waiting": "플레이어를 기다리는 중",
+		"running": "게임 진행 중",
+		"ended": "게임이 종료되었습니다."
+	},
+	"win": "{{winner}} 승리!",
 	"playButton": "플레이",
-	"pauseButton": "일시 정지",
-	"resumeButton": "다시 시작",
 	"quitButton": "종료",
 	"highScore": "최고 점수",
 	"gameOver": "게임 오버",
+	"quitPrompt": "정말로 게임을 종료하시겠습니까?",
+	"exited": {
+		"success": "게임에서 성공적으로 나갔습니다. 홈으로 돌아가시겠습니까?",
+		"error": "게임 종료에 실패했습니다. 다시 시도해주세요."
+	},
 	"tryAgain": "다시 시도",
 	"success": {
 		"levelComplete": "{{level}} 레벨 완료!",
 		"newHighScore": "새로운 최고 점수: {{score}}!"
 	},
 	"error": {
+		"networkError": "네트워크 오류입니다. 연결을 확인해주세요.",
+		"serverError": "서버 오류입니다. 잠시 후 다시 시도해주세요.",
+		"joinRequestFailed": "게임 참가에 실패했습니다. 다시 시도해주세요.",
 		"connectionLost": "연결이 끊어졌습니다. 다시 시도해주세요.",
 		"invalidMove": "잘못된 움직임입니다. 다시 시도하세요.",
 		"timeout": "시간 초과!"

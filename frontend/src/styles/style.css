@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.flag-icon {
+  @apply h-6 w-6 flex-shrink-0;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+}

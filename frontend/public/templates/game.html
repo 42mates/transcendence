@@ -1,0 +1,96 @@
+<header class="fixed top-0 left-0 right-0 h-16 z-50 flex justify-end items-start pt-4 px-4">
+	<div id="header-background-layer" class="absolute inset-0 bg-neutral-800 -z-10"></div>
+	<div class="relative"> 
+		<button id="userActionButton" type="button" class="text-white bg-amber-400 hover:bg-amber-500 focus:outline-none font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center">
+			<svg id="icon-logout" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 hidden">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+			</svg>
+			<svg id="icon-login" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+				<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+			</svg>
+		</button>
+	</div>
+</header>
+<div class="flex flex-col items-center justify-center min-h-screen bg-neutral-800 px-2 relative">
+	<div id="game-dialog-overlay" class="fixed inset-0 z-20 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-100">
+		<div id="game-dialog" class="bg-neutral-800 backdrop-blur-lg rounded-lg shadow-2xl p-8 w-full max-w-md border border-white/30 animate-fade-in">
+			<h2 class="text-2xl text-white mb-4 text-center" data-i18nkey="game:mode.prompt">Choisissez un mode de jeu</h2>
+			<div id="mode-selection" class="flex justify-center gap-4 mb-6">
+				<button id="local-btn" class="px-4 py-2 rounded-lg text-white bg-zinc-600 hover:bg-zinc-500" data-i18nkey="game:mode.local">Local</button>
+				<button id="online-btn" class="px-4 py-2 rounded-lg text-white bg-zinc-600 hover:bg-zinc-500" data-i18nkey="game:mode.online">Online</button>
+			</div>
+			<form id="game-form" class="space-y-4">
+				<div id="local-form" class="hidden">
+					<div>
+						<label class="block text-white mb-1" data-i18nkey="game:alias.promptPlayer1">Alias Joueur 1</label>
+						<input name="alias1" required placeholder="PuppetMaster420" class="w-full px-3 py-2 rounded-lg bg-zinc-600 text-white focus:outline-none" />
+					</div>
+					<div>
+						<label class="block text-white mb-1" data-i18nkey="game:alias.promptPlayer2">Alias Joueur 2</label>
+						<input name="alias2" required placeholder="GameLord69" class="w-full px-3 py-2 rounded-lg bg-zinc-600 text-white focus:outline-none" />
+					</div>
+					<button type="submit" class="w-full mt-4 px-4 py-2 bg-amber-400 text-white rounded-lg hover:bg-amber-500" data-i18nkey="game:playButton">Commencer</button>
+				</div>
+				<div id="online-form" class="hidden">
+					<div class="flex gap-2 mb-2">
+						<button type="button" id="btn-1v1" class="flex-1 px-2 py-2 rounded-lg text-white" data-i18nkey="game:1v1">1v1</button>
+						<button type="button" id="btn-tournament" class="flex-1 px-2 py-2 rounded-lg text-white" data-i18nkey="game:mode.tournament">Tournoi</button>
+					</div>
+					<div>
+						<label class="block text-white mb-1" data-i18nkey="game:alias.prompt">Votre alias</label>
+						<input name="alias" required placeholder="PuppetMaster420" class="w-full px-3 py-2 rounded-lg bg-zinc-600 text-white focus:outline-none" />
+					</div>
+					<input type="hidden" name="onlineType" value="1v1" />
+					<button type="submit" class="w-full mt-4 px-4 py-2 bg-amber-400 text-white rounded-lg hover:bg-amber-500" data-i18nkey="game:playButton">Commencer</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<h1 class="text-3xl text-white mb-4" data-i18nkey="game:title">Game</h1>
+	<div id="scoreboard" class="text-white mb-4 flex items-center gap-6">
+		<div class="flex flex-row items-center gap-2">
+			<img id="avatar-player1" src="/assets/default_avatar1.png" alt="Player 1 Avatar" class="w-10 h-10 rounded-md border-2 border-neutral-500 bg-neutral-700 object-cover" />
+			<span id="alias-player1" class="font-semibold">Player 1</span>
+		</div>
+		<div class="text-2xl font-bold flex items-center gap-1">
+			<span id="score-player1">0</span>
+			<span class="mx-1">-</span>
+			<span id="score-player2">0</span>
+		</div>
+		<div class="flex flex-row items-center gap-2">
+			<span id="alias-player2" class="font-semibold">Player 2</span>
+			<img id="avatar-player2" src="/assets/default_avatar2.png" alt="Player 2 Avatar" class="w-10 h-10 rounded-md border-2 border-neutral-500 bg-neutral-700 object-cover" />
+		</div>
+	</div>
+	<div class="w-full max-w-[1080px] p-2 bg-neutral-700 rounded-lg shadow-lg flex justify-center">
+		<div class="w-full max-w-[1080px] aspect-[4/3]">
+			<canvas id="game-canvas" class="bg-black rounded-md shadow-md w-full h-full transition-filter duration-300"></canvas>
+		</div>
+	</div>
+	<div class="mt-4">
+		<button id="quitButton" class="px-4 py-2 bg-amber-500 text-white rounded" data-i18nkey="game:quitButton">Quit</button>
+	</div>
+</div>
+
+<div id="quit-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden">
+  <div class="bg-neutral-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
+    <p class="text-white mb-4" data-i18nkey="game:quitPrompt">Quitter game ?</p>
+    <div class="flex gap-4">
+      <button id="quit-modal-yes" class="px-4 py-2 bg-amber-500 text-white rounded" data-i18nkey="common:yes">Yes</button>
+      <button id="quit-modal-no" class="px-4 py-2 bg-gray-500 text-white rounded" data-i18nkey="common:no">No</button>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes fade-in {
+	from { opacity: 0; transform: scale(0.95);}
+	to { opacity: 1; transform: scale(1);}
+}
+@keyframes fade-out {
+	from { opacity: 1; transform: scale(1);}
+	to { opacity: 0; transform: scale(0.95);}
+}
+.animate-fade-in { animation: fade-in 0.3s cubic-bezier(.4,0,.2,1);}
+.animate-fade-out { animation: fade-out 0.2s cubic-bezier(.4,0,.2,1) forwards;}
+</style>

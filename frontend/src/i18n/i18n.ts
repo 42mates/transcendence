@@ -25,7 +25,7 @@ i18n
 	.use(LanguageDetector)
 	.init({
 		fallbackLng: 'en',
-		debug: true,
+		debug: false,
 		interpolation: {
 			escapeValue: false,
 		},
@@ -58,5 +58,16 @@ i18n
 		ns: ['common', 'login', 'game', 'register'],
 		defaultNS: 'common',
 	});
+
+
+export function translateDOM() {
+	document.querySelectorAll<HTMLElement>('[data-i18nkey]').forEach((el) => {
+		const key = el.getAttribute('data-i18nkey');
+		if (key) {
+			el.textContent = i18n.t(key);
+		}
+	});
+}
+
 
 export default i18n;

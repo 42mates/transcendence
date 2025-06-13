@@ -1,17 +1,52 @@
 {
 	"title": "Jeu",
+	"alias": {
+		"prompt": "Veuillez entrer votre pseudo :",
+		"promptPlayer1": "Veuillez entrer le pseudo du Joueur 1 :",
+		"promptPlayer2": "Veuillez entrer le pseudo du Joueur 2 :",
+		"placeholder1": "MaîtreDesMarionnettes420",
+		"placeholder2": "SeigneurDuJeu69",
+		"error": {
+			"empty": "Le pseudo ne peut pas être vide.",
+			"invalid": "Alias invalide '{{alias}}'. Veuillez réessayer.",
+			"duplicate": "Le pseudo '{{alias}}' est déjà utilisé. Veuillez en choisir un autre.",
+			"length": "Le pseudo doit comporter entre 3 et 20 caractères.",
+			"characters": "Le pseudo ne peut contenir que des lettres, des chiffres et des underscores."
+		},
+		"prerequisites": "Le pseudo doit comporter entre 3 et 20 caractères et ne peut contenir que des lettres, des chiffres et des underscores."
+	},
+	"mode": {
+		"prompt": "Sélectionnez le mode de jeu :",
+		"local": "Local",
+		"online": "En ligne",
+		"1v1": "1v1",
+		"tournament": "Tournoi"
+	},
+	"status": {
+		"pending": "En attente",
+		"waiting": "En attente de joueurs",
+		"running": "Partie en cours",
+		"ended": "Partie terminée"
+	},
+	"win": "{{winner}} gagne !",
 	"playButton": "Jouer",
-	"pauseButton": "Pause",
-	"resumeButton": "Reprendre",
 	"quitButton": "Quitter",
 	"highScore": "Meilleur Score",
 	"gameOver": "Fin de Partie",
+	"quitPrompt": "Êtes-vous sûr de vouloir quitter la partie ?",
+	"exited": {
+		"success": "Vous avez quitté la partie avec succès. Retourner à l'accueil ?",
+		"error": "Échec de la sortie du jeu. Veuillez réessayer."
+	},
 	"tryAgain": "Réessayer",
 	"success": {
-		"levelComplete": "Niveau {{level}} Terminé !",
-		"newHighScore": "Nouveau Meilleur Score : {{score}} !"
+		"levelComplete": "Niveau {{level}} terminé !",
+		"newHighScore": "Nouveau meilleur score : {{score}} !"
 	},
 	"error": {
+		"networkError": "Erreur réseau. Veuillez vérifier votre connexion.",
+		"serverError": "Erreur du serveur. Veuillez réessayer plus tard.",
+		"joinRequestFailed": "Échec de la demande de rejoindre la partie. Veuillez réessayer.",
 		"connectionLost": "Connexion perdue. Veuillez réessayer.",
 		"invalidMove": "Mouvement invalide. Réessayez.",
 		"timeout": "Temps écoulé !"
