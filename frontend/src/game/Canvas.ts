@@ -1,5 +1,5 @@
 import i18n                 from '../i18n/i18n';
-import { GameStateMessage } from '../types/GameMessages';
+import { GameStateMessage } from '../types/messages';
 
 type ServerDimensions = {
 	width: number;
@@ -199,13 +199,13 @@ export default class Canvas {
 	}
 
 
-	public drawLoadingAnimation(): void {
+	public drawLoadingAnimation(customText?: string): void {
 		console.log("Starting loading animation");
 		this._isLoading = true;
 		if (!this._ctx) return;
 
 		const base = Math.min(this._canvas.width, this._canvas.height * 4 / 3);
-		const text = i18n ? i18n.t("game:status.waiting") : "Looking for players";
+		const text = customText ?? i18n ? i18n.t("game:status.waiting") : "Looking for players";
 		const dotFrames = ["", ".", "..", "...", "..", ".", ""];
 		const frameDuration = 300; // ms per frame
 
@@ -380,7 +380,11 @@ export default class Canvas {
 	public printLeaderboard(leaderboard?: { first: string, second: string, third: string }) {
 
 		console.log("Printing leaderboard", leaderboard);
-		if (!this._ctx || !leaderboard) return;
+		if (!this._ctx) return;
+		else if (!leaderboard) {
+			this.drawLoadingAnimation(i18n.t("game:leaderboard.loading") ?? "Loading leaderboard");
+			return;
+		}
 
 		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 		const cx = this._canvas.width / 2;

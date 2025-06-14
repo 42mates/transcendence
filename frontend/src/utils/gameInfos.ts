@@ -31,7 +31,7 @@ export function getPlayerPhoto(): string {
 }
 
 // Enhanced key binding detection based on keyboard layout and user settings
-export function getDefaultKeyBindings(): { up: string, down: string } {
+export function getKeyBindings(): { up: string, down: string } {
 	const layoutMap: Record<string, { up: string, down: string }> = {
 		'fr': { up: 'z', down: 's' },      // AZERTY
 		'de': { up: 'w', down: 's' },      // QWERTZ

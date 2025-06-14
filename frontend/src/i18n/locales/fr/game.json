@@ -33,7 +33,10 @@
 	"quitButton": "Quitter",
 	"highScore": "Meilleur Score",
 	"gameOver": "Fin de Partie",
-	"leaderboard": "Classement",
+	"leaderboard": {
+		"title": "Classement",
+		"loading": "Chargement du classement"
+	},
 	"quitPrompt": "Êtes-vous sûr de vouloir quitter la partie ?",
 	"exited": {
 		"success": "Vous avez quitté la partie avec succès. Retourner à l'accueil ?",
