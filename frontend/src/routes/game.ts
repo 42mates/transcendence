@@ -101,9 +101,24 @@ function listenForQuit(game: Game){
 	const yesBtn = document.getElementById('quit-modal-yes');
 	const noBtn = document.getElementById('quit-modal-no');
 
+	updateQuitButtonText(game);
+
+	const checkGameStatus = setInterval(() => {
+	updateQuitButtonText(game);
+	if (game.status === "ended") {
+		clearInterval(checkGameStatus);
+	}
+	}, 500);
+
 	if (quitBtn && modal && yesBtn && noBtn) {
 		quitBtn.addEventListener('click', () => {
-			modal.classList.remove('hidden');
+			if (game.status === "ended") {
+				// Skip confirmation modal when game is already ended
+				game.sendQuitRequest("User clicked play again");
+			} else {
+				// Show confirmation modal for active games
+				modal.classList.remove('hidden');
+			}
 		});
 		yesBtn.addEventListener('click', () => {
 			modal.classList.add('hidden');
@@ -112,6 +127,18 @@ function listenForQuit(game: Game){
 		noBtn.addEventListener('click', () => {
 			modal.classList.add('hidden');
 		});
+	}
+}
+
+function updateQuitButtonText(game: Game) {
+	const quitBtn = document.getElementById('quitButton');
+	
+	if (quitBtn) {
+		if (game.status === "ended") {
+			quitBtn.textContent = i18n.t('game:quit:newGameButton') || "Play again";
+		} else {
+			quitBtn.textContent = i18n.t('game:quit.quitButton') || "Quit";
+		}
 	}
 }
 
