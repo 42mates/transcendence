@@ -124,7 +124,7 @@ export default abstract class Game {
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;
 			}
-			console.log(`[${this._gameId}] Joined local game successfully.`);
+			console.log(`[${this._gameId}] Joined game as player ${this._playerId}`);
 		}
 		else if (data.status === 'waiting')
 			this.canvas?.drawLoadingAnimation();
@@ -149,9 +149,8 @@ export default abstract class Game {
 	public async startGame() {
 		this._canvas?.stopLoadingAnimation();
 
-		//if (this._canvas) {
-		//	await this._canvas.drawCountdown();
-		//}
+		if (this._canvas)
+			await this._canvas.drawCountdown();
 
 		console.log(`[${this._gameId}] Starting game`);
 		this._status = "running";

@@ -6,181 +6,306 @@ import { GameInstance }                from "../pong/game.class";
 import { tournaments,
 		 games,
 		 onlineQueues,
-		 TournamentBracketBackend, 
-		 tnWinnersQueue,
-		 tnLosersQueue}                from "../game/state";
+		 connectedUsers}                from "../game/state";
 import { User }                        from "./User";
-import { getUniqueGameId }             from "../utils";
-import { WaitingForPlayers,
-		 TournamentNotFound }          from "./exceptions";
-import { connect } from "http2";
-import { connected } from "process";
+import { getUniqueGameId, send }             from "../utils";
+import { WaitingForPlayers }          from "./exceptions";
+import { removeConnectedUserFromDB } from "../db/connectedUsers";
 
-export function getFrontendBracket(tournamentId: string): JoinResponse["tournament"] {
-	if (!tournaments[tournamentId]) 
-		throw new Error("Tournament not found");
 
-	const t = tournaments[tournamentId];
 
-	return {
-		id: t.tournamentId,
-		status: t.status,
-		game1: {
-			id: t.game1.id,
-			status: t.game1.status,
-			winner: t.game1.winner?.alias,
-			loser: t.game1.loser?.alias,
-		},
-		game2: {
-			id: t.game2.id,
-			status: t.game2.status,
-			winner: t.game2.winner?.alias,
-			loser: t.game2.loser?.alias,
-		},
-		game3: t.game3
-			? {
-				id: t.game3.id,
-				status: t.game3.status,
-				winner: t.game3.winner?.alias,
-				loser: t.game3.loser?.alias,
-			}
-			: {
-				id: "",
-				status: "pending",
+export default class Tournament {
+	private _games: GameInstance[] = [];
+	private _status: "waiting" | "running" | "ended" = "waiting"; // "waiting" means waiting for players to finish first two games
+	private _winners: User[] = [];
+	private _losers: User[] = [];
+
+	get games(): GameInstance[] { return this._games; }
+	get status(): "waiting" | "running" | "ended" { return this._status; }
+	get id(): string { return this._id; }
+	get players(): User[] { return this._p; }
+	get winners(): User[] { return this._winners; }
+	get losers(): User[] { return this._losers; }
+
+	constructor(
+		private _id: string,
+		private _p: User[],
+	) {
+		if (this._p.length !== 4) 
+			throw new Error("Tournament must have exactly 4 players");
+
+		tournaments[this._id] = this;
+	
+		console.log(`[${this._id}] Tournament initialized with players: ${this._p.map(p => p.alias).join(", ")}`);
+	}
+
+	public start() {
+		this._p[0].playerId = "1";
+		this._p[1].playerId = "2";
+		this._p[2].playerId = "1";
+		this._p[3].playerId = "2";
+		
+		this.createGame([this._p[0], this._p[1]]);
+		this.createGame([this._p[2], this._p[3]]);
+
+		this._status = "running";
+
+		const formatted = this.getFormattedTournament();
+		sendJoinResponse(this._games[0].id, formatted);
+		sendJoinResponse(this._games[1].id, formatted);
+	}
+
+	private createGame(players: User[]) 
+	{
+		if (players.length !== 2)
+			throw new Error("Tournament game must have exactly 2 players");
+
+		const gameId = getUniqueGameId();
+		const game = new GameInstance(players, gameId, "tournament", "pending", this._id);
+
+		this._games.push(game);
+
+		games[gameId] = game;
+
+		console.log(`[${this._id}] Game "${gameId}" created for players: ${players.map(p => p.alias).join(", ")}`); 
+	}
+
+	private getFormattedTournament(): JoinResponse["tournament"] 
+	{
+		return {
+			id: this._id,
+			status: this._status,
+			game1: {
+				id: this._games[0].id,
+				status: this._games[0].status,
+				winner: this._games[0].winner?.alias,
+				loser: this._games[0].loser?.alias,
 			},
-		game4: t.game4
-			? {
-				id: t.game4.id,
-				status: t.game4.status,
-				winner: t.game4.winner?.alias,
-				loser: t.game4.loser?.alias,
+			game2: {
+				id: this._games[1].id,
+				status: this._games[1].status,
+				winner: this._games[1].winner?.alias,
+				loser: this._games[1].loser?.alias,
+			},
+			game3: this._games[2]
+				? {
+					id: this._games[2].id,
+					status: this._games[2].status,
+					winner: this._games[2].winner?.alias,
+					loser: this._games[2].loser?.alias,
+				}
+				: {
+					id: "",
+					status: "pending",
+				},
+			game4: this._games[3]
+				? {
+					id: this._games[3].id,
+					status: this._games[3].status,
+					winner: this._games[3].winner?.alias,
+					loser: this._games[3].loser?.alias,
+				}
+				: undefined,
+		};
+	}
+
+	private hasEnded(first: number, second: number): string
+	{
+		if (first < 0 || first >= this._games.length || second < 0 || second >= this._games.length)
+			throw new Error(`Invalid game indices: ${first}, ${second}`);
+
+		if (this._games[first].status === "ended" && this._games[second].status === "ended")
+			return "both";
+		else if (this._games[first].status === "ended")
+			return "first";
+		else if (this._games[second].status === "ended")
+			return "second";
+		else
+			return "none";
+	}
+
+	private handleFirstRound()
+	{
+		switch (this.hasEnded(0, 1)) {
+			case "both":
+				console.log(`[${this._id}] Both first round games ended. Starting second round.`);
+
+				// both games ended, so second round is ready
+				this._status = "waiting";
+
+				// Create second round games
+				this._winners = [this._games[0].winner!, this._games[1].winner!];
+				this._losers = [this._games[0].loser!, this._games[1].loser!];
+				this.createGame(this._winners);
+				this.createGame(this._losers);
+
+				for (const p of this._p)
+					p.status = "idle";
+
+				this.sendGameUpdate(0);
+				this.sendGameUpdate(1);
+				break;
+			case "first":
+				console.log(`[${this._id}] Waiting for game[1] to end.`);
+				this._status = "waiting";
+				this.sendGameUpdate(0);
+				break;
+			case "second":
+				console.log(`[${this._id}] Waiting for game[0] to end.`);
+				this._status = "waiting";
+				this.sendGameUpdate(1);
+				break;
+			default:
+				console.log(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[0].status}, ${this._games[1].status}`);
+				this._status = "waiting";
+				break;
+		}
+	}
+
+
+	private tryStartFinale(players: User[], game_idx: number)
+	{
+		if (players.length !== 2) return;
+
+		for (const user of players)
+		{
+			console.log(`[${this._id}] Checking user ${user.alias} status: ${user.status}`);
+			if (user.status !== "queued") return;
+		}
+
+		console.log(`[${this._id}] Players ${players.map(p => p.alias).join(", ")} are ready for finale.`);
+
+		players[0].status = "matched";
+		players[1].status = "matched";
+		this._status = "running"
+
+		console.log(`[${this._id}] [join] Starting finale game with players: ${players.map(p => p.alias).join(", ")}`);
+		sendJoinResponse(this._games[game_idx].id, this.getFormattedTournament());
+	}
+
+	private sendGameUpdate(idx: number)
+	{
+		const game = this._games[idx];
+		if (!game) 
+			throw new Error(`Game with index ${idx} does not exist in tournament ${this._id}`);
+
+		for (const player of game.players)
+		{
+			player.send({
+				type: "game_status_update",
+				gameId: game.id,
+				status: game.status,
+				score: [game.score[0], game.score[1]],
+				tournamentId: this._id,
+				tournamentStatus: this._status,
+				leaderboard: { 
+					// Ensure [2] is the winner's game and [3] is the loser's game
+					first: this._games[2]?.winner?.alias!, 
+					second: this._games[2]?.loser?.alias!,
+					third: this._games[3]?.winner?.alias!,
+				},
+			} as GameStatusUpdateMessage);
+		}
+		console.log(`[${this._id}] Sent update (status: ${this._status}) for game ${game.id} to players: ${game.players.map(p => p.alias).join(", ")}`);
+	}
+
+	private handleTournamentEnd()
+	{
+		switch (this.hasEnded(2, 3)) 
+		{
+			case "both":
+				this.end();
+				break;
+			case "first":
+				console.log(`[${this._id}] Waiting for game[3] to end.`);
+				this._status = "waiting";
+				this.sendGameUpdate(2);
+				break;
+			case "second":
+				console.log(`[${this._id}] Waiting for game[2] to end.`);
+				this._status = "waiting";
+				this.sendGameUpdate(3);
+				break;
+			default:
+				console.log(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[2].status}, ${this._games[3].status}`);
+				this._status = "waiting";
+				break;
+		}
+	}
+
+	public update()
+	{
+		if (this._games.length == 2)
+			this.handleFirstRound();
+		else if (this._games.length !== 4)
+			throw new Error(`Tournament ${this._id} has an invalid number of games: ${this._games.length}`);
+
+		// First round is over at this point
+		if (this._status === "waiting")
+		{
+			this.tryStartFinale(this._winners, 2);
+			this.tryStartFinale(this._losers, 3);
+		}
+		else if (this._status === "running")
+			this.handleTournamentEnd();
+	}
+
+	private sendEndUpdate()
+	{
+		for (const player of this._p)
+		{
+			player.send({
+				type: "game_status_update",
+				gameId: "dontread",
+				status: this._status,
+				score: [0, 0],
+				tournamentId: this._id,
+				tournamentStatus: "ended",
+				leaderboard: {
+					first: this._games[2]?.winner?.alias!,
+					second: this._games[2]?.loser?.alias!,
+					third: this._games[3]?.winner?.alias!,
+				},
+			} as GameStatusUpdateMessage);
+		}
+	}
+
+	private end() {
+		this._status = "ended";
+
+		this.sendEndUpdate();
+
+		// Remove players from connectedPlayers[]
+		for (const player of this._p) 
+		{
+			const idx = connectedUsers.indexOf(player);
+			if (idx !== -1) 
+			{
+				connectedUsers.splice(idx, 1);
+				removeConnectedUserFromDB(player.alias);
 			}
-			: undefined,
-	};
+		}
+
+		// Remove games from games[]
+		for (const game of this._games)
+			if (games[game.id]) delete games[game.id];
+
+		// Remove tournament from tournaments[]
+		if (tournaments[this._id]) delete tournaments[this._id];
+
+		console.log(`[${this._id}] Tournament ended with winners: ${this._games[2].winner?.alias}, ${this._games[3].winner?.alias}`);
+	}
 }
 
-export function createTournament(user: User) {
-	console.log("createTournament", user.alias);
+export function createTournament(user: User): Tournament {
 
 	if (onlineQueues["tournament"].length < 4) 
 		throw new WaitingForPlayers(user);	
 
 	const players = onlineQueues["tournament"].splice(0, 4);
-	const [p1, p2, p3, p4] = players;
-	p1.playerId = "1";
-	p2.playerId = "2";
-	p3.playerId = "1";
-	p4.playerId = "2";
-	const gameId1 = getUniqueGameId();
-	const gameId2 = getUniqueGameId();
-
 	const tournamentId = getUniqueGameId();
-	const backendBracket: TournamentBracketBackend = {
-		tournamentId,
-		status: "running",
-		game1: new GameInstance([p1, p2], gameId1, "tournament", "pending", tournamentId),
-		game2: new GameInstance([p3, p4], gameId2, "tournament", "pending", tournamentId),
-		game3: null,
-		game4: null,
-	};
 
-	tournaments[tournamentId] = backendBracket;
+	const tournament = new Tournament(tournamentId, players);
 
-    games[gameId1] = backendBracket.game1;
-    games[gameId2] = backendBracket.game2;
-
-	tnWinnersQueue[tournamentId] = {w1_ready: false, w2_ready: false};
-	tnLosersQueue[tournamentId] = {l1_ready: false, l2_ready: false};
-	
-	const frontendBracket = getFrontendBracket(tournamentId);
-	sendJoinResponse(gameId1, frontendBracket);
-	sendJoinResponse(gameId2, frontendBracket);
-}
-
-function sendTournamentStatusUpdate(tournamentId: string): void {
-	const t = tournaments[tournamentId];
-
-	if (!t || !t.game1 || !t.game2 || !t.game3 || !t.game4) return;
-
-	const games = (t.game3.status === "ended" && t.game4.status === "ended") 
-		? [t.game1, t.game2]
-		: [t.game3, t.game4]; 
-
-	if (!games[0] || !games[1]) return;
-	for (const player of games[0].players) {
-		player.send({
-			type: "game_status_update",
-			gameId: games[0].id,
-			status: games[0].status,
-			score: games[0].score,
-			winner: games[0].winner?.alias,
-			loser: games[0].loser?.alias,
-			tournamentId: t.tournamentId,
-			tournamentStatus: t.status,
-			leaderboard: {
-				first: t.game3.winner?.alias || undefined,
-				second: t.game3.loser?.alias || undefined,
-				third: t.game4?.winner?.alias || undefined,
-			},
-		} as GameStatusUpdateMessage);
-	}
-	for (const player of games[1].players) {
-		player.send({
-			type: "game_status_update",
-			gameId: games[1].id,
-			status: games[1].status,
-			score: games[1].score,
-			winner: games[1].winner?.alias,
-			loser: games[1].loser?.alias,
-			tournamentId: t.tournamentId,
-			tournamentStatus: t.status,
-			leaderboard: {
-				first: t.game3.winner?.alias || undefined,
-				second: t.game3.loser?.alias || undefined,
-				third: t.game4?.winner?.alias || undefined,
-			},
-		} as GameStatusUpdateMessage);
-	}
-}
-
-export function handleTournamentProgression(tournamentId: string): void {
-	const t = tournaments[tournamentId];
-
-	if (t.game1.status !== "ended" || t.game2.status !== "ended")
-	{
-		t.status = "waiting";
-		return;
-	}
-
-	if (t.game3?.status === "ended" && t.game4?.status === "ended")
-	{
-		t.status = "ended";
-		sendTournamentStatusUpdate(tournamentId);
-
-		//TODO: remove players from connectedPlayers[]
-		//TODO: remove games from games[]
-		//TODO: remove tournament from tournaments[]
-		return;
-	}
-
-	t.status = "running";
-	t.game3 = new GameInstance(
-		[t.game1.winner!, t.game2.winner!],
-		getUniqueGameId(),
-		"tournament",
-		"pending",
-		tournamentId
-	);
-	t.game4 = new GameInstance(
-		[t.game1.loser!, t.game2.loser!],
-		getUniqueGameId(),
-		"tournament",
-		"pending",
-		tournamentId
-	);
-
-	games[t.game3.id] = t.game3;
-	games[t.game4.id] = t.game4;
-
-	sendTournamentStatusUpdate(tournamentId);
+	return tournament;
 }

@@ -6,7 +6,6 @@ import {
 	GameStateMessage,
 	GameStatusUpdateMessage,
 }                     from "../types/messages";
-import { handleTournamentProgression } from "../join/tournament";
 import { tournaments } from "../game/state";
 
 export class GameInstance {
@@ -174,8 +173,12 @@ export class GameInstance {
 		this._winner = winner;
 		this._loser = loser;
 
-		if (this._tournamentId)
-			handleTournamentProgression(this._tournamentId);
+		console.log("Game ended. Winner:", winner.alias, "Loser:", loser.alias);
+
+		if (this._tournamentId && tournaments[this._tournamentId])
+			tournaments[this._tournamentId].update();
+		else if (this._mode === "tournament")
+			throw new Error("Couldn't update tournament: Tournament ID not found.");
 
 		let tournamentStatus = (this._tournamentId && tournaments[this._tournamentId]) 
 			? tournaments[this._tournamentId].status
@@ -193,7 +196,5 @@ export class GameInstance {
 		};
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);
-
-		console.log("Game ended. Winner:", winner.alias, "Loser:", loser.alias);
 	}
 }

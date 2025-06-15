@@ -88,13 +88,15 @@ export default class TournamentGame extends Game {
 
 		await this._inputHandler.keyPressed("Enter");
 
-		if (data.tournamentStatus === "running" && this._gameNum < 2)
+		if (this._gameNum < 2)
 		{
+			if (data.tournamentStatus === "waiting")
+				this.canvas?.drawLoadingAnimation();
 			this._gameId = undefined;
 			this._playerId = undefined;
 			this.joinGame();
 		}
-		else if (data.tournamentStatus === "waiting")
-			this.canvas?.drawLoadingAnimation();
+		else
+			console.log(`[${this._gameId}] request ${this._gameNum}`);
 	}
 }

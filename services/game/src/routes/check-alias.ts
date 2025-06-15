@@ -7,7 +7,6 @@ const aliasRoute: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 	fastify.get('/check-alias', async (request: FastifyRequest<{ Querystring: { alias: string } }>, reply: FastifyReply) => {
 		const { alias } = request.query;
 		const cleanAlias = sanitizeAlias(alias);
-		console.log(`Checking alias: "${alias}" -> "${cleanAlias}"`);
 		if (!cleanAlias) {
 			console.log(`Alias "${alias}" is invalid.`);
 			reply.status(400).send({ valid: false, reason: 'Invalid alias' });

@@ -56,7 +56,7 @@ export class InvalidAlias extends Error {
 
 export class TournamentNotFound extends Error {
 	response: JoinResponse;
-	constructor(user: User, tournamentId: string) {
+	constructor(user: User, tournamentId: string | null) {
 		const message = `Tournament not found: ${tournamentId}`;
 		super(message);
 		this.name = "TournamentNotFound";

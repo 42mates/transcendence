@@ -259,7 +259,8 @@ export default class Canvas {
 		const cy = this._canvas.height / 2;
 		const fontSize = Math.max(48, Math.min(this._canvas.width, this._canvas.height) * 0.15);
 		const countdownNumbers = ["3", "2", "1"];
-		const delay = 800; // ms
+		const delay = 400; // ms
+		//const delay = 800; // ms
 
 		const start = Date.now();
 		let frame = 0;

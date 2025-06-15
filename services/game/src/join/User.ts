@@ -56,6 +56,12 @@ export class User {
 		return this._status;
 	}
 
+	set status(value: "idle" | "queued" | "matched") {
+		if (value !== "idle" && value !== "queued" && value !== "matched")
+			throw new Error("Invalid status. Must be 'idle', 'queued', or 'matched'.");
+		this._status = value;
+	}
+
 	send(msg: JoinResponse | GameStateMessage | GameStatusUpdateMessage, HTTPstatus: number = 200): void {
 		if (this._gameMode === "local" && this._playerId === "2") return;
 

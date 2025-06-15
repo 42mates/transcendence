@@ -55,10 +55,10 @@ function registerUsers(message: JoinRequest, connection: WebSocket | FastifyRepl
 			avatar,
 			mode,
 			users.length === 0 ? "1" : "2",
-			"queued"
+			"idle"
 		);
 		users.push(user);
-		console.log(`User registered: ${user.alias} (${mode}) avatar=${avatar}`);
+		console.log(`User registered: ${user.alias} (${mode})`);
 	}
 
 	if ((mode === "local" && users.length !== 2)
