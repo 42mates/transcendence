@@ -1,9 +1,7 @@
 import Game from "./Game";
 import InputHandler from "./InputHandler";
 
-import i18n from "../i18n/i18n";
-
-import { JoinRequest, JoinResponse, GameStatusUpdateMessage } from "../types/messages";
+import { JoinRequest } from "../types/messages";
 
 import { updatePlayerInfo } from "../utils/gameInfos";
 import { getPlayerPhoto } from "../utils/gameInfos";

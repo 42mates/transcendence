@@ -58,18 +58,22 @@ export type GameStateMessage = {
 };
 
 
-export type GameStatusUpdateMessage = {
-    type: "game_status_update";
-    gameId: string;
-    status: "pending" | "waiting" | "running" | "ended";
+export type GameUpdateMessage = {
+	type: "game_update";
+	gameId: string;
+	status: "pending" | "waiting" | "running" | "ended";
 	score: [number, number];
-    winner?: string;
-    loser?: string;
-    tournamentId?: string;
-	tournamentStatus?: "waiting" | "running" | "ended";
-	leaderboard?: {first: string, second: string, third: string};
+	winner?: string;
+	loser?: string;
 };
 
+export type TournamentUpdateMessage = {
+	type: "tournament_update";
+	tournamentId: string;
+	status: "waiting" | "running" | "ended";
+	rounds: number;
+	leaderboard?: { first: string; second: string; third: string };
+};
 
 export type GameErrorType = {
 	type: "game_error";

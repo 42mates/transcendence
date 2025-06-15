@@ -1,16 +1,17 @@
 import type { JoinResponse,
-			  GameStatusUpdateMessage} from "../types/messages";
+			  GameUpdateMessage,
+			  TournamentUpdateMessage} from "../types/messages";
 
 import { sendJoinResponse }            from "./join";
 import { GameInstance }                from "../pong/game.class";
 import { tournaments,
 		 games,
 		 onlineQueues,
-		 connectedUsers}                from "../game/state";
+		 connectedUsers}               from "../game/state";
 import { User }                        from "./User";
-import { getUniqueGameId, send }             from "../utils";
-import { WaitingForPlayers }          from "./exceptions";
-import { removeConnectedUserFromDB } from "../db/connectedUsers";
+import { getUniqueGameId }             from "../utils";
+import { WaitingForPlayers }           from "./exceptions";
+import { removeConnectedUserFromDB }   from "../db/connectedUsers";
 
 
 
@@ -142,18 +143,18 @@ export default class Tournament {
 				for (const p of this._p)
 					p.status = "idle";
 
-				this.sendGameUpdate(0);
-				this.sendGameUpdate(1);
+				this.sendTournamentUpdate(0);
+				this.sendTournamentUpdate(1);
 				break;
 			case "first":
 				console.log(`[${this._id}] Waiting for game[1] to end.`);
 				this._status = "waiting";
-				this.sendGameUpdate(0);
+				this.sendTournamentUpdate(0);
 				break;
 			case "second":
 				console.log(`[${this._id}] Waiting for game[0] to end.`);
 				this._status = "waiting";
-				this.sendGameUpdate(1);
+				this.sendTournamentUpdate(1);
 				break;
 			default:
 				console.log(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[0].status}, ${this._games[1].status}`);
@@ -183,7 +184,7 @@ export default class Tournament {
 		sendJoinResponse(this._games[game_idx].id, this.getFormattedTournament());
 	}
 
-	private sendGameUpdate(idx: number)
+	private sendTournamentUpdate(idx: number)
 	{
 		const game = this._games[idx];
 		if (!game) 
@@ -192,19 +193,10 @@ export default class Tournament {
 		for (const player of game.players)
 		{
 			player.send({
-				type: "game_status_update",
-				gameId: game.id,
-				status: game.status,
-				score: [game.score[0], game.score[1]],
+				type: "tournament_update",
 				tournamentId: this._id,
-				tournamentStatus: this._status,
-				leaderboard: { 
-					// Ensure [2] is the winner's game and [3] is the loser's game
-					first: this._games[2]?.winner?.alias!, 
-					second: this._games[2]?.loser?.alias!,
-					third: this._games[3]?.winner?.alias!,
-				},
-			} as GameStatusUpdateMessage);
+				status: this.status,
+			} as TournamentUpdateMessage);
 		}
 		console.log(`[${this._id}] Sent update (status: ${this._status}) for game ${game.id} to players: ${game.players.map(p => p.alias).join(", ")}`);
 	}
@@ -219,12 +211,12 @@ export default class Tournament {
 			case "first":
 				console.log(`[${this._id}] Waiting for game[3] to end.`);
 				this._status = "waiting";
-				this.sendGameUpdate(2);
+				this.sendTournamentUpdate(2);
 				break;
 			case "second":
 				console.log(`[${this._id}] Waiting for game[2] to end.`);
 				this._status = "waiting";
-				this.sendGameUpdate(3);
+				this.sendTournamentUpdate(3);
 				break;
 			default:
 				console.log(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[2].status}, ${this._games[3].status}`);
@@ -255,18 +247,15 @@ export default class Tournament {
 		for (const player of this._p)
 		{
 			player.send({
-				type: "game_status_update",
-				gameId: "dontread",
-				status: this._status,
-				score: [0, 0],
+				type: "tournament_update",
 				tournamentId: this._id,
-				tournamentStatus: "ended",
+				status: this.status,
 				leaderboard: {
 					first: this._games[2]?.winner?.alias!,
 					second: this._games[2]?.loser?.alias!,
 					third: this._games[3]?.winner?.alias!,
 				},
-			} as GameStatusUpdateMessage);
+			} as TournamentUpdateMessage);
 		}
 	}
 

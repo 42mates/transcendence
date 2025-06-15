@@ -1,7 +1,7 @@
 import i18n from '../i18n/i18n';
 import type { JoinResponse, 
 			  PlayerInputMessage, GameStateMessage,
-			  GameStatusUpdateMessage, 
+			  GameUpdateMessage, TournamentUpdateMessage,
 			  QuitRequest, QuitResponse } from '../types/messages';
 import Canvas from './Canvas';
 import { updatePlayerInfo } from '../utils/gameInfos';
@@ -95,8 +95,11 @@ export default abstract class Game {
 				case 'game_state':
 					this.handleGameState(data as GameStateMessage);
 					break;
-				case 'game_status_update':
-					this.handleGameStatusUpdate(data as GameStatusUpdateMessage);
+				case 'game_update':
+					this.handleGameUpdate(data as GameUpdateMessage);
+					break;
+				case 'tournament_update':
+					this.handleTournamentUpdate(data as TournamentUpdateMessage);
 					break;
 				case 'quit_response':
 					this.handleQuitResponse(data as QuitResponse);
@@ -184,12 +187,16 @@ export default abstract class Game {
 		this._canvas?.updateGameState(data);
 	}
 
-	protected async handleGameStatusUpdate(data: GameStatusUpdateMessage)
+	private async handleGameUpdate(data: GameUpdateMessage)
 	{
-		console.log(`[${this._gameId}] Received game status update:`, data);
+		console.log(`[${this._gameId}] Received game update:`, data);
 		this._status = data.status;
 		if (data.status === "ended" )
 			this._canvas?.printGameEnd(data.winner!, data.score);
+	}
+
+	protected handleTournamentUpdate(data: TournamentUpdateMessage) {
+		throw new Error("Tournament updates are not supported in this game mode.");
 	}
 
     public sendQuitRequest(reason?: string) {

@@ -1,6 +1,6 @@
 import { WebSocket }    from "ws";
 import { FastifyReply } from "fastify";
-import type { JoinResponse, GameStateMessage, GameStatusUpdateMessage } from "../types/messages";
+import type { JoinResponse, GameStateMessage, GameUpdateMessage, TournamentUpdateMessage } from "../types/messages";
 
 export class User {
 	private _connection: WebSocket | FastifyReply;
@@ -62,7 +62,7 @@ export class User {
 		this._status = value;
 	}
 
-	send(msg: JoinResponse | GameStateMessage | GameStatusUpdateMessage, HTTPstatus: number = 200): void {
+	send(msg: JoinResponse | GameStateMessage | GameUpdateMessage | TournamentUpdateMessage, HTTPstatus: number = 200): void {
 		if (this._gameMode === "local" && this._playerId === "2") return;
 
 		if (this._connection instanceof WebSocket)

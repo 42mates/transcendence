@@ -4,7 +4,7 @@ import { GameCanvas } from "./gameCanvas.class";
 import { User }       from "../join/User";
 import {
 	GameStateMessage,
-	GameStatusUpdateMessage,
+	GameUpdateMessage,
 }                     from "../types/messages";
 import { tournaments } from "../game/state";
 
@@ -180,19 +180,13 @@ export class GameInstance {
 		else if (this._mode === "tournament")
 			throw new Error("Couldn't update tournament: Tournament ID not found.");
 
-		let tournamentStatus = (this._tournamentId && tournaments[this._tournamentId]) 
-			? tournaments[this._tournamentId].status
-			: undefined;
-
-		const msg: GameStatusUpdateMessage = {
-			type: "game_status_update",
+		const msg: GameUpdateMessage = {
+			type: "game_update",
 			gameId: this._id,
 			status: this._status,
 			score: [this._player1.score, this._player2.score],
-			winner: this._winner.alias,
-			loser: this._loser.alias,
-			tournamentId: this._tournamentId,
-			tournamentStatus: tournamentStatus
+			winner: winner.alias,
+			loser: loser.alias,
 		};
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);

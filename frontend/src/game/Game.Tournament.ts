@@ -1,9 +1,7 @@
 import Game from "./Game";
 import InputHandler from "./InputHandler";
 
-import i18n from "../i18n/i18n";
-
-import { JoinRequest, JoinResponse, GameStatusUpdateMessage } from "../types/messages";
+import { JoinRequest, JoinResponse, TournamentUpdateMessage } from "../types/messages";
 
 import { updatePlayerInfo } from "../utils/gameInfos";
 import { getPlayerPhoto } from "../utils/gameInfos";
@@ -12,8 +10,8 @@ import { getPlayerPhoto } from "../utils/gameInfos";
 export default class TournamentGame extends Game {
 	override _inputHandler: InputHandler;
 
-	private _gameNum: number = 0;
 	private _tournamentId?: string = undefined;
+	private _finaleRequested: boolean = false;
 
 	constructor(
 		override _alias: string[] = ["default1"],
@@ -36,10 +34,11 @@ export default class TournamentGame extends Game {
 	}
 
 	override sendJoinRequest() {
-		if (!this._socket || this._socket.readyState !== WebSocket.OPEN) {
-			console.error('[sendJoinRequest] WebSocket is not connected');
+		if (!this._socket 
+			|| this._socket.readyState !== WebSocket.OPEN 
+			|| this._status === "ended")
 			return;
-		}
+
 		const message: JoinRequest = {
 			type: "join_request",
 			payload: {
@@ -60,27 +59,23 @@ export default class TournamentGame extends Game {
 			const p2 = data.playerId === "1" ? 1 : 0;
 			updatePlayerInfo(1, { alias: data.aliases![p1], photoUrl: data.avatar![p1] });
 			updatePlayerInfo(2, { alias: data.aliases![p2], photoUrl: data.avatar![p2] });
-			this._gameNum++;
-			if (this._gameNum > 2)
-				console.warn(`[${this._gameId}] More than 2 games in tournament mode detected. This is unexpected.`);
 		}
 		super.handleJoinResponse(data);
 	}
 
 
-	override async handleGameStatusUpdate(data: GameStatusUpdateMessage) {
-		super.handleGameStatusUpdate(data);
+	override async handleTournamentUpdate(data: TournamentUpdateMessage){
 
-
-		if (!data.tournamentId || !data.tournamentStatus)
+		if (!data.tournamentId || !data.status)
 			throw new Error("Game status update received without tournamentId or tournamentStatus.");
 		
-		if (data.tournamentStatus === "ended")
+		if (data.status === "ended")
 		{
 			console.log(`[${this._gameId}] Tournament ended.`);
+			this._status = "ended";
 			this.canvas?.printLeaderboard(data.leaderboard!);
 
-			this.leaveGame('/');
+			//this.leaveGame('/');
 			return;
 		}
 
@@ -88,15 +83,11 @@ export default class TournamentGame extends Game {
 
 		await this._inputHandler.keyPressed("Enter");
 
-		if (this._gameNum < 2)
-		{
-			if (data.tournamentStatus === "waiting")
-				this.canvas?.drawLoadingAnimation();
-			this._gameId = undefined;
-			this._playerId = undefined;
-			this.joinGame();
+        if (!this._finaleRequested) {
+            this._finaleRequested = true;
+            this._gameId = undefined;
+            this._playerId = undefined;
+            this.joinGame();
 		}
-		else
-			console.log(`[${this._gameId}] request ${this._gameNum}`);
 	}
 }
