@@ -1,9 +1,9 @@
 {
 	"title": "Juego",
 	"alias": {
-		"prompt": "Por favor, introduce tu alias:",
-		"promptPlayer1": "Por favor, introduce el alias del Jugador 1:",
-		"promptPlayer2": "Por favor, introduce el alias del Jugador 2:",
+		"prompt": "Alias:",
+		"promptPlayer1": "Alias Jugador 1:",
+		"promptPlayer2": "Alias Jugador 2:",
 		"placeholder1": "Titiritero420",
 		"placeholder2": "SeñorDelJuego69",
 		"error": {
@@ -50,5 +50,9 @@
 		"connectionLost": "Conexión perdida. Inténtalo de nuevo.",
 		"invalidMove": "Movimiento inválido. Inténtalo de nuevo.",
 		"timeout": "¡Tiempo agotado!"
+	},
+	"quit": {
+		"quitButton": "Salir",
+		"newGameButton": "Jugar de nuevo"
 	}
 }
