@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: mbecker <mbecker@student.42.fr>            +#+  +:+       +#+         #
+#    By: ael-malt <ael-malt@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/06 21:30:49 by mbecker           #+#    #+#              #
-#    Updated: 2025/06/03 18:28:18 by mbecker          ###   ########.fr        #
+#    Updated: 2025/06/13 15:57:03 by ael-malt         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ all: env ssl
 	@export COMPOSE_BAKE=true; $(COMPOSE) up --build -d
 	@echo "$(BGREEN)$(NAME)$(GREEN) is now running and available at $(BGREEN)https://localhost:$$(grep '^HTTPS_PORT=' .env | cut -d'=' -f2)$(RESET)"
 
-light:
+light: env ssl
 	@echo "$(YELLOW)Building $(BYELLOW)$(NAME) [LIGHT VERSION]$(YELLOW)...$(RESET)"
 	@export COMPOSE_BAKE=true; $(COMPOSE_LIGHT) up --build -d
 	@echo "$(BGREEN)$(NAME) [LIGHT VERSION]$(GREEN) is now running and available at $(BGREEN)https://localhost:$$(grep '^HTTPS_PORT=' .env | cut -d'=' -f2)$(RESET)"

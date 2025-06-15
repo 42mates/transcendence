@@ -10,7 +10,7 @@ const saveToLocalStorage = ({ givenName, picture, email }: GoogleLoginType) => {
 	localStorage.setItem("picture", picture);
 }
 
-const handleCredentialResponse = async (response: any) =>{
+export const handleCredentialResponse = async (response: any) =>{
 	if(response.credential)
 	{
 		const popup = document.getElementById("loginPopup");
@@ -69,42 +69,58 @@ export function initGoogleAuth() {
 			callback: handleCredentialResponse,
 		});
 
-		// Ajoutez un callback pour surveiller l'état du One Tap
-		google.accounts.id.prompt((notification: any) => {
-			// Affiche le bouton si One Tap n'est pas affiché OU ignoré
-			// if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-			//	 const reason = notification.isNotDisplayed()
-			//		 ? notification.getNotDisplayedReason()
-			//		 : notification.getSkippedReason();
-			//	 console.log("Affichage du bouton central (motif) :", reason);
 
-			//	 let popup = document.getElementById("loginPopup");
-			//	 if (!popup) {
-			//		 popup = document.createElement("div");
-			//		 popup.setAttribute("id", "loginPopup");
-			//		 popup.setAttribute("data-size", "medium");
-			//		 document.body.appendChild(popup);
-			//		 popup.style.position = "absolute";
-			//		 popup.style.top = "50%";
-			//		 popup.style.left = "50%";
-			//		 popup.style.transform = "translateX(-50%)";
-			//	 }
-			//	 google.accounts.id.renderButton(
-			//		 popup,
-			//		 { theme: "filled_black", size: "large" }
-			//	 );
-			// }
+			// Remove any existing popup
+			let popup = document.getElementById("loginPopup");
+			if (popup) popup.remove();
 
-			if (notification.isNotDisplayed()) {
-				console.log("One Tap non affiché :", notification.getNotDisplayedReason());
-			} else if (notification.isSkippedMoment()) {
-				console.log("One Tap ignoré :", notification.getSkippedReason());
-			} else if (notification.isDismissedMoment()) {
-				console.log("One Tap fermé :", notification.getDismissedReason());
-			} else {
-				console.log("One Tap affiché (prompt ouvert)");
-			}
-		});
+			// Create and show popup
+			popup = document.createElement("div");
+			popup.setAttribute("id", "loginPopup");
+			popup.setAttribute("data-size", "medium");
+			popup.style.position = "absolute";
+			popup.style.top = "50%";
+			popup.style.left = "50%";
+			popup.style.transform = "translate(-50%, -50%)";
+			popup.style.zIndex = "9999";
+			popup.style.background = "white";
+			popup.style.border = "1px solid #ccc";
+			popup.style.padding = "0px 35px 0px 0px";
+			popup.style.borderRadius = "4px";
+			popup.style.boxShadow = "0 4px 24px rgba(0,0,0,0.2)";
+			popup.style.overflow = "visible";
+
+			// Add a close button
+			const closeBtn = document.createElement("button");
+			closeBtn.textContent = "✕";
+			closeBtn.style.position = "absolute";
+			closeBtn.style.top = "4px";
+			closeBtn.style.right = "7px";
+			closeBtn.style.border = "none";
+			closeBtn.style.fontSize = "1.5rem";
+			closeBtn.style.zIndex = "10000";
+			closeBtn.addEventListener("click", () => {
+				popup.remove();
+			});
+			popup.appendChild(closeBtn);
+
+			// Create a wrapper for the Google button
+			const googleBtnWrapper = document.createElement("div");
+			googleBtnWrapper.style.position = "relative";
+			googleBtnWrapper.style.zIndex = "1";
+			popup.appendChild(googleBtnWrapper);
+
+			document.body.appendChild(popup);
+
+			// Initialize Google Sign-In
+			google.accounts.id.initialize({
+				client_id: client_id,
+				callback: handleCredentialResponse,
+			});
+			google.accounts.id.renderButton(
+				googleBtnWrapper,
+				{ theme: "filled_black", size: "large" }
+			);
 	}
 }
 

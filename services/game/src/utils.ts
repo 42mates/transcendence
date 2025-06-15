@@ -1,7 +1,7 @@
-import { games }          from "./game/state";
-import { WebSocket }      from "ws";
+import { games }		  from "./game/state";
+import { WebSocket }	  from "ws";
 import { FastifyReply }   from 'fastify';
-import { User }           from "./join/User";
+import { User }		   from "./join/User";
 import { sanitizeAlias }  from "./join/alias";
 import { connectedUsers } from "./game/state";
 
@@ -23,8 +23,16 @@ export function isValidGameId(id: string | undefined): boolean {
 
 export function isValidAvatar(url: string): boolean {
 	if (!url) return false;
+
+	// Disallow dangerous schemes
+	if (/^(javascript|data|vbscript):/i.test(url.trim())) return false;
+
+	// Allow local assets
 	if (url.startsWith("/assets/")) return true;
-	if (url.startsWith("http://") || url.startsWith("https://")) return true;
+
+	// Allow Google profile pictures
+	if (/^https:\/\/lh3\.googleusercontent\.com\//.test(url)) return true;
+
 	return false;
 }
 

@@ -1,9 +1,9 @@
 {
 	"title": "게임",
 	"alias": {
-		"prompt": "별명을 입력하세요:",
-		"promptPlayer1": "플레이어 1의 별명을 입력하세요:",
-		"promptPlayer2": "플레이어 2의 별명을 입력하세요:",
+		"prompt": "별명:",
+		"promptPlayer1": "플레이어 1의 별명:",
+		"promptPlayer2": "플레이어 2의 별명:",
 		"placeholder1": "퍼펫마스터420",
 		"placeholder2": "게임로드69",
 		"error": {
@@ -54,5 +54,9 @@
 		"connectionLost": "연결이 끊어졌습니다. 다시 시도해주세요.",
 		"invalidMove": "잘못된 움직임입니다. 다시 시도하세요.",
 		"timeout": "시간 초과!"
+	},
+	"quit": {
+		"quitButton": "종료",
+		"newGameButton": "다시 하기"
 	}
 }
