@@ -93,8 +93,11 @@ function getGame(msg: QuitRequest): GameInstance {
 		message = "Game not found";
 		http = 404;
 	}
-	else if (!games[msg.gameId].players[msg.playerId])
-		message = `Player ${msg.playerId} not found in game ${msg.gameId}`;
+	else {
+		const playerIdx = msg.playerId === "1" ? 0 : 1;
+		if (!games[msg.gameId].players[playerIdx])
+			message = `Player ${msg.playerId} not found in game ${msg.gameId}`;
+	}
 
 	if (message) {
 		const errorResponse: QuitResponse = {
