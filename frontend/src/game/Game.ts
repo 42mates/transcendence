@@ -29,7 +29,7 @@ export default abstract class Game {
 	public get alias(): string[] { return this._alias; }
 	public get canvas(): Canvas | null { return this._canvas; }
 	public get controls(): { up: string, down: string }[] { return this._controls; }
-
+	public get status(): "pending" | "waiting" | "running" | "ended" { return this._status; }
 
 	constructor(
 		protected _alias: string[] = ["default1", "default2"],
