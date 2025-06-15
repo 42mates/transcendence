@@ -16,6 +16,9 @@
 		"unexpected": "Une erreur inattendue est survenue. Veuillez réessayer plus tard.",
 		"network": "Erreur réseau. Veuillez réessayer.",
 		"server": "Erreur serveur. Veuillez contacter le support.",
-		"notFound": "Ressource non trouvée."
+		"notFound": "Ressource non trouvée.",
+		"titel404": "Page non trouvée",
+		"text404": "Désolé, nous n'avons pas trouvé la page que vous recherchez.",
+		"backhome": "Retour à l'accueil"
 	}
 }
