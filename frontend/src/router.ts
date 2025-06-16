@@ -46,7 +46,7 @@ export async function loadRoute(path: string) {
 				</div>
 			</div>
 		</main>`;
-		translateDOM(); // It's also good practice to call translateDOM after setting new innerHTML with i18n keys
+		translateDOM();
 	}
 }
 

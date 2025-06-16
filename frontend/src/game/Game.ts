@@ -204,7 +204,7 @@ export default abstract class Game {
 		if (!this._socket) return;
 		const quitRequest: QuitRequest = {
 			type: "quit_request",
-			alias: this._alias[0], // Assuming player 1 is the one quitting
+			alias: this._alias[0],
 			gameId: this._gameId,
 			playerId: this._playerId,
 			reason,
