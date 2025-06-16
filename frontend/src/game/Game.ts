@@ -11,11 +11,11 @@ import InputHandler, { InputState } from './InputHandler';
 export default abstract class Game {
 
 	// Protected properties
-	protected _socket:      WebSocket | null = null;
-	protected _gameId?:       string = undefined;
-	protected _playerId?:     "1" | "2" = undefined;
-	protected _status:	      "pending" | "waiting" | "running" | "ended" = "pending";
-	protected _canvas:      Canvas | null = null;
+	protected _socket: WebSocket | null = null;
+	protected _gameId?: string = undefined;
+	protected _playerId?: "1" | "2" = undefined;
+	protected _status: "pending" | "waiting" | "running" | "ended" = "pending";
+	protected _canvas: Canvas | null = null;
 	protected joinPromise: Promise<string>;
 	protected joinResolve: ((gameId: string) => void) | null = null;
 
@@ -200,17 +200,17 @@ export default abstract class Game {
 		throw new Error("Tournament updates are not supported in this game mode.");
 	}
 
-    public sendQuitRequest(reason?: string) {
-        if (!this._socket) return;
-        const quitRequest: QuitRequest = {
+	public sendQuitRequest(reason?: string) {
+		if (!this._socket) return;
+		const quitRequest: QuitRequest = {
 			type: "quit_request",
 			alias: this._alias[0], // Assuming player 1 is the one quitting
 			gameId: this._gameId,
 			playerId: this._playerId,
 			reason,
-        };
-        this._socket.send(JSON.stringify(quitRequest));
-    }
+		};
+		this._socket.send(JSON.stringify(quitRequest));
+	}
 
 	protected handleQuitResponse(data: QuitResponse) {
 		if (data.status === "success") {

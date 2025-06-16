@@ -11,19 +11,19 @@ class EmptyAlias extends Error {
 }
 
 class DuplicateAlias extends Error {
-    constructor(alias: string) {
-        const msg = i18n.t('game:alias.error.duplicate', { alias: alias }) ?? 'Duplicate alias error';
-        super(msg);
-        this.name = "DuplicateAlias";
-    }
+	constructor(alias: string) {
+		const msg = i18n.t('game:alias.error.duplicate', { alias: alias }) ?? 'Duplicate alias error';
+		super(msg);
+		this.name = "DuplicateAlias";
+	}
 }
 
 class InvalidAlias extends Error {
-    constructor(alias: string) {
-        const msg = i18n.t('game:alias.error.invalid', { alias: alias }) ?? 'Invalid alias error';
-        super(msg);
-        this.name = "InvalidAlias";
-    }
+	constructor(alias: string) {
+		const msg = i18n.t('game:alias.error.invalid', { alias: alias }) ?? 'Invalid alias error';
+		super(msg);
+		this.name = "InvalidAlias";
+	}
 }
 
 type GameFormType = {

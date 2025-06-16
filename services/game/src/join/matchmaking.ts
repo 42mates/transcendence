@@ -1,15 +1,13 @@
-import { tournaments, onlineQueues}     from "../game/state";
-import { getUniqueGameId }              from "../utils";
+import { tournaments, onlineQueues} from "../game/state";
+import { getUniqueGameId } from "../utils";
 
-import { GameInstance }                 from "../pong/game.class";
-import { sendJoinResponse }             from "./join";
-import { User }                         from "../join/User";
-import { games }                        from "../game/state";
+import { GameInstance } from "../pong/game.class";
+import { sendJoinResponse } from "./join";
+import { User } from "../join/User";
+import { games } from "../game/state";
 import Tournament, { createTournament } from "./tournament";
 
-import { InvalidNumberOfPlayers,
-		 WaitingForPlayers,
-		 TournamentNotFound }           from "./exceptions";
+import { InvalidNumberOfPlayers, WaitingForPlayers, TournamentNotFound } from "./exceptions";
 
 
 // local matchmaking
