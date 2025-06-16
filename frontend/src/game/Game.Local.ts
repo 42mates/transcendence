@@ -1,7 +1,7 @@
 import Game from "./Game";
 import InputHandler from "./InputHandler";
 
-import { JoinRequest } from "../types/messages";
+import { JoinRequest, JoinResponse } from "../types/messages";
 
 import { updatePlayerInfo } from "../utils/gameInfos";
 import { getPlayerPhoto } from "../utils/gameInfos";
@@ -44,5 +44,16 @@ export default class LocalGame extends Game {
 			},
 		};
 		this._socket!.send(JSON.stringify(message));
+	}
+
+	override handleJoinResponse(data: JoinResponse) {
+		if (data.status === 'accepted')
+		{
+			if (data.aliases && data.aliases.length >= 2 && data.avatar && data.avatar.length >= 2) {
+				updatePlayerInfo(1, { alias: data.aliases[0], photoUrl: data.avatar[0] });
+				updatePlayerInfo(2, { alias: data.aliases[1], photoUrl: data.avatar[1] });
+			}
+		}
+		super.handleJoinResponse(data);
 	}
 }
