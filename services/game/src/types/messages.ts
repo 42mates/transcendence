@@ -71,7 +71,7 @@ export type TournamentUpdateMessage = {
 	type: "tournament_update";
 	tournamentId: string;
 	status: "waiting" | "finale_ready" | "running" | "ended";
-	rounds: number;
+	isOpponentOnline?: boolean;
 	leaderboard?: { first: string; second: string; third: string };
 };
 

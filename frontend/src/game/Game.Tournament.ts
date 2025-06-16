@@ -86,7 +86,7 @@ export default class TournamentGame extends Game {
 		}
 
 		if (data.status === "finale_ready") this._finaleReady = true;
-		
+
 		if (this._finaleReady && !this._finaleRequested)
 		{
 			this._finaleReady = true;
@@ -97,6 +97,7 @@ export default class TournamentGame extends Game {
 			this._tournamentId = data.tournamentId;
 
 			this._inputHandler.keyPressed("Enter").then(() => {
+				if (this._gamesPlayed > 1) return;
 				this._gameId = undefined;
 				this._playerId = undefined;
 				this.joinGame();

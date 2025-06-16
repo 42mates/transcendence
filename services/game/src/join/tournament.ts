@@ -140,11 +140,26 @@ export default class Tournament {
 				this.createGame(this._winners);
 				this.createGame(this._losers);
 
+
+
 				for (const p of this._p)
-					p.status = "idle";
+					if (p.status !== "quit") 
+						p.status = "idle";
 
 				this.sendTournamentUpdate(0);
 				this.sendTournamentUpdate(1);
+
+				// If any player in game[2] or game[3] has status "quit", set game status to "ended"
+				for (const game of [this._games[2], this._games[3]])
+				{
+					if (game){
+
+						const quitter = game.players.find(p => p.status === "quit");
+						if (quitter)
+							game.quit(quitter);
+					}
+				}
+
 				break;
 			case "first":
 				console.log(`[${this._id}] Waiting for game[1] to end.`);
@@ -168,6 +183,7 @@ export default class Tournament {
 		if (players.length !== 2) return;
 
 		const game = this._games[game_idx];
+		console.log(`[${this._id}] Game[${game_idx}] status: ${game.status}`);
 
 		if (game.status === "ended")
 		{
@@ -197,11 +213,21 @@ export default class Tournament {
 
 		for (const player of game.players)
 		{
+			let isOpponentOnline = true;
+			if (idx === 2 || idx === 3)
+			{
+				const opponent = game.players.find(p => p.alias !== player.alias);
+				if (opponent!.status === "quit")
+					isOpponentOnline = false;
+				console.log(`[${this._id}] Opponent ${opponent!.alias} is ${isOpponentOnline ? "online" : "offline"} for player ${player.alias}`);
+			}
+
 			player.send({
 				type: "tournament_update",
 				tournamentId: this._id,
 				status: this.status,
-			} as TournamentUpdateMessage);
+				isOpponentOnline: isOpponentOnline
+			} as TournamentUpdateMessage)
 		}
 		console.log(`[${this._id}] Sent update (status: ${this._status}) for game ${game.id} to players: ${game.players.map(p => p.alias).join(", ")}`);
 	}

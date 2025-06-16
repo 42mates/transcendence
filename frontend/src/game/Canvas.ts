@@ -393,9 +393,9 @@ export default class Canvas {
 		const fontSize = Math.max(24, Math.min(this._canvas.width, this._canvas.height) * 0.07);
 
 		const title = i18n ? i18n.t("game:leaderboard.title") : "Leaderboard";
-		const firstText = `1st: ${leaderboard.first}`;
-		const secondText = `2nd: ${leaderboard.second}`;
-		const thirdText = `3rd: ${leaderboard.third}`;
+		const firstText = `#1: ${leaderboard.first}`;
+		const secondText = `#2: ${leaderboard.second}`;
+		const thirdText = `#3: ${leaderboard.third}`;
 
 		this._ctx.save();
 		this._ctx.font = `bold ${fontSize * 1.1}px "Russo One", "Black Han Sans", system-ui, sans-serif`;

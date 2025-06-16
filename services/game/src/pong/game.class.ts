@@ -109,6 +109,17 @@ export class GameInstance {
 		}
 	}
 
+	public getUpdate(): GameUpdateMessage {
+		return {
+			type: "game_update",
+			gameId: this._id,
+			status: this._status,
+			score: [this._player1.score, this._player2.score],
+			winner: this._winner ? this._winner.alias : undefined,
+			loser: this._loser ? this._loser.alias : undefined,
+		};
+	}
+
 	public getState(): GameStateMessage {
 		return {
 			type: "game_state",
@@ -167,6 +178,7 @@ export class GameInstance {
 			winner: winner.alias,
 			loser: loser.alias,
 		};
+		//const msg: GameStateMessage = this.getUpdate();
 
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);

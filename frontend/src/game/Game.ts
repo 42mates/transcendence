@@ -15,6 +15,7 @@ export default abstract class Game {
 	protected _gameId?:       string = undefined;
 	protected _playerId?:     "1" | "2" = undefined;
 	protected _status:	      "pending" | "waiting" | "running" | "ended" = "pending";
+	protected _gamesPlayed: number = 0;
 	protected _canvas:      Canvas | null = null;
 	protected joinPromise: Promise<string>;
 	protected joinResolve: ((gameId: string) => void) | null = null;
@@ -193,7 +194,11 @@ export default abstract class Game {
 		console.log(`[${this._gameId}] Received game update:`, data);
 		this._status = data.status;
 		if (data.status === "ended" )
+		{
+			console.log(`[${this._gameId}] incrementing games played from ${this._gamesPlayed} to ${this._gamesPlayed + 1}`);
+			this._gamesPlayed++;
 			this._canvas?.printGameEnd(data.winner!, data.score);
+		}
 	}
 
 	protected handleTournamentUpdate(data: TournamentUpdateMessage) {
