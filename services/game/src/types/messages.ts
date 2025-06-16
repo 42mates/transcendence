@@ -29,10 +29,10 @@ export type JoinResponse = {
 	tournament?: {
 		id: string;
 		status: "waiting" | "running" | "ended";
-	    game1: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
-	    game2: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
-	    game3?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
-	    game4?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string }
+		game1: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
+		game2: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
+		game3?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
+		game4?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string }
 	}
 };
 

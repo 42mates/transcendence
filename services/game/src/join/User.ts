@@ -1,4 +1,4 @@
-import { WebSocket }    from "ws";
+import { WebSocket } from "ws";
 import { FastifyReply } from "fastify";
 import type { JoinResponse, GameStateMessage, GameUpdateMessage, TournamentUpdateMessage } from "../types/messages";
 

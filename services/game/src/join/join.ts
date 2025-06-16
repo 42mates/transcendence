@@ -1,19 +1,14 @@
 import type { JoinRequest, JoinResponse} from "../types/messages";
 
-import { WebSocket }                               from "ws";
-import { FastifyReply}                             from 'fastify';
-import { games, onlineQueues, connectedUsers }     from "../game/state";
-import { validateAlias, sanitizeAlias }                         from "./alias";
-import { User }                                    from "./User";
-import { send, isValidAvatar }                     from "../utils";
-import { tryMatchmakeLocal,
-		 tryMatchmake1v1, 
-		 tryMatchmakeTournament }                  from "./matchmaking";
-import { InvalidNumberOfPlayers,
-		 InvalidAlias,
-		 WaitingForPlayers, 
-		 TournamentNotFound}                       from "./exceptions";
-import { addConnectedUserToDB }                    from "../db/connectedUsers";
+import { WebSocket } from "ws";
+import { FastifyReply} from 'fastify';
+import { games, onlineQueues, connectedUsers } from "../game/state";
+import { validateAlias, sanitizeAlias } from "./alias";
+import { User } from "./User";
+import { send, isValidAvatar } from "../utils";
+import { tryMatchmakeLocal, tryMatchmake1v1,  tryMatchmakeTournament } from "./matchmaking";
+import { InvalidNumberOfPlayers, InvalidAlias, WaitingForPlayers,  TournamentNotFound} from "./exceptions";
+import { addConnectedUserToDB } from "../db/connectedUsers";
 
 
 function findExistingPlayer(message: JoinRequest): User[] | null
@@ -148,7 +143,7 @@ export default function join(message: JoinRequest, connection: WebSocket | Fasti
 			const response: JoinResponse = {
 				type: "join_response",
 				status: "rejected",
-        		aliases: users ? [users[0].alias, users[1]?.alias].filter(Boolean) : null,
+				aliases: users ? [users[0].alias, users[1]?.alias].filter(Boolean) : null,
 				playerId: "1",
 				gameId: null,
 				reason: "An error occurred while processing your request.",

@@ -1,7 +1,7 @@
 import { FastifyPluginAsync, FastifyInstance } from 'fastify';
 import { PlayerInputMessage } from '../types/messages';
-import input                  from '../game/input';
-import { isValidGameId }      from '../utils';
+import input from '../game/input';
+import { isValidGameId } from '../utils';
 
 const inputRoute: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 	fastify.post<{

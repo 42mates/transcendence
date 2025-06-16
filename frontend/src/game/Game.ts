@@ -205,17 +205,17 @@ export default abstract class Game {
 		throw new Error("Tournament updates are not supported in this game mode.");
 	}
 
-    public sendQuitRequest(reason?: string) {
-        if (!this._socket) return;
-        const quitRequest: QuitRequest = {
+	public sendQuitRequest(reason?: string) {
+		if (!this._socket) return;
+		const quitRequest: QuitRequest = {
 			type: "quit_request",
-			alias: this._alias[0], // Assuming player 1 is the one quitting
+			alias: this._alias[0],
 			gameId: this._gameId,
 			playerId: this._playerId,
 			reason,
-        };
-        this._socket.send(JSON.stringify(quitRequest));
-    }
+		};
+		this._socket.send(JSON.stringify(quitRequest));
+	}
 
 	protected handleQuitResponse(data: QuitResponse) {
 		if (data.status === "success") {

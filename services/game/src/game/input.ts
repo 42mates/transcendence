@@ -1,7 +1,7 @@
-import type { FastifyReply }                                 from "fastify";
-import { WebSocket }                                         from "ws";
-import { games }                                             from "./state";
-import { send, isValidGameId }                               from "../utils";
+import type { FastifyReply } from "fastify";
+import { WebSocket } from "ws";
+import { games } from "./state";
+import { send, isValidGameId } from "../utils";
 
 import type { PlayerInputMessage, GameErrorType } from "../types/messages"; // Messages JSON
 import { GameInstance } from "../pong/game.class"; // GameInstance class

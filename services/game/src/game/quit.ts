@@ -1,11 +1,11 @@
-import type { FastifyReply }              from "fastify";
+import type { FastifyReply } from "fastify";
 import type { QuitRequest, QuitResponse } from "../types/messages";
 
-import { WebSocket }                           from "ws";
+import { WebSocket } from "ws";
 import { games, connectedUsers, onlineQueues } from "./state";
-import { send, isValidGameId, getUser }        from "../utils";
-import { GameInstance }                        from "../pong/game.class";
-import { User }                                from "../join/User";
+import { send, isValidGameId, getUser } from "../utils";
+import { GameInstance } from "../pong/game.class";
+import { User } from "../join/User";
 import { removeConnectedUserFromDB } from "../db/connectedUsers";
 
 

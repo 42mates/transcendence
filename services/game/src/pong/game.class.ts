@@ -1,11 +1,8 @@
-import { Ball }       from "./ball.class";
-import { Paddle }     from "./paddle.class";
+import { Ball } from "./ball.class";
+import { Paddle } from "./paddle.class";
 import { GameCanvas } from "./gameCanvas.class";
-import { User }       from "../join/User";
-import {
-	GameStateMessage,
-	GameUpdateMessage,
-}                     from "../types/messages";
+import { User } from "../join/User";
+import { GameStateMessage, GameUpdateMessage,} from "../types/messages";
 import { tournaments } from "../game/state";
 
 export class GameInstance {

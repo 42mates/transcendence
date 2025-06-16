@@ -1,17 +1,12 @@
-import type { JoinResponse,
-			  GameUpdateMessage,
-			  TournamentUpdateMessage} from "../types/messages";
+import type { JoinResponse, GameUpdateMessage, TournamentUpdateMessage} from "../types/messages";
 
-import { sendJoinResponse }            from "./join";
-import { GameInstance }                from "../pong/game.class";
-import { tournaments,
-		 games,
-		 onlineQueues,
-		 connectedUsers}               from "../game/state";
-import { User }                        from "./User";
-import { getUniqueGameId }             from "../utils";
-import { WaitingForPlayers }           from "./exceptions";
-import { removeConnectedUserFromDB }   from "../db/connectedUsers";
+import { sendJoinResponse } from "./join";
+import { GameInstance } from "../pong/game.class";
+import { tournaments, games, onlineQueues, connectedUsers} from "../game/state";
+import { User } from "./User";
+import { getUniqueGameId } from "../utils";
+import { WaitingForPlayers } from "./exceptions";
+import { removeConnectedUserFromDB } from "../db/connectedUsers";
 
 
 
