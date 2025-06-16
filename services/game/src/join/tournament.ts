@@ -290,21 +290,6 @@ export default class Tournament {
 
 		this.sendEndUpdate();
 
-		// Remove players from connectedPlayers[]
-		for (const player of this._p) 
-		{
-			const idx = connectedUsers.indexOf(player);
-			if (idx !== -1) 
-			{
-				connectedUsers.splice(idx, 1);
-				removeConnectedUserFromDB(player.alias);
-			}
-		}
-
-		// Remove games from games[]
-		for (const game of this._games)
-			if (games[game.id]) delete games[game.id];
-
 		// Remove tournament from tournaments[]
 		if (tournaments[this._id]) delete tournaments[this._id];
 

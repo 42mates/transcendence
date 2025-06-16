@@ -32,6 +32,7 @@ export default abstract class Game {
 	public get canvas(): Canvas | null { return this._canvas; }
 	public get controls(): { up: string, down: string }[] { return this._controls; }
 	public get status(): "pending" | "waiting" | "running" | "ended" { return this._status; }
+	public get mode(): "local" | "1v1" | "tournament" { return this._mode; }
 
 	constructor(
 		protected _alias: string[] = ["default1", "default2"],

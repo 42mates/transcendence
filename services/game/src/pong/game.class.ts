@@ -92,16 +92,10 @@ export class GameInstance {
 		this._player1.update(this._gameCanvas);
 		this._player2.update(this._gameCanvas);
 		this._ball.update(this._player1, this._player2, this._gameCanvas);
-		//if (this._player1.score >= 11 || this._player2.score >= 11) {
-		//	this.end(
-		//		this._player1.score >= 11 ? this._player1.user : this._player2.user,
-		//		this._player1.score >= 11 ? this._player2.user : this._player1.user,
-		//	);
-		//}
-		if (this._player1.score >= 2 || this._player2.score >= 2) {
+		if (this._player1.score >= 11 || this._player2.score >= 11) {
 			this.end(
-				this._player1.score >= 2 ? this._player1.user : this._player2.user,
-				this._player1.score >= 2 ? this._player2.user : this._player1.user,
+				this._player1.score >= 11 ? this._player1.user : this._player2.user,
+				this._player1.score >= 11 ? this._player2.user : this._player1.user,
 			);
 		}
 	}
