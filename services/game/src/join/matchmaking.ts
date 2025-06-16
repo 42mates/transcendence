@@ -58,5 +58,8 @@ export function tryMatchmakeTournament(user: User, tournamentId?: string) {
 	user.status = "queued";
 	t.update();
 	if (user.status === "queued")
+	{
+		console.log(`[${tournamentId}] User ${user.alias} added to tournament queue`);
 		throw new WaitingForPlayers(user);
+	}
 }

@@ -70,7 +70,7 @@ export type GameUpdateMessage = {
 export type TournamentUpdateMessage = {
 	type: "tournament_update";
 	tournamentId: string;
-	status: "waiting" | "running" | "ended";
+	status: "waiting" | "finale_ready" | "running" | "ended";
 	rounds: number;
 	leaderboard?: { first: string; second: string; third: string };
 };

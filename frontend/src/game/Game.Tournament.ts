@@ -8,10 +8,13 @@ import { getPlayerPhoto } from "../utils/gameInfos";
 
 
 export default class TournamentGame extends Game {
+	override _mode: "tournament" = "tournament";
 	override _inputHandler: InputHandler;
 
 	private _tournamentId?: string = undefined;
+	private _finaleReady: boolean = false;
 	private _finaleRequested: boolean = false;
+	private _t_status: "waiting" | "finale_ready" | "running" | "ended" = "waiting";
 
 	constructor(
 		override _alias: string[] = ["default1"],
@@ -24,8 +27,6 @@ export default class TournamentGame extends Game {
 			throw new Error('Expected 1 players for tournament mode in Game object creation.');
 
 		this._inputHandler = new InputHandler(this._controls, this.sendPlayerInput.bind(this));
-
-		console.log(`[${this._gameId}] Local Game initialized in for players '${this._alias[0]}'`); 
 	}
 
 	override async joinGame() {
@@ -36,19 +37,20 @@ export default class TournamentGame extends Game {
 	override sendJoinRequest() {
 		if (!this._socket 
 			|| this._socket.readyState !== WebSocket.OPEN 
-			|| this._status === "ended")
+			|| this._t_status === "ended")
 			return;
 
 		const message: JoinRequest = {
 			type: "join_request",
 			payload: {
 				alias: this._alias,
-				mode: "tournament",
+				mode: this._mode,
 				gameId: this._gameId || null,
 				avatar: [getPlayerPhoto()],
 				tournamentId: this._tournamentId,
 			},
 		};
+		console.log(`[${this._gameId}] Sending join request for game ID: ${this._gameId}`);
 		this._socket.send(JSON.stringify(message));
 	}
 
@@ -61,33 +63,44 @@ export default class TournamentGame extends Game {
 			updatePlayerInfo(2, { alias: data.aliases![p2], photoUrl: data.avatar![p2] });
 		}
 		super.handleJoinResponse(data);
+		if (data.status === 'accepted')
+			console.log(`[${this._gameId}] Join request accepted for game ID: ${this._gameId}`);
 	}
 
 
 	override async handleTournamentUpdate(data: TournamentUpdateMessage){
-
+		console.log(`[${this._gameId}] Received tournament update:`, data);
 		if (!data.tournamentId || !data.status)
 			throw new Error("Game status update received without tournamentId or tournamentStatus.");
-		
+
+		this._tournamentId = data.tournamentId;
+
 		if (data.status === "ended")
 		{
 			console.log(`[${this._gameId}] Tournament ended.`);
-			this._status = "ended";
+			this._t_status = "ended";
 			this.canvas?.printLeaderboard(data.leaderboard!);
 
 			//this.leaveGame('/');
 			return;
 		}
 
-		this._tournamentId = data.tournamentId;
+		if (data.status === "finale_ready") this._finaleReady = true;
+		
+		if (this._finaleReady && !this._finaleRequested)
+		{
+			this._finaleReady = true;
+			this.canvas?.printMessage("Finale is ready! Press Enter to join.");
 
-		await this._inputHandler.keyPressed("Enter");
+			this._finaleRequested = true; // Empêche plusieurs triggers
 
-        if (!this._finaleRequested) {
-            this._finaleRequested = true;
-            this._gameId = undefined;
-            this._playerId = undefined;
-            this.joinGame();
+			this._tournamentId = data.tournamentId;
+
+			this._inputHandler.keyPressed("Enter").then(() => {
+				this._gameId = undefined;
+				this._playerId = undefined;
+				this.joinGame();
+			});
 		}
 	}
 }

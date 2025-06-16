@@ -17,12 +17,12 @@ import { removeConnectedUserFromDB }   from "../db/connectedUsers";
 
 export default class Tournament {
 	private _games: GameInstance[] = [];
-	private _status: "waiting" | "running" | "ended" = "waiting"; // "waiting" means waiting for players to finish first two games
+	private _status: "waiting" | "finale_ready" | "running" | "ended" = "waiting"; // "waiting" means waiting for players to finish first two games
 	private _winners: User[] = [];
 	private _losers: User[] = [];
 
 	get games(): GameInstance[] { return this._games; }
-	get status(): "waiting" | "running" | "ended" { return this._status; }
+	get status(): "waiting" | "finale_ready" | "running" | "ended" { return this._status; }
 	get id(): string { return this._id; }
 	get players(): User[] { return this._p; }
 	get winners(): User[] { return this._winners; }
@@ -75,7 +75,7 @@ export default class Tournament {
 	{
 		return {
 			id: this._id,
-			status: this._status,
+			status: this._status as "waiting" | "running" | "ended",
 			game1: {
 				id: this._games[0].id,
 				status: this._games[0].status,
@@ -132,7 +132,7 @@ export default class Tournament {
 				console.log(`[${this._id}] Both first round games ended. Starting second round.`);
 
 				// both games ended, so second round is ready
-				this._status = "waiting";
+				this._status = "finale_ready";
 
 				// Create second round games
 				this._winners = [this._games[0].winner!, this._games[1].winner!];
@@ -157,16 +157,16 @@ export default class Tournament {
 				this.sendTournamentUpdate(1);
 				break;
 			default:
-				console.log(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[0].status}, ${this._games[1].status}`);
-				this._status = "waiting";
-				break;
+				throw new Error(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[0].status}, ${this._games[1].status}`);
 		}
 	}
 
 
 	private tryStartFinale(players: User[], game_idx: number)
 	{
+		console.log(`[${this._id}] Trying to start finale for game[${game_idx}] with players: ${players.map(p => `${p.alias} (${p.status})`).join(", ")}`);
 		if (players.length !== 2) return;
+
 
 		for (const user of players)
 		{
@@ -178,7 +178,6 @@ export default class Tournament {
 
 		players[0].status = "matched";
 		players[1].status = "matched";
-		this._status = "running"
 
 		console.log(`[${this._id}] [join] Starting finale game with players: ${players.map(p => p.alias).join(", ")}`);
 		sendJoinResponse(this._games[game_idx].id, this.getFormattedTournament());
@@ -210,18 +209,14 @@ export default class Tournament {
 				break;
 			case "first":
 				console.log(`[${this._id}] Waiting for game[3] to end.`);
-				this._status = "waiting";
 				this.sendTournamentUpdate(2);
 				break;
 			case "second":
 				console.log(`[${this._id}] Waiting for game[2] to end.`);
-				this._status = "waiting";
 				this.sendTournamentUpdate(3);
 				break;
 			default:
-				console.log(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[2].status}, ${this._games[3].status}`);
-				this._status = "waiting";
-				break;
+				throw new Error(`[${this._id}] UNEXPECTED BEHAVIOUR: one game should be ended, but received: ${this._games[2].status}, ${this._games[3].status}`);
 		}
 	}
 
@@ -232,14 +227,17 @@ export default class Tournament {
 		else if (this._games.length !== 4)
 			throw new Error(`Tournament ${this._id} has an invalid number of games: ${this._games.length}`);
 
+		if (this._games.length < 4) return;
+
+		if (this._games[2].status === "ended" && this._games[3].status === "ended")
+			this.handleTournamentEnd();
+
 		// First round is over at this point
-		if (this._status === "waiting")
+		if (this._status === "finale_ready")
 		{
 			this.tryStartFinale(this._winners, 2);
 			this.tryStartFinale(this._losers, 3);
 		}
-		else if (this._status === "running")
-			this.handleTournamentEnd();
 	}
 
 	private sendEndUpdate()
@@ -260,6 +258,7 @@ export default class Tournament {
 	}
 
 	private end() {
+		console.log(`[${this._id}] Ending tournament with players: ${this._p.map(p => p.alias).join(", ")}`);
 		this._status = "ended";
 
 		this.sendEndUpdate();

@@ -7,6 +7,7 @@ import { updatePlayerInfo } from "../utils/gameInfos";
 import { getPlayerPhoto } from "../utils/gameInfos";
 
 export default class LocalGame extends Game {
+	override _mode: "local" = "local";
 	override _inputHandler: InputHandler;
 
 	constructor(
@@ -22,8 +23,6 @@ export default class LocalGame extends Game {
 			throw new Error('Expected 2 players for local mode in Game object creation.');
 
 		this._inputHandler = new InputHandler(this._controls, this.sendPlayerInput.bind(this));
-
-		console.log(`[${this._gameId}] Local Game initialized in for players '${this._alias[0]}' and '${this._alias[1]}'`); 
 	}
 
 	override async joinGame() {
@@ -37,7 +36,7 @@ export default class LocalGame extends Game {
 			type: "join_request",
 			payload: {
 				alias: this._alias,
-				mode: "local",
+				mode: this._mode,
 				gameId: this._gameId || null,
 				avatar: [getPlayerPhoto(), "/assets/default_avatar2.png"],
 				tournamentId: undefined

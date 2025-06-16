@@ -175,11 +175,7 @@ export class GameInstance {
 
 		console.log("Game ended. Winner:", winner.alias, "Loser:", loser.alias);
 
-		if (this._tournamentId && tournaments[this._tournamentId])
-			tournaments[this._tournamentId].update();
-		else if (this._mode === "tournament")
-			throw new Error("Couldn't update tournament: Tournament ID not found.");
-
+	
 		const msg: GameUpdateMessage = {
 			type: "game_update",
 			gameId: this._id,
@@ -188,7 +184,13 @@ export class GameInstance {
 			winner: winner.alias,
 			loser: loser.alias,
 		};
+
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);
+
+		if (this._tournamentId && tournaments[this._tournamentId])
+			tournaments[this._tournamentId].update();
+		else if (this._mode === "tournament")
+			throw new Error("Couldn't update tournament: Tournament ID not found.");
 	}
 }

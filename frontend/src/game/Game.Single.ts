@@ -7,6 +7,7 @@ import { updatePlayerInfo } from "../utils/gameInfos";
 import { getPlayerPhoto } from "../utils/gameInfos";
 
 export default class SingleGame extends Game {
+	override _mode: "1v1" = "1v1";
 	override _inputHandler: InputHandler;
 
 	constructor(
@@ -20,8 +21,6 @@ export default class SingleGame extends Game {
 			throw new Error('Expected 1 players for 1v1 mode in Game object creation.');
 
 		this._inputHandler = new InputHandler(this._controls, this.sendPlayerInput.bind(this));
-
-		console.log(`[${this._gameId}] Local Game initialized in for players '${this._alias[0]}'`); 
 	}
 
 	override async joinGame() {

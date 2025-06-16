@@ -25,7 +25,6 @@ function setupHeaderIcons() {
 
 	function updateUserIconVisibility() {
 		const isLoggedIn = localStorage.getItem(emailKey) !== null;
-		console.log('[Auth] Updating icon visibility. Is logged in:', isLoggedIn);
 		if (isLoggedIn) {
 			iconLogout?.classList.remove('hidden');
 			iconLogin?.classList.add('hidden');
@@ -84,7 +83,7 @@ function setupHeaderIcons() {
 	});
 	
 	window.addEventListener('storage', (event) => {
-		console.log('[Auth] Storage event detected:', event.key, event.oldValue, event.newValue);
+		//console.log('[Auth] Storage event detected:', event.key, event.oldValue, event.newValue);
 		if (event.key === emailKey || (event.key === null && localStorage.getItem(emailKey) === null)) {
 			console.log('[Auth] Relevant storage change detected, updating icon visibility.');
 			updateUserIconVisibility();

@@ -20,6 +20,7 @@ export default abstract class Game {
 	protected joinResolve: ((gameId: string) => void) | null = null;
 
 	// Abstract properties and methods (for subclasses)
+	protected abstract _mode: "local" | "1v1" | "tournament";
 	protected abstract _inputHandler: InputHandler;
 	protected abstract sendJoinRequest(): void;
 
@@ -127,7 +128,7 @@ export default abstract class Game {
 				this.joinResolve(data.gameId);
 				this.joinResolve = null;
 			}
-			console.log(`[${this._gameId}] Joined game as player ${this._playerId}`);
+			console.log(`[${this._gameId}] Joined ${this._mode} game as player ${this._playerId}`);
 		}
 		else if (data.status === 'waiting')
 			this.canvas?.drawLoadingAnimation();
@@ -155,7 +156,7 @@ export default abstract class Game {
 		if (this._canvas)
 			await this._canvas.drawCountdown();
 
-		console.log(`[${this._gameId}] Starting game`);
+		console.log(`[${this._gameId}] Starting ${this._mode} game`);
 		this._status = "running";
 
 		const startInput = this._controls.map(() => ({ up: false, down: false }));
