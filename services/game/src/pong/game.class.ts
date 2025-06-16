@@ -67,46 +67,15 @@ export class GameInstance {
 		this._tournamentId = tournamentId;
 	}
 
-	public get players() {
-		return this._players;
-	}
-
-	public get id() {
-		return this._id;
-	}
-
-	public get mode() {
-		return this._mode;
-	}
-
-	public get status() {
-		return this._status;
-	}
-
-	public get tournamentId() {
-		return this._tournamentId;
-	}
-
-	public get score() {
-		return [this._player1.score, this._player2.score];
-	}
-
-	public get dimensions() {
-		return this._gameCanvas.dimensions;
-	}
-
-	public get winner(): User | undefined {
-		return this._winner;
-	}
-	public get loser(): User | undefined {
-		return this._loser;
-	}
-	//public set winner(user: User) {
-	//	this._winner = user;
-	//}
-	//public set loser(user: User) {
-	//	this._loser = user;
-	//}
+	public get players() { return this._players;}
+	public get id() { return this._id;}
+	public get mode() { return this._mode;}
+	public get status() { return this._status;}
+	public get tournamentId() { return this._tournamentId;}
+	public get score() { return [this._player1.score, this._player2.score];}
+	public get dimensions() { return this._gameCanvas.dimensions;}
+	public get winner(): User | undefined { return this._winner;}
+	public get loser(): User | undefined { return this._loser;}
 
 	public run() {
 		this._status = "running";
@@ -166,6 +135,20 @@ export class GameInstance {
 		if (this._status == "running") {
 			setTimeout(() => this.gameLoop(), 1000 / 60); // ~60 FPS
 		}
+	}
+
+	public quit(user: User) {
+		if (this._status === "ended") return;
+
+		console.log("User quit:", user.alias);
+		user.status = "quit";
+
+		if (user === this._player1.user)
+			this.end(this._player2.user, user);
+		else if (user === this._player2.user)
+			this.end(this._player1.user, user);
+		else
+			console.error("User not found in game:", user.alias);
 	}
 
 	public end(winner: User, loser: User) {

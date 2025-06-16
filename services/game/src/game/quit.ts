@@ -124,10 +124,10 @@ export default function quit(msg: QuitRequest, connection: WebSocket | FastifyRe
 		else {
 			game = getGame(msg);
 
-			const winner = msg.playerId === "1" ? game.players[1] : game.players[0];
-			const loser = msg.playerId === "1" ? game.players[0] : game.players[1];
-			
-			game.end(winner, loser);
+			const quitter = getUser(msg.alias);
+			if (!quitter)
+				throw new UserNotFoundError(msg.alias);
+			game.quit(quitter);
 
 			response = successResponse(msg.alias, game.id, msg.playerId);
 		}

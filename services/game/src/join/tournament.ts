@@ -167,12 +167,18 @@ export default class Tournament {
 		console.log(`[${this._id}] Trying to start finale for game[${game_idx}] with players: ${players.map(p => `${p.alias} (${p.status})`).join(", ")}`);
 		if (players.length !== 2) return;
 
+		const game = this._games[game_idx];
+
+		if (game.status === "ended")
+		{
+			for (const player of game.players)
+				if (player.status !== "quit") 
+					player.send(game.getState());
+			return;
+		}
 
 		for (const user of players)
-		{
-			console.log(`[${this._id}] Checking user ${user.alias} status: ${user.status}`);
 			if (user.status !== "queued") return;
-		}
 
 		console.log(`[${this._id}] Players ${players.map(p => p.alias).join(", ")} are ready for finale.`);
 
@@ -180,7 +186,7 @@ export default class Tournament {
 		players[1].status = "matched";
 
 		console.log(`[${this._id}] [join] Starting finale game with players: ${players.map(p => p.alias).join(", ")}`);
-		sendJoinResponse(this._games[game_idx].id, this.getFormattedTournament());
+		sendJoinResponse(game.id, this.getFormattedTournament());
 	}
 
 	private sendTournamentUpdate(idx: number)

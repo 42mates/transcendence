@@ -68,11 +68,8 @@ function handleWebSocketDisconnect(wsSocket: ws.WebSocket) {
 		// Remove from connected users
 		for (const [gameId, game] of Object.entries(games)) {
 			const idx = game.players.findIndex((u: User) => u.alias === user.alias); // ✅ compare by alias property
-			if (idx !== -1 && user.gameMode !== "local") {
-				const loser = user;
-				const winner = loser.playerId === "1" ? game.players[1] : game.players[0];
-				game.end(winner, loser);
-			}
+			if (idx !== -1 && user.gameMode !== "local")
+				game.quit(user);
 		}
 		connectedUsers.splice(idx, 1);
 		removeConnectedUserFromDB(user.alias);
