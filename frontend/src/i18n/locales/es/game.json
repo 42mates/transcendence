@@ -33,6 +33,10 @@
 	"quitButton": "Salir",
 	"highScore": "Puntuación más alta",
 	"gameOver": "Fin del juego",
+	"leaderboard": {
+		"title": "Clasificación",
+		"loading": "Cargando clasificación"
+	},
 	"quitPrompt": "¿Estás seguro de que deseas salir del juego?",
 	"exited": {
 		"success": "Has salido del juego correctamente. ¿Volver al inicio?",

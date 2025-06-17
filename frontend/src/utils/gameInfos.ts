@@ -31,17 +31,17 @@ export function getPlayerPhoto(): string {
 }
 
 // Enhanced key binding detection based on keyboard layout and user settings
-export function getDefaultKeyBindings(): { up: string, down: string } {
+export function getKeyBindings(): { up: string, down: string } {
 	const layoutMap: Record<string, { up: string, down: string }> = {
-		'fr': { up: 'z', down: 's' },      // AZERTY
-		'de': { up: 'w', down: 's' },      // QWERTZ
-		'es': { up: 'w', down: 's' },      // QWERTY (Spain)
-		'it': { up: 'w', down: 's' },      // QWERTY (Italy)
-		'ru': { up: 'ц', down: 'ы' },      // Russian JCUKEN
-		'tr': { up: 'w', down: 's' },      // Turkish Q
-		'pl': { up: 'w', down: 's' },      // Polish QWERTY
-		'pt': { up: 'w', down: 's' },      // Portuguese QWERTY
-		'en': { up: 'w', down: 's' },      // English QWERTY
+		'fr': { up: 'z', down: 's' }, // AZERTY
+		'de': { up: 'w', down: 's' }, // QWERTZ
+		'es': { up: 'w', down: 's' }, // QWERTY (Spain)
+		'it': { up: 'w', down: 's' }, // QWERTY (Italy)
+		'ru': { up: 'ц', down: 'ы' }, // Russian JCUKEN
+		'tr': { up: 'w', down: 's' }, // Turkish Q
+		'pl': { up: 'w', down: 's' }, // Polish QWERTY
+		'pt': { up: 'w', down: 's' }, // Portuguese QWERTY
+		'en': { up: 'w', down: 's' }, // English QWERTY
 	};
 
 	// Try to use the Keyboard API if available for more accurate detection

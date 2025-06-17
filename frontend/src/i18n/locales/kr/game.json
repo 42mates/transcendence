@@ -33,6 +33,10 @@
 	"quitButton": "종료",
 	"highScore": "최고 점수",
 	"gameOver": "게임 오버",
+	"leaderboard": {
+		"title": "리더보드",
+		"loading": "리더보드 불러오는 중"
+	},
 	"quitPrompt": "정말로 게임을 종료하시겠습니까?",
 	"exited": {
 		"success": "게임에서 성공적으로 나갔습니다. 홈으로 돌아가시겠습니까?",

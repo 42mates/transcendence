@@ -1,7 +1,7 @@
-import type { FastifyReply }                                 from "fastify";
-import { WebSocket }                                         from "ws";
-import { games }                                             from "./state";
-import { send, isValidGameId }                               from "../utils";
+import type { FastifyReply } from "fastify";
+import { WebSocket } from "ws";
+import { games } from "./state";
+import { send, isValidGameId } from "../utils";
 
 import type { PlayerInputMessage, GameErrorType } from "../types/messages"; // Messages JSON
 import { GameInstance } from "../pong/game.class"; // GameInstance class
@@ -85,8 +85,8 @@ export default function input(msg: PlayerInputMessage, connection: WebSocket | F
 	else
 	{
 		//console.log(`Updating inputs for game ${msg.gameId} with player ${msg.input.length === 2 ? msg.playerId : "both"}`);
-		const id =  msg.input.length === 2 ? "local" : msg.playerId;
-		console.log(id, JSON.stringify(msg.input));
+		//const id =  msg.input.length === 2 ? "local" : msg.playerId;
+		//console.log(id, JSON.stringify(msg.input));
 		if (msg.input.length === 2)
 			game._inputs = msg.input;
 		else if (msg.playerId === "1")

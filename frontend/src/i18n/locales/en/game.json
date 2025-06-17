@@ -33,6 +33,10 @@
 	"quitButton": "Quit",
 	"highScore": "High Score",
 	"gameOver": "Game Over",
+	"leaderboard": {
+		"title": "Leaderboard",
+		"loading": "Loading leaderboard"
+	},
 	"quitPrompt": "Are you sure you want to quit the game?",
 	"exited": {
 		"success": "You have exited the game successfully. Return to home ?",

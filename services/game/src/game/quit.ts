@@ -1,11 +1,11 @@
-import type { FastifyReply }              from "fastify";
+import type { FastifyReply } from "fastify";
 import type { QuitRequest, QuitResponse } from "../types/messages";
 
-import { WebSocket }                           from "ws";
+import { WebSocket } from "ws";
 import { games, connectedUsers, onlineQueues } from "./state";
-import { send, isValidGameId, getUser }        from "../utils";
-import { GameInstance }                        from "../pong/game.class";
-import { User }                                from "../join/User";
+import { send, isValidGameId, getUser } from "../utils";
+import { GameInstance } from "../pong/game.class";
+import { User } from "../join/User";
 import { removeConnectedUserFromDB } from "../db/connectedUsers";
 
 
@@ -124,11 +124,15 @@ export default function quit(msg: QuitRequest, connection: WebSocket | FastifyRe
 		else {
 			game = getGame(msg);
 
-			const winner = msg.playerId === "1" ? game.players[1] : game.players[0];
-			const loser = msg.playerId === "1" ? game.players[0] : game.players[1];
-			
-			game.end(winner, loser);
-
+			if (game.mode === "local")
+				delete games[game.id];
+			else {
+				const quitter = getUser(msg.alias);
+				if (!quitter)
+					throw new UserNotFoundError(msg.alias);
+				game.quit(quitter);
+			}
+				
 			response = successResponse(msg.alias, game.id, msg.playerId);
 		}
 

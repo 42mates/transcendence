@@ -1,6 +1,6 @@
 import { FastifyPluginAsync, FastifyRequest, FastifyReply, FastifyInstance } from 'fastify';
-import { games }                 from "../game/state";
-import { isValidGameId }         from "../utils";
+import { games } from "../game/state";
+import { isValidGameId } from "../utils";
 import type { GameStateMessage } from "../types/messages";
 
 const stateRoute: FastifyPluginAsync = async (fastify: FastifyInstance) => 

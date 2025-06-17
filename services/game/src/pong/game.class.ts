@@ -1,12 +1,8 @@
-import { Ball }       from "./ball.class";
-import { Paddle }     from "./paddle.class";
+import { Ball } from "./ball.class";
+import { Paddle } from "./paddle.class";
 import { GameCanvas } from "./gameCanvas.class";
-import { User }       from "../join/User";
-import {
-	GameStateMessage,
-	GameStatusUpdateMessage,
-}                     from "../types/messages";
-import { handleTournamentProgression } from "../join/tournament";
+import { User } from "../join/User";
+import { GameStateMessage, GameUpdateMessage,} from "../types/messages";
 import { tournaments } from "../game/state";
 
 export class GameInstance {
@@ -68,42 +64,15 @@ export class GameInstance {
 		this._tournamentId = tournamentId;
 	}
 
-	public get players() {
-		return this._players;
-	}
-
-	public get id() {
-		return this._id;
-	}
-
-	public get mode() {
-		return this._mode;
-	}
-
-	public get status() {
-		return this._status;
-	}
-
-	public get tournamentId() {
-		return this._tournamentId;
-	}
-
-	public get dimensions() {
-		return this._gameCanvas.dimensions;
-	}
-
-	public get winner(): User | undefined {
-		return this._winner;
-	}
-	public get loser(): User | undefined {
-		return this._loser;
-	}
-	//public set winner(user: User) {
-	//	this._winner = user;
-	//}
-	//public set loser(user: User) {
-	//	this._loser = user;
-	//}
+	public get players() { return this._players;}
+	public get id() { return this._id;}
+	public get mode() { return this._mode;}
+	public get status() { return this._status;}
+	public get tournamentId() { return this._tournamentId;}
+	public get score() { return [this._player1.score, this._player2.score];}
+	public get dimensions() { return this._gameCanvas.dimensions;}
+	public get winner(): User | undefined { return this._winner;}
+	public get loser(): User | undefined { return this._loser;}
 
 	public run() {
 		this._status = "running";
@@ -129,12 +98,17 @@ export class GameInstance {
 				this._player1.score >= 11 ? this._player2.user : this._player1.user,
 			);
 		}
-		//if (this._player1.score >= 1 || this._player2.score >= 1) {
-		//	this.end(
-		//		this._player1.score >= 1 ? this._player1.user : this._player2.user,
-		//		this._player1.score >= 1 ? this._player2.user : this._player1.user,
-		//	);
-		//}
+	}
+
+	public getUpdate(): GameUpdateMessage {
+		return {
+			type: "game_update",
+			gameId: this._id,
+			status: this._status,
+			score: [this._player1.score, this._player2.score],
+			winner: this._winner ? this._winner.alias : undefined,
+			loser: this._loser ? this._loser.alias : undefined,
+		};
 	}
 
 	public getState(): GameStateMessage {
@@ -165,31 +139,44 @@ export class GameInstance {
 		}
 	}
 
+	public quit(user: User) {
+		if (this._status === "ended") return;
+
+		console.log("User quit:", user.alias);
+		user.status = "quit";
+
+		if (user === this._player1.user)
+			this.end(this._player2.user, user);
+		else if (user === this._player2.user)
+			this.end(this._player1.user, user);
+		else
+			console.error("User not found in game:", user.alias);
+	}
+
 	public end(winner: User, loser: User) {
 		this._status = "ended";
 		this._winner = winner;
 		this._loser = loser;
 
-		if (this._tournamentId)
-			handleTournamentProgression(this._tournamentId);
+		console.log("Game ended. Winner:", winner.alias, "Loser:", loser.alias);
 
-		let tournamentStatus = (this._tournamentId && tournaments[this._tournamentId]) 
-			? tournaments[this._tournamentId].status
-			: undefined;
-
-		const msg: GameStatusUpdateMessage = {
-			type: "game_status_update",
+	
+		const msg: GameUpdateMessage = {
+			type: "game_update",
 			gameId: this._id,
 			status: this._status,
 			score: [this._player1.score, this._player2.score],
-			winner: this._winner.alias,
-			loser: this._loser.alias,
-			tournamentId: this._tournamentId,
-			tournamentStatus: tournamentStatus
+			winner: winner.alias,
+			loser: loser.alias,
 		};
+		//const msg: GameStateMessage = this.getUpdate();
+
 		this._player1.user.send(msg);
 		this._player2.user.send(msg);
 
-		console.log("Game ended. Winner:", winner.alias, "Loser:", loser.alias);
+		if (this._tournamentId && tournaments[this._tournamentId])
+			tournaments[this._tournamentId].update();
+		else if (this._mode === "tournament")
+			throw new Error("Couldn't update tournament: Tournament ID not found.");
 	}
 }

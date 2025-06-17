@@ -1,5 +1,6 @@
 import { User } from "../join/User";
 import { GameInstance } from "../pong/game.class";
+import Tournament from "../join/tournament";
 
 
 export type TournamentBracketBackend = {
@@ -18,8 +19,5 @@ export const onlineQueues = {
 	"tournament": [] as User[],
 };
 
-export const tournamentWinnersQueue: { [tournamentId: string]: User[] } = {};
-export const tournamentLosersQueue:  { [tournamentId: string]: User[] } = {};
-
 export const games: {[gameId: string]: GameInstance } = {};
-export const tournaments: { [tournamentId: string]: TournamentBracketBackend } = {};
+export const tournaments: { [tournamentId: string]: Tournament } = {};
