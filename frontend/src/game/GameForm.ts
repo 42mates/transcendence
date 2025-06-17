@@ -11,19 +11,19 @@ class EmptyAlias extends Error {
 }
 
 class DuplicateAlias extends Error {
-    constructor(alias: string) {
-        const msg = i18n.t('game:alias.error.duplicate', { alias: alias }) ?? 'Duplicate alias error';
-        super(msg);
-        this.name = "DuplicateAlias";
-    }
+	constructor(alias: string) {
+		const msg = i18n.t('game:alias.error.duplicate', { alias: alias }) ?? 'Duplicate alias error';
+		super(msg);
+		this.name = "DuplicateAlias";
+	}
 }
 
 class InvalidAlias extends Error {
-    constructor(alias: string) {
-        const msg = i18n.t('game:alias.error.invalid', { alias: alias }) ?? 'Invalid alias error';
-        super(msg);
-        this.name = "InvalidAlias";
-    }
+	constructor(alias: string) {
+		const msg = i18n.t('game:alias.error.invalid', { alias: alias }) ?? 'Invalid alias error';
+		super(msg);
+		this.name = "InvalidAlias";
+	}
 }
 
 type GameFormType = {
@@ -138,17 +138,28 @@ export default class GameForm {
 		const onlineAlias = this.form.elements.namedItem('alias') as HTMLInputElement | null;
 		const localAlias1 = this.form.elements.namedItem('alias1') as HTMLInputElement | null;
 		const localAlias2 = this.form.elements.namedItem('alias2') as HTMLInputElement | null;
+		const givenName = localStorage.getItem('givenName');
 
 		if (mode === 'local') {
 			localForm.classList.remove('hidden');
 			onlineForm.classList.add('hidden');
 			if (onlineAlias) onlineAlias.required = false;
-			if (localAlias1) localAlias1.required = true;
+			if (localAlias1) {
+				localAlias1.required = true;
+				if (givenName) {
+					localAlias1.value = givenName;
+				}
+			}
 			if (localAlias2) localAlias2.required = true;
 		} else if (mode === 'online') {
 			localForm.classList.add('hidden');
 			onlineForm.classList.remove('hidden');
-			if (onlineAlias) onlineAlias.required = true;
+			if (onlineAlias) {
+				onlineAlias.required = true;
+				if (givenName) {
+					onlineAlias.value = givenName;
+				}
+			}
 			if (localAlias1) localAlias1.required = false;
 			if (localAlias2) localAlias2.required = false;
 			setTimeout(() => {

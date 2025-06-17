@@ -1,5 +1,5 @@
-import i18n                 from '../i18n/i18n';
-import { GameStateMessage } from '../types/GameMessages';
+import i18n from '../i18n/i18n';
+import { GameStateMessage } from '../types/messages';
 
 type ServerDimensions = {
 	width: number;
@@ -199,13 +199,13 @@ export default class Canvas {
 	}
 
 
-	public drawLoadingAnimation(): void {
+	public drawLoadingAnimation(customText?: string): void {
 		console.log("Starting loading animation");
 		this._isLoading = true;
 		if (!this._ctx) return;
 
 		const base = Math.min(this._canvas.width, this._canvas.height * 4 / 3);
-		const text = i18n ? i18n.t("game:status.waiting") : "Looking for players";
+		const text = customText ?? i18n ? i18n.t("game:status.waiting") : "Looking for players";
 		const dotFrames = ["", ".", "..", "...", "..", ".", ""];
 		const frameDuration = 300; // ms per frame
 
@@ -259,7 +259,8 @@ export default class Canvas {
 		const cy = this._canvas.height / 2;
 		const fontSize = Math.max(48, Math.min(this._canvas.width, this._canvas.height) * 0.15);
 		const countdownNumbers = ["3", "2", "1"];
-		const delay = 800; // ms
+		const delay = 400; // ms
+		//const delay = 800; // ms
 
 		const start = Date.now();
 		let frame = 0;
@@ -373,6 +374,50 @@ export default class Canvas {
 		this._ctx.font = `bold ${fontSize * 0.9}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
 		this._ctx.fillStyle = "#aaa";
 		this._ctx.fillText(scoreText, cx, cy + fontSize * 1.2);
+
+		this._ctx.restore();
+	}
+
+	public printLeaderboard(leaderboard?: { first: string, second: string, third: string }) {
+
+		console.log("Printing leaderboard", leaderboard);
+		if (!this._ctx) return;
+		else if (!leaderboard) {
+			this.drawLoadingAnimation(i18n.t("game:leaderboard.loading") ?? "Loading leaderboard");
+			return;
+		}
+
+		this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+		const cx = this._canvas.width / 2;
+		const cy = this._canvas.height / 2;
+		const fontSize = Math.max(24, Math.min(this._canvas.width, this._canvas.height) * 0.07);
+
+		const title = i18n ? i18n.t("game:leaderboard.title") : "Leaderboard";
+		const firstText = `#1: ${leaderboard.first}`;
+		const secondText = `#2: ${leaderboard.second}`;
+		const thirdText = `#3: ${leaderboard.third}`;
+
+		this._ctx.save();
+		this._ctx.font = `bold ${fontSize * 1.1}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#fff";
+		this._ctx.textAlign = "center";
+		this._ctx.textBaseline = "middle";
+		this._ctx.fillText(title, cx, cy - fontSize * 2);
+
+		// First place - largest font, gold color
+		this._ctx.font = `bold ${fontSize}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#ffd700";
+		this._ctx.fillText(firstText, cx, cy);
+
+		// Second place - medium font, silver color
+		this._ctx.font = `bold ${fontSize * 0.8}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#c0c0c0";
+		this._ctx.fillText(secondText, cx, cy + fontSize * 1.2);
+
+		// Third place - smaller font, bronze color
+		this._ctx.font = `bold ${fontSize * 0.7}px "Russo One", "Black Han Sans", system-ui, sans-serif`;
+		this._ctx.fillStyle = "#cd7f32";
+		this._ctx.fillText(thirdText, cx, cy + fontSize * 2.2);
 
 		this._ctx.restore();
 	}

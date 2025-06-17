@@ -1,9 +1,14 @@
 import Game from '../game/Game';
+import LocalGame from '../game/Game.Local';
+import SingleGame from '../game/Game.Single';
+import TournamentGame from '../game/Game.Tournament';
 import GameForm from '../game/GameForm';
+
 import i18n from '../i18n/i18n';
+
 import { loadGoogleSignInScript, setupLogoutButton } from '../googleAuth/initAuth';"../googleAuth";
 import { googleSignIn } from '../router';
-import { getDefaultKeyBindings } from '../utils/gameInfos';
+import { getKeyBindings } from '../utils/gameInfos';
 
 function setupHeaderIcons() {
 	const iconLogout = document.getElementById('icon-logout') as SVGElement | null;
@@ -20,7 +25,6 @@ function setupHeaderIcons() {
 
 	function updateUserIconVisibility() {
 		const isLoggedIn = localStorage.getItem(emailKey) !== null;
-		console.log('[Auth] Updating icon visibility. Is logged in:', isLoggedIn);
 		if (isLoggedIn) {
 			iconLogout?.classList.remove('hidden');
 			iconLogin?.classList.add('hidden');
@@ -79,7 +83,7 @@ function setupHeaderIcons() {
 	});
 	
 	window.addEventListener('storage', (event) => {
-		console.log('[Auth] Storage event detected:', event.key, event.oldValue, event.newValue);
+		//console.log('[Auth] Storage event detected:', event.key, event.oldValue, event.newValue);
 		if (event.key === emailKey || (event.key === null && localStorage.getItem(emailKey) === null)) {
 			console.log('[Auth] Relevant storage change detected, updating icon visibility.');
 			updateUserIconVisibility();
@@ -101,9 +105,24 @@ function listenForQuit(game: Game){
 	const yesBtn = document.getElementById('quit-modal-yes');
 	const noBtn = document.getElementById('quit-modal-no');
 
+	updateQuitButtonText(game);
+
+	const checkGameStatus = setInterval(() => {
+	updateQuitButtonText(game);
+	if (game.status === "ended") {
+		clearInterval(checkGameStatus);
+	}
+	}, 500);
+
 	if (quitBtn && modal && yesBtn && noBtn) {
 		quitBtn.addEventListener('click', () => {
-			modal.classList.remove('hidden');
+			if (game.status === "ended") {
+				// Skip confirmation modal when game is already ended
+				game.sendQuitRequest("User clicked play again");
+			} else {
+				// Show confirmation modal for active games
+				modal.classList.remove('hidden');
+			}
 		});
 		yesBtn.addEventListener('click', () => {
 			modal.classList.add('hidden');
@@ -115,6 +134,18 @@ function listenForQuit(game: Game){
 	}
 }
 
+function updateQuitButtonText(game: Game) {
+	const quitBtn = document.getElementById('quitButton');
+	
+	if (quitBtn) {
+		if (game.status === "ended") {
+			quitBtn.textContent = i18n.t('game:quit:newGameButton') || "Play again";
+		} else {
+			quitBtn.textContent = i18n.t('game:quit.quitButton') || "Quit";
+		}
+	}
+}
+
 export async function initGame() {
 	console.log('Game page loaded');
 	setupHeaderIcons();
@@ -122,21 +153,19 @@ export async function initGame() {
 		const form = new GameForm();
 		const data = await form.getGameForm();
 
+		const defaultKeyBindings = {up: 'ArrowUp', down: 'ArrowDown'};
 		let game: Game;
-		if (data.mode === 'online')
-			game = new Game(data.onlineType, data.alias, [{up: 'ArrowUp', down: 'ArrowDown'}]);
-		else if (data.mode === 'local')
-			game = new Game('local', data.alias, [getDefaultKeyBindings(), {up: 'ArrowUp', down: 'ArrowDown'}]);
+		if (data.mode === 'local')
+			game = new LocalGame(data.alias, [getKeyBindings(), defaultKeyBindings]);
+		else if (data.mode === 'online' && data.onlineType === '1v1')
+			game = new SingleGame(data.alias, [defaultKeyBindings]);
+		else if (data.mode === 'online' && data.onlineType === 'tournament')
+			game = new TournamentGame(data.alias, [defaultKeyBindings]);
 		else
 			throw new Error("Invalid game mode selected");
 
 		game.connect();
 		listenForQuit(game);
-		await game.waitForJoin();
-
-
-		if (data.mode === 'online') console.log(`[${game.gameId}] Player ${data.alias} connected.`);
-		if (data.mode === 'local')  console.log(`[${game.gameId}] Local game started for players: '${data.alias.join(' and ')}'`);
 	}
 	catch (error) {
 		console.error('Error initializing game logic:', error);

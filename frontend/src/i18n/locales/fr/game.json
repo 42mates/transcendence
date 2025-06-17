@@ -1,9 +1,9 @@
 {
 	"title": "Jeu",
 	"alias": {
-		"prompt": "Veuillez entrer votre pseudo :",
-		"promptPlayer1": "Veuillez entrer le pseudo du Joueur 1 :",
-		"promptPlayer2": "Veuillez entrer le pseudo du Joueur 2 :",
+		"prompt": "Alias :",
+		"promptPlayer1": "Alias Joueur 1 :",
+		"promptPlayer2": "Alias Joueur 2 :",
 		"placeholder1": "MaîtreDesMarionnettes420",
 		"placeholder2": "SeigneurDuJeu69",
 		"error": {
@@ -33,6 +33,10 @@
 	"quitButton": "Quitter",
 	"highScore": "Meilleur Score",
 	"gameOver": "Fin de Partie",
+	"leaderboard": {
+		"title": "Classement",
+		"loading": "Chargement du classement"
+	},
 	"quitPrompt": "Êtes-vous sûr de vouloir quitter la partie ?",
 	"exited": {
 		"success": "Vous avez quitté la partie avec succès. Retourner à l'accueil ?",
@@ -50,5 +54,9 @@
 		"connectionLost": "Connexion perdue. Veuillez réessayer.",
 		"invalidMove": "Mouvement invalide. Réessayez.",
 		"timeout": "Temps écoulé !"
+	},
+	"quit": {
+		"quitButton": "Quitter",
+		"newGameButton": "Rejouer"
 	}
 }

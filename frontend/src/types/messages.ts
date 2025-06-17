@@ -29,10 +29,10 @@ export type JoinResponse = {
 	tournament?: {
 		id: string;
 		status: "waiting" | "running" | "ended";
-	    game1: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
-	    game2: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
-	    game3?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
-	    game4?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string }
+		game1: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
+		game2: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
+		game3?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string },
+		game4?: { id: string, status: "pending" | "waiting" | "running" | "ended", winner?: string, loser?: string }
 	}
 };
 
@@ -58,17 +58,22 @@ export type GameStateMessage = {
 };
 
 
-export type GameStatusUpdateMessage = {
-    type: "game_status_update";
-    gameId: string;
-    status: "pending" | "waiting" | "running" | "ended";
+export type GameUpdateMessage = {
+	type: "game_update";
+	gameId: string;
+	status: "pending" | "waiting" | "running" | "ended";
 	score: [number, number];
-    winner?: string;
-    loser?: string;
-    tournamentId?: string;
-	tournamentStatus?: "waiting" | "running" | "ended";
+	winner?: string;
+	loser?: string;
 };
 
+export type TournamentUpdateMessage = {
+	type: "tournament_update";
+	tournamentId: string;
+	status: "waiting" | "finale_ready" | "running" | "ended";
+	isOpponentOnline: boolean;
+	leaderboard?: { first: string; second: string; third: string };
+};
 
 export type GameErrorType = {
 	type: "game_error";

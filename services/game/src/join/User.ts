@@ -1,6 +1,6 @@
-import { WebSocket }    from "ws";
+import { WebSocket } from "ws";
 import { FastifyReply } from "fastify";
-import type { JoinResponse, GameStateMessage, GameStatusUpdateMessage } from "../types/messages";
+import type { JoinResponse, GameStateMessage, GameUpdateMessage, TournamentUpdateMessage } from "../types/messages";
 
 export class User {
 	private _connection: WebSocket | FastifyReply;
@@ -8,7 +8,7 @@ export class User {
 	private _avatar: string;
 	private _gameMode: "1v1" | "tournament" | "local";
 	private _playerId: "1" | "2";
-	private _status: "idle" | "queued" | "matched";
+	private _status: "idle" | "queued" | "matched" | "quit";
 
 	constructor(
 		connection: WebSocket | FastifyReply,
@@ -16,7 +16,7 @@ export class User {
 		avatar: string =  "/assets/default_avatar1.png",
 		gameMode: "1v1" | "tournament" | "local",
 		playerId: "1" | "2",
-		status: "idle" | "queued" | "matched"
+		status: "idle" | "queued" | "matched" | "quit"
 	) {
 		this._connection = connection;
 		this._alias = alias;
@@ -52,11 +52,17 @@ export class User {
 		this._playerId = value;
 	}
 
-	get status(): "idle" | "queued" | "matched" {
+	get status(): "idle" | "queued" | "matched" | "quit" {
 		return this._status;
 	}
 
-	send(msg: JoinResponse | GameStateMessage | GameStatusUpdateMessage, HTTPstatus: number = 200): void {
+	set status(value: "idle" | "queued" | "matched" | "quit") {
+		if (value !== "idle" && value !== "queued" && value !== "matched" && value !== "quit")
+			throw new Error("Invalid status. Must be 'idle', 'queued', 'matched' or 'quit'.");
+		this._status = value;
+	}
+
+	send(msg: JoinResponse | GameStateMessage | GameUpdateMessage | TournamentUpdateMessage, HTTPstatus: number = 200): void {
 		if (this._gameMode === "local" && this._playerId === "2") return;
 
 		if (this._connection instanceof WebSocket)

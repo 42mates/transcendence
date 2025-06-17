@@ -5,8 +5,6 @@ import { JoinRequest } from "../types/messages";
 let i = 0;
 const joinRoute: FastifyPluginAsync = async (fastify: FastifyInstance) => 
 {
-	//! if needed, implement gameId to join a specific game.
-	//fastify.get('/join', async (request: FastifyRequest<{ Querystring: { alias?: string; mode?: string; gameId?: string | null } }>, reply: FastifyReply) => {
 	fastify.get('/join', async (request: FastifyRequest<{ Querystring: { alias?: string; mode?: string } }>, reply: FastifyReply) => {
 		console.log("Join request received:", request.body);
 		let message = request.body as JoinRequest;

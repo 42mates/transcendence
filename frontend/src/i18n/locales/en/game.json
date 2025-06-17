@@ -1,9 +1,9 @@
 {
 	"title": "Game",
 	"alias": {
-		"prompt": "Please enter your alias:",
-		"promptPlayer1": "Please enter Player 1's alias:",
-		"promptPlayer2": "Please enter Player 2's alias:",
+		"prompt": "Alias:",
+		"promptPlayer1": "Player 1's alias:",
+		"promptPlayer2": "Player 2's alias:",
 		"placeholder1": "PuppetMaster420",
 		"placeholder2": "GameLord69",
 		"error": {
@@ -33,6 +33,10 @@
 	"quitButton": "Quit",
 	"highScore": "High Score",
 	"gameOver": "Game Over",
+	"leaderboard": {
+		"title": "Leaderboard",
+		"loading": "Loading leaderboard"
+	},
 	"quitPrompt": "Are you sure you want to quit the game?",
 	"exited": {
 		"success": "You have exited the game successfully. Return to home ?",
@@ -50,5 +54,9 @@
 		"connectionLost": "Connection lost. Please try again.",
 		"invalidMove": "Invalid move. Try again.",
 		"timeout": "Time's up!"
+	},
+	"quit": {
+		"quitButton": "Quit",
+		"newGameButton": "Play again"
 	}
 }

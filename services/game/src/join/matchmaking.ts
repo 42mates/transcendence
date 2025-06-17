@@ -1,17 +1,16 @@
-import { tournaments, onlineQueues,
-		 tournamentWinnersQueue,
-		 tournamentLosersQueue }                from "../game/state";
-import { getUniqueGameId, send }                      from "../utils";
-import { InvalidNumberOfPlayers,
-		 WaitingForPlayers,
-		TournamentNotFound }                    from "./exceptions";
-import { GameInstance }                         from "../pong/game.class";
-import { sendJoinResponse }                     from "./join";
-import { User }                                 from "../join/User";
-import { games }                                from "../game/state";
-import { createTournament, getFrontendBracket } from "./tournament";
+import { tournaments, onlineQueues} from "../game/state";
+import { getUniqueGameId } from "../utils";
+
+import { GameInstance } from "../pong/game.class";
+import { sendJoinResponse } from "./join";
+import { User } from "../join/User";
+import { games } from "../game/state";
+import Tournament, { createTournament } from "./tournament";
+
+import { InvalidNumberOfPlayers, WaitingForPlayers, TournamentNotFound } from "./exceptions";
 
 
+// local matchmaking
 export function tryMatchmakeLocal(players: User[]) {
 	if (players.length !== 2)
 		throw new InvalidNumberOfPlayers("local", players.length);
@@ -39,54 +38,26 @@ export function tryMatchmake1v1(user: User) {
 	sendJoinResponse(gameId);
 }
 
-
 export function tryMatchmakeTournament(user: User, tournamentId?: string) {
 
-	if (!tournamentId)
-	{
-		createTournament(user);
+	console.log(`[${tournamentId || "new"}] User ${user.alias} trying to join tournament matchmaking`);
+
+	let t: Tournament;
+	if (!tournamentId){
+		t = createTournament(user);
+		t.start();
 		return;
 	}
 
-	const t = tournaments[tournamentId];
-	if (!t)
-		throw new TournamentNotFound(user, tournamentId);
+	t = tournaments[tournamentId];
+	if (!t || t.players.indexOf(user) === -1)
+		throw new TournamentNotFound(user, tournamentId || null);
 
-	if (t.game1.status !== "ended" || t.game2.status !== "ended")
+	user.status = "queued";
+	t.update();
+	if (user.status === "queued")
 	{
-		t.status = "waiting";
+		console.log(`[${tournamentId}] User ${user.alias} added to tournament queue`);
 		throw new WaitingForPlayers(user);
 	}
-	if (!t.game3 || !t.game4)
-		throw new Error("Invalid tournament state: game3 or game4 is missing");
-
-
-	if (user.alias === t.game1.winner?.alias 
-		|| user.alias === t.game2.winner?.alias)
-	{
-
-		if ((tournamentWinnersQueue[tournamentId]?.length ?? 0) == 0)
-		{
-			tournamentWinnersQueue[tournamentId] = [user];
-			throw new WaitingForPlayers(user);
-		}
-		tournamentWinnersQueue[tournamentId] = [];
-		sendJoinResponse(t.game3.id, getFrontendBracket(tournamentId));
-	}
-	else if (user.alias === t.game1.loser?.alias 
-		|| user.alias === t.game2.loser?.alias)
-	{
-
-		if ((tournamentLosersQueue[tournamentId]?.length ?? 0) == 0)
-		{
-			tournamentLosersQueue[tournamentId] = [user];
-			throw new WaitingForPlayers(user);
-		}
-		tournamentLosersQueue[tournamentId] = [];
-		sendJoinResponse(t.game4.id, getFrontendBracket(tournamentId));
-	}	
-	else
-		throw new Error("User is not a participant of the tournament");
-
 }
-

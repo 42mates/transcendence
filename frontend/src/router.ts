@@ -27,16 +27,26 @@ export async function loadRoute(path: string) {
 		else throw new Error('Route not implemented');
 
 	} catch (err) {
-		app.innerHTML = `<main class="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
-  <div class="text-center">
-    <p class="text-base text-indigo-600">404</p>
-    <h1 class="mt-4 text-5xl tracking-tight text-balance text-gray-900 sm:text-7xl">Page not found</h1>
-    <p class="mt-6 text-lg font-medium text-pretty text-gray-500 sm:text-xl/8">Sorry, we couldn’t find the page you’re looking for.</p>
-    <div class="mt-10 flex items-center justify-center gap-x-6">
-      <a href="/" class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Go back home</a>
-    </div>
-  </div>
-</main>`;
+		app.innerHTML = 
+		`<main class="grid min-h-full place-items-center bg-neutral-800 px-6 py-24 sm:py-32 lg:px-8">
+			<div class="text-center">
+				<p class="text-base text-amber-400">
+					404
+				</p>
+				<h1 class="mt-4 text-5xl tracking-tight text-balance text-amber-400 sm:text-7xl" data-i18nkey="common:error:titel404">
+					Page not found
+				</h1>
+				<p class="mt-6 text-lg font-medium text-pretty text-white sm:text-xl/8" data-i18nkey="common:error:text404">
+					Sorry, we couldn’t find the page you’re looking for.
+				</p>
+				<div class="mt-10 flex items-center justify-center gap-x-6">
+					<button data-link="/" data-spa class="px-6 py-3 bg-amber-400 text-white rounded-lg hover:bg-amber-500 transition-colors" data-i18nkey="common:error:backhome">
+						Go back home
+					</button>
+				</div>
+			</div>
+		</main>`;
+		translateDOM();
 	}
 }
 
