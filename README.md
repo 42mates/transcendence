@@ -58,5 +58,5 @@ make
 - Amine El Malti - [@ael-malt](https://github.com/ael-malt)
 - Hugo Vercell - [@hugoover](https://github.com/hugoover)
 - Marin Becker - [@marinsucks](https://github.com/marinsucks)
-- Raphael Tisserand - [@Raphael-Tisserand](https://github.com/Raphael-Tisserand)
+- Raphael Tisserand - [@Raphael-Tisserand](https://github.com/RaphaelTisserand)
 - Sumi Seo - [@SumiSeo](https://github.com/SumiSeo)
